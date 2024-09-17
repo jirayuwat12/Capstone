@@ -1,0 +1,6 @@
+playground*.ipynb
+/paper (don't open in VS code)
+
+.DS_Store
+
+*.egg-info
