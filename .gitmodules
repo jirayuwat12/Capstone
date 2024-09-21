@@ -1,4 +1,0 @@
-[submodule "src/T2M-GPT"]
-	path = src/T2M-GPT
-	url = https://github.com/Mael-zys/T2M-GPT.git
-	branch = main
