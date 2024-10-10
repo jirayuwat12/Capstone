@@ -1,24 +1,25 @@
-from models.rotation2xyz import Rotation2xyz
-import numpy as np
-from trimesh import Trimesh
 import os
+
+import numpy as np
+from models.rotation2xyz import Rotation2xyz
+from trimesh import Trimesh
 
 os.environ["PYOPENGL_PLATFORM"] = "osmesa"
 
-import torch
-from visualize.simplify_loc2rot import joints2smpl
-import pyrender
-import matplotlib.pyplot as plt
-
 import io
-import imageio
-from shapely import geometry
-import trimesh
-from pyrender.constants import RenderFlags
 import math
+
+import imageio
+import matplotlib.pyplot as plt
+import pyrender
+import torch
+import trimesh
 
 # import ffmpeg
 from PIL import Image
+from pyrender.constants import RenderFlags
+from shapely import geometry
+from visualize.simplify_loc2rot import joints2smpl
 
 
 class WeakPerspectiveCamera(pyrender.Camera):

@@ -1,8 +1,9 @@
-from model.rotation2xyz import Rotation2xyz
-import numpy as np
-from trimesh import Trimesh
 import os
+
+import numpy as np
 import torch
+from model.rotation2xyz import Rotation2xyz
+from trimesh import Trimesh
 from visualize.simplify_loc2rot import joints2smpl
 
 

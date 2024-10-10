@@ -1,9 +1,11 @@
 import math
+
 import torch
 import torch.nn as nn
-from torch.nn import functional as F
 from torch.distributions import Categorical
-import models.pos_encoding as pos_encoding
+from torch.nn import functional as F
+
+import T2M_GPT.models.pos_encoding as pos_encoding
 
 
 class Text2Motion_Transformer(nn.Module):

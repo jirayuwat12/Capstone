@@ -1,4 +1,5 @@
 import torch.nn as nn
+
 from T2M_GPT.models.resnet import Resnet1D
 
 
@@ -82,3 +83,10 @@ class Decoder(nn.Module):
     def forward(self, x):
         x_decoder = self.model(x)
         return x_decoder
+
+
+if __name__ == "__main__":
+    import torchsummary
+
+    model = Encoder()
+    torchsummary.summary(model, (150, 32))

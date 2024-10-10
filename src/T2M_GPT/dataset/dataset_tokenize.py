@@ -1,9 +1,10 @@
+import codecs as cs
+import random
+from os.path import join as pjoin
+
+import numpy as np
 import torch
 from torch.utils import data
-import numpy as np
-from os.path import join as pjoin
-import random
-import codecs as cs
 from tqdm import tqdm
 
 

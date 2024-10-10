@@ -36,7 +36,7 @@ def get_args_parser():
     parser.add_argument("--code-dim", type=int, default=512, help="embedding dimension")
     parser.add_argument("--nb-code", type=int, default=512, help="nb of embedding")
     parser.add_argument("--mu", type=float, default=0.99, help="exponential moving average to update the codebook")
-    parser.add_argument("--down-t", type=int, default=3, help="downsampling rate")
+    parser.add_argument("--down-t", type=int, default=2, help="downsampling rate")
     parser.add_argument("--stride-t", type=int, default=2, help="stride size")
     parser.add_argument("--width", type=int, default=512, help="width of the network")
     parser.add_argument("--depth", type=int, default=3, help="depth of the network")
@@ -66,7 +66,7 @@ def get_args_parser():
     parser.add_argument("--quantbeta", type=float, default=1.0, help="dataset directory")
 
     ## resume
-    parser.add_argument("--resume-pth", type=str, default=None, help="resume vq pth")
+    parser.add_argument("--resume-pth", type=str, required=True, default=None, help="resume vq pth")
     parser.add_argument("--resume-trans", type=str, default=None, help="resume gpt pth")
 
     ## output directory
@@ -87,4 +87,4 @@ def get_args_parser():
     parser.add_argument("--if-maxtest", action="store_true", help="test in max")
     parser.add_argument("--pkeep", type=float, default=1.0, help="keep rate for gpt training")
 
-    return parser.parse_args()
+    return parser

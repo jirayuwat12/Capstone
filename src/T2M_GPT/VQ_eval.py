@@ -1,17 +1,17 @@
-import os
 import json
+import os
+import warnings
 
-import torch
-from torch.utils.tensorboard import SummaryWriter
-import numpy as np
 import models.vqvae as vqvae
+import numpy as np
 import options.option_vq as option_vq
+import torch
+import utils.eval_trans as eval_trans
 import utils.utils_model as utils_model
 from dataset import dataset_TM_eval
-import utils.eval_trans as eval_trans
-from options.get_eval_option import get_opt
 from models.evaluator_wrapper import EvaluatorModelWrapper
-import warnings
+from options.get_eval_option import get_opt
+from torch.utils.tensorboard import SummaryWriter
 
 warnings.filterwarnings("ignore")
 import numpy as np

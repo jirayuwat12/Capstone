@@ -33,5 +33,4 @@ class ReConsLoss(nn.Module):
         vel_gt = motion_gt[:, 1:, :] - motion_gt[:, :-1, :]
 
         loss = self.Loss(vel_pred, vel_gt)
-        
         return loss

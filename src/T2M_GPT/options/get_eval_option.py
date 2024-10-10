@@ -1,5 +1,5 @@
-from argparse import Namespace
 import re
+from argparse import Namespace
 from os.path import join as pjoin
 
 

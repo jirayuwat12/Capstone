@@ -1,29 +1,27 @@
-import os
-import torch
-import numpy as np
-
-from torch.utils.tensorboard import SummaryWriter
-from os.path import join as pjoin
-from torch.distributions import Categorical
 import json
-import clip
-
-import options.option_transformer as option_trans
-import models.vqvae as vqvae
-import utils.utils_model as utils_model
-import utils.eval_trans as eval_trans
-from dataset import dataset_TM_train
-from dataset import dataset_TM_eval
-from dataset import dataset_tokenize
-import models.t2m_trans as trans
-from options.get_eval_option import get_opt
-from models.evaluator_wrapper import EvaluatorModelWrapper
+import os
 import warnings
+from os.path import join as pjoin
+
+import clip
+import numpy as np
+import torch
+from torch.distributions import Categorical
+from torch.utils.tensorboard import SummaryWriter
+
+import T2M_GPT.models.t2m_trans as trans
+import T2M_GPT.models.vqvae as vqvae
+import T2M_GPT.options.option_transformer as option_trans
+import T2M_GPT.utils.eval_trans as eval_trans
+import T2M_GPT.utils.utils_model as utils_model
+from T2M_GPT.dataset import dataset_TM_eval, dataset_TM_train, dataset_tokenize
+from T2M_GPT.models.evaluator_wrapper import EvaluatorModelWrapper
+from T2M_GPT.options.get_eval_option import get_opt
 
 warnings.filterwarnings("ignore")
 
 ##### ---- Exp dirs ---- #####
-args = option_trans.get_args_parser()
+args = option_trans.get_args_parser().parse_args()
 torch.manual_seed(args.seed)
 
 args.out_dir = os.path.join(args.out_dir, f"{args.exp_name}")
@@ -39,7 +37,7 @@ logger.info(json.dumps(vars(args), indent=4, sort_keys=True))
 ##### ---- Dataloader ---- #####
 train_loader_token = dataset_tokenize.DATALoader(args.dataname, 1, unit_length=2**args.down_t)
 
-from utils.word_vectorizer import WordVectorizer
+from T2M_GPT.utils.word_vectorizer import WordVectorizer
 
 w_vectorizer = WordVectorizer("./glove", "our_vab")
 val_loader = dataset_TM_eval.DATALoader(args.dataname, False, 32, w_vectorizer)

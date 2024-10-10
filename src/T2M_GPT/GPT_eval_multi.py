@@ -1,19 +1,19 @@
-import os
-import torch
-import numpy as np
-from torch.utils.tensorboard import SummaryWriter
 import json
-import clip
-
-import options.option_transformer as option_trans
-import models.vqvae as vqvae
-import utils.utils_model as utils_model
-import utils.eval_trans as eval_trans
-from dataset import dataset_TM_eval
-import models.t2m_trans as trans
-from options.get_eval_option import get_opt
-from models.evaluator_wrapper import EvaluatorModelWrapper
+import os
 import warnings
+
+import clip
+import models.t2m_trans as trans
+import models.vqvae as vqvae
+import numpy as np
+import options.option_transformer as option_trans
+import torch
+import utils.eval_trans as eval_trans
+import utils.utils_model as utils_model
+from dataset import dataset_TM_eval
+from models.evaluator_wrapper import EvaluatorModelWrapper
+from options.get_eval_option import get_opt
+from torch.utils.tensorboard import SummaryWriter
 
 warnings.filterwarnings("ignore")
 

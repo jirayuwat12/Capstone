@@ -1,19 +1,19 @@
-import os
 import json
+import os
+import warnings
 
 import torch
 import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 
 import T2M_GPT.models.vqvae as vqvae
-import T2M_GPT.utils.losses as losses
 import T2M_GPT.options.option_vq as option_vq
-import T2M_GPT.utils.utils_model as utils_model
-from T2M_GPT.dataset import dataset_VQ, dataset_TM_eval
 import T2M_GPT.utils.eval_trans as eval_trans
-from T2M_GPT.options.get_eval_option import get_opt
+import T2M_GPT.utils.losses as losses
+import T2M_GPT.utils.utils_model as utils_model
+from T2M_GPT.dataset import dataset_TM_eval, dataset_VQ
 from T2M_GPT.models.evaluator_wrapper import EvaluatorModelWrapper
-import warnings
+from T2M_GPT.options.get_eval_option import get_opt
 
 warnings.filterwarnings("ignore")
 from T2M_GPT.utils.word_vectorizer import WordVectorizer
@@ -29,7 +29,7 @@ def update_lr_warm_up(optimizer, nb_iter, warm_up_iter, lr):
 
 
 ##### ---- Exp dirs ---- #####
-args = option_vq.get_args_parser()
+args = option_vq.get_args_parser().parse_args()
 torch.manual_seed(args.seed)
 
 args.out_dir = os.path.join(args.out_dir, f"{args.exp_name}")

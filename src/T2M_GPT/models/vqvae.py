@@ -1,6 +1,7 @@
 import torch.nn as nn
-from T2M_GPT.models.encdec import Encoder, Decoder
-from T2M_GPT.models.quantize_cnn import QuantizeEMAReset, Quantizer, QuantizeEMA, QuantizeReset
+
+from T2M_GPT.models.encdec import Decoder, Encoder
+from T2M_GPT.models.quantize_cnn import QuantizeEMA, QuantizeEMAReset, Quantizer, QuantizeReset
 
 
 class VQVAE_251(nn.Module):
@@ -18,7 +19,7 @@ class VQVAE_251(nn.Module):
         activation="relu",
         norm=None,
         nb_joints=150,
-        device="cuda",
+        device="mps:0",
     ):
 
         super().__init__()
@@ -76,13 +77,16 @@ class VQVAE_251(nn.Module):
         code_idx = code_idx.view(N, -1)
         return code_idx
 
-    def forward(self, x):
+    def forward(self, x, is_bypass_quant=False):
         x_in = self.preprocess(x)
         # Encode
         x_encoder = self.encoder(x_in)
         ## quantization
         x_quantized, loss, perplexity = self.quantizer(x_encoder)
-
+        if is_bypass_quant:
+            x_quantized = x_encoder
+            loss = 0
+            perplexity = 0
         ## decoder
         x_decoder = self.decoder(x_quantized)
         x_out = self.postprocess(x_decoder)
@@ -112,7 +116,7 @@ class HumanVQVAE(nn.Module):
         dilation_growth_rate=3,
         activation="relu",
         norm=None,
-        device="cuda",
+        device="mps:0",
     ):
 
         super().__init__()

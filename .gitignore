@@ -4,3 +4,12 @@ playground*.ipynb
 .DS_Store
 
 *.egg-info
+
+__pycache__
+
+/data
+
+/logs
+
+*.pth
+*.ckpt

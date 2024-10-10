@@ -1,8 +1,10 @@
-import torch
 from os.path import join as pjoin
+
 import numpy as np
-from models.modules import MovementConvEncoder, TextEncoderBiGRUCo, MotionEncoderBiGRUCo
-from utils.word_vectorizer import POS_enumerator
+import torch
+
+from T2M_GPT.models.modules import MotionEncoderBiGRUCo, MovementConvEncoder, TextEncoderBiGRUCo
+from T2M_GPT.utils.word_vectorizer import POS_enumerator
 
 
 def build_models(opt):

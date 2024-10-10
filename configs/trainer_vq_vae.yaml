@@ -1,0 +1,15 @@
+# Data parameters
+joint_size: 150
+window_size: 32
+
+# Training parameters
+batch_size: 1
+max_epochs: 1000
+model_hyperparameters:
+  learning_rate: 0.00005
+
+# Paths
+train_data_path: './data/toy_data/train.skels'
+val_data_path: './data/toy_data/train.skels'
+save_weight_path: './vq_vae_model.pth'
+resume_weight_path: ''
