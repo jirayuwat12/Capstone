@@ -153,6 +153,8 @@ class CrossCondTransBase(nn.Module):
 
         self.apply(self._init_weights)
 
+        self.device = self.tok_emb.weight.device
+
     def get_block_size(self):
         return self.block_size
 

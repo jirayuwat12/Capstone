@@ -1,0 +1,6 @@
+L: 1
+codebook_size: 64
+embedding_dim: 64
+learning_rate: 0.0005
+quantizer_decay: 0.5
+skels_dim: 150

@@ -26,11 +26,19 @@ with open(CONFIG_PATH, "r") as f:
 
 # Initialize the model
 model_hyperparameters = config["model_hyperparameters"]
-t2m_trans_model = Text2MotionTransformerWrapper(**model_hyperparameters)
+if config["resume_weights_path"] == "":
+    t2m_trans_model = Text2MotionTransformerWrapper(**model_hyperparameters)
+else:
+    print("Loading model from checkpoint")
+    t2m_trans_model = Text2MotionTransformerWrapper.load_from_checkpoint(
+        config["resume_weights_path"], **model_hyperparameters
+    )
 
 # Initialize the dataset
 clip_model, _ = clip.load("ViT-B/32")
-vq_vae_model = VQVAEModel.load_from_checkpoint(config["vq_vae_model_path"], learning_rate=None)
+with open(config["vq_vae_model_config_path"], "r") as f:
+    vq_vae_config = yaml.safe_load(f)
+vq_vae_model = VQVAEModel.load_from_checkpoint(config["vq_vae_model_path"], **vq_vae_config["model_hyperparameters"])
 if config["is_toy"]:
     train_dataset = ToyDataset(
         clip_model=clip_model,
@@ -79,5 +87,7 @@ plt.title("Train Loss")
 plt.plot(df.loc[df["train_loss"].notnull(), "train_loss"])
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
-
+# Save the plot
+plt.savefig(logging_path + "/train_loss.png")
+# Show the plot
 plt.show()

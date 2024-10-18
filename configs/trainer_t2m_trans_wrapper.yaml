@@ -1,24 +1,26 @@
 # VQ VAE model
 vq_vae_model_path: './src/T2M_GPT_lightning/models/vqvae/weights/vq_vae_model.pth'
+vq_vae_model_config_path: './configs/trainer_vq_vae.yaml'
 
 # Gpt model
 model_hyperparameters:
-  num_vq: 32 # Number of quantized vectors
-  embed_dim: 512
+  num_vq: 128 # Number of quantized vectors
+  embed_dim: 128
   clip_dim: 512
   block_size: 100
   num_layers: 2
-  n_heads: 8
+  n_head: 8
   drop_out_rate: 0.1
   fc_rate: 4
-  learning_rate: 0.000004
+  learning_rate: 0.00005
 
 # Trainer
 is_toy: True
 batch_size: 1
-max_epochs: 2000
+max_epochs: 1000
 save_weights_path: './t2m_trans.pth'
 train_text_path: './data/toy_data/train.text'
 train_skels_path: './data/toy_data/train.skels'
 val_text_path: './data/toy_data/train.text'
 val_skels_path: './data/toy_data/train.skels'
+resume_weights_path: ''

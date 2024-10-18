@@ -67,17 +67,19 @@ class Text2MotionTransformerWrapper(LightningModule):
         cls_pred = cls_pred.contiguous()
 
         all_loss = []
+        all_accuracy = []
         for batch in range(len(skels_indices)):
-            print("batch:", batch)
-            print("\tcls_pred:", cls_pred[batch].shape)
-            print("\tskels_indices:", skels_indices[batch].shape)
             loss_cls = nn.CrossEntropyLoss()(
                 cls_pred[batch, :-1, :].view(-1, self.total_tokens), skels_indices[batch].view(-1)
             )
+            accuracy = (cls_pred[batch, :-1, :].argmax(-1) == skels_indices[batch].view(-1)).float().mean()
+            all_accuracy.append(accuracy)
             all_loss.append(loss_cls)
 
         loss_cls = torch.stack(all_loss).mean()
+        avg_accuracy = torch.stack(all_accuracy).mean()
         self.log("train_loss", loss_cls, prog_bar=True)
+        self.log("train_accuracy", avg_accuracy, prog_bar=True)
 
         return loss_cls
 

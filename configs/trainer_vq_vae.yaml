@@ -1,12 +1,17 @@
 # Data parameters
 joint_size: 150
-window_size: 32
+window_size: 48
 
 # Training parameters
 batch_size: 1
-max_epochs: 1000
+max_epochs: 2000
 model_hyperparameters:
-  learning_rate: 0.00005
+  learning_rate: 0.002
+  L: 1
+  codebook_size: 64
+  quantizer_decay: 0.5
+  skels_dim: 150
+  embedding_dim: 64
 
 # Paths
 train_data_path: './data/toy_data/train.skels'

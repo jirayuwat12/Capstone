@@ -63,5 +63,7 @@ plt.title("Train Loss")
 plt.plot(df.loc[df["train_loss"].notnull(), "train_loss"])
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
-
+# Save the plot
+plt.savefig(logging_path + "/train_loss.png")
+# Show the plot
 plt.show()

@@ -12,15 +12,15 @@ class ToyDataset(Dataset):
     ) -> None:
         super().__init__()
 
-        self.clip_model = clip_model
-        self.vq_vae_model = vq_vae_model
+        self.clip_model = clip_model.eval()
+        self.vq_vae_model = vq_vae_model.eval()
 
         self.text_path = text_path
         self.skels_path = skels_path
         self.block_size = block_size
 
         self.texts = self.load_texts()
-        self.texts_features = self.get_text_features()
+        self.texts_features = self.get_text_features().to(self.vq_vae_model.device)
 
         self.skels = self.load_skels()
 
@@ -51,8 +51,13 @@ class ToyDataset(Dataset):
             skels_indices: Skeleton indices
         """
         skel = self.skels[idx].unsqueeze(0)
+        if self.vq_vae_model.device != skel.device:
+            skel = skel.to(self.vq_vae_model.device)
         code_indices = self.vq_vae_model.compute_codebook_indices(skel)[0].squeeze(-1).detach()
-
+        # add stop token
+        code_indices = torch.cat(
+            [code_indices, torch.tensor([self.vq_vae_model.quantizer.codebook_size], device=code_indices.device)]
+        )
         return self.texts_features[idx], code_indices
 
 

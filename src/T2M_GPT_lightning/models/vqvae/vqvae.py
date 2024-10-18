@@ -8,7 +8,16 @@ from T2M_GPT_lightning.models.vqvae.quantizer import Quantizer
 
 
 class VQVAEModel(LightningModule):
-    def __init__(self, learning_rate: int = 1e-5, L: int = 1) -> None:
+    def __init__(
+        self,
+        learning_rate: int = 1e-5,
+        L: int = 1,
+        codebook_size: int = 32,
+        embedding_dim: int = 256,
+        skels_dim: int = 150,
+        is_train: bool = True,
+        quantizer_decay: float = 0.99,
+    ) -> None:
         """
         Initialize the VQVAE model
 
@@ -16,9 +25,13 @@ class VQVAEModel(LightningModule):
             learning_rate (int): Learning rate for the optimizer
         """
         super(VQVAEModel, self).__init__()
-        self.encoder = Encoder(L=L)
-        self.decoder = Decoder(L=L)
-        self.quantizer = Quantizer()
+        self.encoder = Encoder(L=L, in_dim=skels_dim, emb_dim=embedding_dim)
+        self.decoder = Decoder(L=L, emb_dim=embedding_dim, out_dim=skels_dim)
+        self.quantizer = Quantizer(codebook_size=codebook_size, decay=quantizer_decay, codebook_dim=embedding_dim)
+        if not is_train:
+            self.eval()
+
+        self.l = 2**L
 
         # Hyperparameters
         self.learning_rate = learning_rate
@@ -69,16 +82,15 @@ class VQVAEModel(LightningModule):
         x = batch
         x_hat, vae_loss, indices = self.reconstruct(x)
 
-        loss_reconstruction = nn.MSELoss()(x_hat, x)
-        loss = loss_reconstruction + vae_loss
+        loss_reconstruction = nn.SmoothL1Loss()(x_hat, x)
+        loss_velocities = nn.SmoothL1Loss()(x_hat[:, 1:] - x_hat[:, :-1], x[:, 1:] - x[:, :-1])
+
+        loss = loss_reconstruction + loss_velocities + vae_loss
 
         self.log("train_loss", loss, prog_bar=True)
-        if batch_idx == 0:
-            print("x", x)
-            print("x_hat", x_hat)
-            print("vae_loss", vae_loss)
-            print("reconstruction_loss", loss_reconstruction)
-            print("indices", ",".join([str(i) for i in indices.flatten().tolist()]))
+        self.log("train_rec_loss", loss_reconstruction, prog_bar=True)
+        self.log("train_vae_loss", vae_loss, prog_bar=True)
+
         return loss
 
     def validation_step(self, batch: torch.Tensor, batch_idx: int) -> torch.Tensor:
@@ -93,6 +105,22 @@ class VQVAEModel(LightningModule):
             return torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         else:
             return torch.optim.Adam(self.parameters())
+
+    def decode_indices(self, indices: torch.Tensor) -> torch.Tensor:
+        """
+        Decode the indices to the original tensor
+
+        Args:
+            indices (torch.Tensor): Codebook indices shape (B, T/l, 1)
+                l: Sequence length which is sampled (=L^2)
+
+        Returns:
+            x_hat (torch.Tensor): Reconstructed tensor shape (B, T, X)
+        """
+        dequantized = self.quantizer.dequantize(indices)
+        x_hat = self.decoder.decode(dequantized)
+
+        return x_hat
 
 
 if __name__ == "__main__":

@@ -1,0 +1,9 @@
+num_vq: 128 # Number of quantized vectors
+embed_dim: 128
+clip_dim: 512
+block_size: 100
+num_layers: 2
+n_head: 8
+drop_out_rate: 0.1
+fc_rate: 4
+learning_rate: 0.00005

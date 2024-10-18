@@ -114,15 +114,21 @@ class Quantizer(nn.Module):
 
     def dequantize(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Dequantize the input tensor x
+        Dequantize the input tensor x (codebook indices) back into the original embedding space.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (B, T/l, 1)
+            x (torch.Tensor): Input tensor of shape (B, T/l, 1) containing codebook indices.
 
         Returns:
             x_dequantized (torch.Tensor): Dequantized tensor of shape (B, T/l, embed_dim)
         """
-        return self.embedding(x.squeeze(2))
+        # Squeeze the last dimension to make it a vector of indices (B, T/l)
+        x = x.squeeze(-1)
+
+        # Get the corresponding embeddings for each index
+        x_dequantized = self.embedding(x)  # Shape: (B, T/l, embed_dim)
+
+        return x_dequantized
 
     def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         return self.quantize(x)

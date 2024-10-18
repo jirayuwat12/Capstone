@@ -12,3 +12,6 @@ __pycache__
 /logs
 
 *.ckpt
+
+*.pth
+*.ckpt

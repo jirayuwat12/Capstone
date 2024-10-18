@@ -12,9 +12,18 @@ class Decoder(nn.Module):
         self.res_block = nn.Sequential()
         for i in range(L):
             self.res_block.add_module(f"res_block_conv_{i}", nn.Conv1d(emb_dim, emb_dim, 3, 1, 1))
-            self.res_block.add_module(f"res_block_resnet_{i}", Resnet1D())
+            self.res_block.add_module(f"res_block_resnet_{i}", Resnet1D(emb_dim=emb_dim))
             self.res_block.add_module(f"res_block_upsample_{i}", nn.Upsample(scale_factor=2, mode="nearest"))
             self.res_block.add_module(f"res_block_conv2_{i}", nn.Conv1d(emb_dim, emb_dim, 3, 1, 1))
+
+        # Initialize weights
+        self._init_weights()
+
+    def _init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv1d):
+                nn.init.kaiming_normal_(m.weight)
+                nn.init.zeros_(m.bias)
 
     def decode(self, x: torch.Tensor) -> torch.Tensor:
         """

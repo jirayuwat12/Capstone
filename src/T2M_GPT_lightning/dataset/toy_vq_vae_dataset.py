@@ -28,11 +28,14 @@ class ToyDataset(Dataset):
         self.min_value = float("inf")
         self.max_value = -float("inf")
 
+        self.raw_data = []
+
         with open(data_path, "r") as f:
             self.data = f.readlines()
             self.data = [line.strip().split(" ") for line in self.data]
+            self.raw_data.append(self.data.copy())
             self.data = [[float(val) for val in line] for line in self.data]
-            self.data = [torch.tensor(line).reshape(-1, 151)[:, :-1] for line in self.data]
+            self.data = [torch.tensor(line).reshape(-1, self.joint_size + 1)[:, :-1] for line in self.data]
             # Calculate the min and max values
             for line in self.data:
                 self.min_value = min(self.min_value, line.min())
@@ -48,7 +51,23 @@ class ToyDataset(Dataset):
         data = (data - self.min_value) / (self.max_value - self.min_value)
         return data
 
+    def get_full_sequences_by_idx(self, idx: int) -> torch.Tensor:
+        """
+        This method is used to get all the sequences from the given index.
+        Note: this is ignore the window size
+
+        Args:
+        - idx (int): The index of the data
+
+        Returns:
+        - data (torch.Tensor): The data tensor
+        """
+        data = self.data[idx]
+        data = (data - self.min_value) / (self.max_value - self.min_value)
+        return data
+
 
 if __name__ == "__main__":
     dataset = ToyDataset(data_path="./data/toy_data/train.skels", joint_size=150, frame_size=64, window_size=16)
-    print(dataset[0].shape)
+    print(len(dataset.raw_data[0][0]) / (150 + 1))
+    print(dataset.min_value, dataset.max_value)
