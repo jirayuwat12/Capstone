@@ -11,8 +11,20 @@ class Quantizer(nn.Module):
         decay: float = 0.99,
         epsilon: float = 1e-5,
         reset_threshold: int = 1,
+        commitment_cost: float = 0.25,
     ) -> None:
+        """
+        Vector Quantization (VQ) layer for quantizing input tensors
+
+        Args:
+            codebook_size (int): Number of codebook vectors
+            codebook_dim (int): Dimension of each codebook vector
+            decay (float): Decay rate for EMA updates
+            epsilon (float): Small value to avoid division by zero
+            reset_threshold (int): Minimum usage threshold before resetting a codebook vector
+        """
         super(Quantizer, self).__init__()
+        # Hyperparameters
         self.codebook_size = codebook_size
         self.codebook_dim = codebook_dim
         self.decay = decay
@@ -24,7 +36,7 @@ class Quantizer(nn.Module):
         nn.init.uniform_(self.embedding.weight, -1.0 / codebook_size, 1.0 / codebook_size)
 
         # Commitment cost hyperparameter
-        self.commitment_cost = 0.25
+        self.commitment_cost = commitment_cost
 
         # EMA updates for embeddings
         self.register_buffer("ema_cluster_size", torch.zeros(codebook_size))

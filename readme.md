@@ -30,6 +30,7 @@ All default configuration files are in `configs` folder.
 
 
 ## format code
+
 ```bash
 isort .
 black . -l 120
@@ -38,3 +39,7 @@ or
 ```bash
 make format all
 ```
+
+- weight loss on figer to make it more detailes
+- finetune from the checkpoint and use decay 0.99
+- decay=0.5 is OK then change after in real dataset.

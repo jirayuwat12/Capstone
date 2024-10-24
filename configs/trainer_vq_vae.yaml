@@ -4,17 +4,20 @@ window_size: 48
 
 # Training parameters
 batch_size: 1
-max_epochs: 2000
+max_epochs: 1000
 model_hyperparameters:
-  learning_rate: 0.002
-  L: 1
-  codebook_size: 64
-  quantizer_decay: 0.5
+  learning_rate: 0.0005
+  L: 2
+  codebook_size: 512
+  quantizer_decay: 0.99
   skels_dim: 150
-  embedding_dim: 64
+  embedding_dim: 512
+  is_focus_hand_mode: True
+  ratio_for_hand: 0.7
 
 # Paths
 train_data_path: './data/toy_data/train.skels'
 val_data_path: './data/toy_data/train.skels'
 save_weight_path: './vq_vae_model.pth'
-resume_weight_path: ''
+log_folder_name: 'vq_vae_finetune'
+resume_weight_path: './logs/vq_vae/version_9/checkpoints/epoch=1999-step=10000.ckpt'

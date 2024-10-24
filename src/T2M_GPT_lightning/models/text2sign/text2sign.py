@@ -1,3 +1,5 @@
+from typing import Optional
+
 import clip
 import clip.model
 import torch
@@ -8,7 +10,9 @@ from T2M_GPT_lightning.models_wrapper.t2m_trans_wrapper import Text2MotionTransf
 
 
 class Text2Sign:
-    def __init__(self, vq_vae_model: VQVAE, clip_model: clip.clip, t2m_trans_model: T2MTransformer) -> None:
+    def __init__(
+        self, vq_vae_model: VQVAE, clip_model: clip.clip, t2m_trans_model: T2MTransformer, device: Optional[str] = None
+    ) -> None:
         """
         Initialize the Text2Sign model
 
@@ -16,6 +20,7 @@ class Text2Sign:
             vq_vae_model (VQVAE): VQ-VAE model
             clip_model (clip.clip): CLIP model
             t2m_trans_model (T2MTransformer): T2M Transformer model
+            device (Optional[str]): Device to use for the models
 
         Raises:
             ValueError: If the input models are not of the correct type
@@ -31,6 +36,11 @@ class Text2Sign:
         self.clip_model = clip_model
         self.t2m_trans_model = t2m_trans_model
 
+        if device is not None:
+            self.vq_vae_model.to(device)
+            self.clip_model.to(device)
+            self.t2m_trans_model.to(device)
+
     @classmethod
     def from_path(
         cls,
@@ -39,6 +49,7 @@ class Text2Sign:
         clip_model_path: str,
         t2m_trans_model_path: str,
         t2m_trans_config_path: str,
+        device: Optional[str] = None,
     ) -> "Text2Sign":
         """
         Load the models from the given paths
@@ -49,6 +60,7 @@ class Text2Sign:
             clip_model_path (str): Path to the CLIP model
             t2m_model_path (str): Path to the T2M Transformer model
             t2m_config_path (str): Path to the T2M Transformer config
+            device (Optional[str]): Device to use for the models
 
         Returns:
             Text2Sign: Instance of the Text2Sign class
@@ -58,16 +70,18 @@ class Text2Sign:
             vq_vae_config = yaml.safe_load(f)
         vq_vae_model = VQVAE.load_from_checkpoint(vq_vae_model_path, **vq_vae_config)
         vq_vae_model.eval()
+
         # Load CLIP model
         clip_model, _ = clip.load(clip_model_path)
         clip_model.eval()
+
         # Load T2M Transformer model
         with open(t2m_trans_config_path, "r") as f:
             t2m_trans_config = yaml.safe_load(f)
         t2m_trans_model = T2MTransformer.load_from_checkpoint(t2m_trans_model_path, **t2m_trans_config)
         t2m_trans_model.eval()
 
-        return cls(vq_vae_model, clip_model, t2m_trans_model)
+        return cls(vq_vae_model, clip_model, t2m_trans_model, device)
 
     def text_to_indices(self, text: str) -> torch.Tensor:
         """
@@ -81,12 +95,12 @@ class Text2Sign:
         """
         # Tokenize the text and get the text features
         tokenized_text = clip.tokenize(text)
-        text_features = self.clip_model.encode_text(tokenized_text).detach().to(self.vq_vae_model.device)
+        text_features = self.clip_model.encode_text(tokenized_text).detach().to(self.t2m_trans_model.device)
 
         with torch.no_grad():
             # Sample the skeletons
             skels_indices = self.t2m_trans_model.sample(text_features)
-            # Remove the stop token
+            # Remove the stop token index (first occurrence)
             stop_token_idx = self.vq_vae_model.quantizer.codebook_size
             stop_token_idx = torch.where(skels_indices == stop_token_idx)[0]
             if len(stop_token_idx) == 0:

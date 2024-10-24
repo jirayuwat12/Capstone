@@ -39,7 +39,7 @@ train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffl
 test_loader = DataLoader(test_dataset, batch_size=config["batch_size"], shuffle=False)
 
 # Initialize the logger
-csv_logger = CSVLogger("logs", name="vq_vae")
+csv_logger = CSVLogger("logs", name=config["log_folder_name"])
 
 # Initialize the trainer
 trainer = Trainer(log_every_n_steps=10, max_epochs=config["max_epochs"], logger=csv_logger)

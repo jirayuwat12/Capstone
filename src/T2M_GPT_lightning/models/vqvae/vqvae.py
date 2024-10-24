@@ -17,6 +17,8 @@ class VQVAEModel(LightningModule):
         skels_dim: int = 150,
         is_train: bool = True,
         quantizer_decay: float = 0.99,
+        is_focus_hand_mode: bool = False,
+        ratio_for_hand: float = 0.5,
     ) -> None:
         """
         Initialize the VQVAE model
@@ -32,6 +34,10 @@ class VQVAEModel(LightningModule):
             self.eval()
 
         self.l = 2**L
+
+        # Training var
+        self.is_focus_hand_mode = is_focus_hand_mode
+        self.ratio_for_hand = ratio_for_hand
 
         # Hyperparameters
         self.learning_rate = learning_rate
@@ -80,24 +86,59 @@ class VQVAEModel(LightningModule):
 
     def training_step(self, batch: torch.Tensor, batch_idx: int) -> torch.Tensor:
         x = batch
-        x_hat, vae_loss, indices = self.reconstruct(x)
+        x_hat, vae_loss, _ = self.reconstruct(x)
 
-        loss_reconstruction = nn.SmoothL1Loss()(x_hat, x)
-        loss_velocities = nn.SmoothL1Loss()(x_hat[:, 1:] - x_hat[:, :-1], x[:, 1:] - x[:, :-1])
-
-        loss = loss_reconstruction + loss_velocities + vae_loss
+        loss_reconstruction = self.compute_reconstruction_loss(x, x_hat, is_focus_hand_mode=self.is_focus_hand_mode)
+        loss = loss_reconstruction + vae_loss
 
         self.log("train_loss", loss, prog_bar=True)
         self.log("train_rec_loss", loss_reconstruction, prog_bar=True)
         self.log("train_vae_loss", vae_loss, prog_bar=True)
 
         return loss
+    
+    def compute_reconstruction_loss(self, x: torch.Tensor, x_hat: torch.Tensor, start_of_hand_index: int = 8*3, end_of_hand_index: int = 50*3, is_focus_hand_mode: bool = True) -> torch.Tensor:
+        """
+        Compute the reconstruction loss
+
+        Args:
+            x (torch.Tensor): Input tensor shape (B, T, X)
+                B: Batch size
+                T: Sequence length
+                X: Feature dimension
+            x_hat (torch.Tensor): Reconstructed tensor shape (B, T, X)
+            is_focus_hand_mode (bool): If focus hand mode
+
+        Returns:
+            loss (torch.Tensor): Loss
+        """
+        if not is_focus_hand_mode:
+            loss_reconstruction = nn.SmoothL1Loss()(x_hat, x)
+            loss_velocities = nn.SmoothL1Loss()(x_hat[:, 1:] - x_hat[:, :-1], x[:, 1:] - x[:, :-1])
+        else:
+            x_hand = x[:, :, start_of_hand_index:end_of_hand_index]
+            x_hat_hand = x_hat[:, :, start_of_hand_index:end_of_hand_index]
+            x_non_hand = torch.cat([x[:, :, :start_of_hand_index], x[:, :, end_of_hand_index:]], dim=-1)
+            x_hat_non_hand = torch.cat([x_hat[:, :, :start_of_hand_index], x_hat[:, :, end_of_hand_index:]], dim=-1)
+
+            loss_reconstruction_hand = nn.SmoothL1Loss()(x_hat_hand, x_hand)
+            loss_velocities_hand = nn.SmoothL1Loss()(x_hat_hand[:, 1:] - x_hat_hand[:, :-1], x_hand[:, 1:] - x_hand[:, :-1])
+            loss_reconstruction_non_hand = nn.SmoothL1Loss()(x_hat_non_hand, x_non_hand)
+            loss_velocities_non_hand = nn.SmoothL1Loss()(x_hat_non_hand[:, 1:] - x_hat_non_hand[:, :-1], x_non_hand[:, 1:] - x_non_hand[:, :-1])
+    
+            loss_reconstruction = loss_reconstruction_hand * self.ratio_for_hand + loss_reconstruction_non_hand * (1 - self.ratio_for_hand)
+            loss_velocities = loss_velocities_hand * self.ratio_for_hand + loss_velocities_non_hand * (1 - self.ratio_for_hand)
+
+        return loss_reconstruction + loss_velocities
+
 
     def validation_step(self, batch: torch.Tensor, batch_idx: int) -> torch.Tensor:
         x = batch
         x_hat, vae_loss, _ = self.reconstruct(x)
-        loss_reconstruction = nn.MSELoss()(x_hat, x)
+        loss_reconstruction = self.compute_reconstruction_loss(x, x_hat, is_focus_hand_mode=self.is_focus_hand_mode)
         loss = loss_reconstruction + vae_loss
+
+        self.log("val_loss", loss, prog_bar=True)
         return loss
 
     def configure_optimizers(self) -> torch.optim.Optimizer:

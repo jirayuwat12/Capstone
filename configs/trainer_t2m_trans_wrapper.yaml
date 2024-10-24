@@ -4,8 +4,8 @@ vq_vae_model_config_path: './configs/trainer_vq_vae.yaml'
 
 # Gpt model
 model_hyperparameters:
-  num_vq: 128 # Number of quantized vectors
-  embed_dim: 128
+  num_vq: 64 # Number of quantized vectors
+  embed_dim: 64
   clip_dim: 512
   block_size: 100
   num_layers: 2
