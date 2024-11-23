@@ -14,6 +14,8 @@ def plot_skeletons_video(
     skip_frames: int = 1,
     sequence_ID: str | None = None,
     pad_token: int = 0,
+    frame_offset: tuple[int, int] = (0, 0),
+    debug: bool = False,
 ) -> None:
     """
     This function plots a video of the given joints, with the option to include reference joints.
@@ -26,9 +28,13 @@ def plot_skeletons_video(
     :param sequence_ID: The sequence ID to include in the video
     :param pad_token: The token to pad the joints with
     """
+    if debug:
+        print("--- Plotting Skeletons Video ---")
     # Create video template
     FPS = 25 // skip_frames
     video_file = file_path + "/{}.mp4".format(video_name.split(".")[0])
+    if debug:
+        print(f"Creating video at {video_file}")
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
 
     frame_size = (650, 650) if references is None else (1300, 650)
@@ -37,6 +43,10 @@ def plot_skeletons_video(
     for frame_index, frame_joints in enumerate(joints):
         # Reached padding
         if pad_token in frame_joints:
+            if debug:
+                print(f"Padding reached at frame {frame_index}")
+                print(f"\tPadding token: {pad_token}")
+                print(f"\tPadding frame: {frame_joints}")
             continue
 
         # Initialise frame of white
@@ -47,19 +57,33 @@ def plot_skeletons_video(
         frame_joints_2d = np.reshape(frame_joints, (50, 3))[:, :2]
 
         # Draw the frame given 2D joints and add text
-        draw_frame_2D(frame, frame_joints_2d, offset=(0, 0))
+        if debug:
+            print(f"Drawing frame {frame_index} to video")
+        draw_frame_2D(frame, frame_joints_2d, offset=frame_offset)
+        if debug:
+            print(f"Drawing text to frame {frame_index}")
         cv2.putText(frame, "Predicted Sign Pose", (180, 600), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
         # If reference is provided, create and concatenate on the end
         if references is not None:
+            if debug:
+                print(f"Reference provided for frame {frame_index}")
+                print(f"Shape of references: {references.shape}")
             # Extract the reference joints
             ref_joints = references[frame_index]
+            if debug:
+                print(f"Reference joints for frame {frame_index}")
+                print(f"Shape of reference joints: {ref_joints.shape}")
             # Initialise frame of white
             ref_frame = np.ones((650, 650, 3), np.uint8) * 255
 
             # Cut off the percent_tok and multiply each joint by 3 (as was reduced in training files)
             ref_joints = ref_joints[:] * 3
+            if debug:
+                print("ref_joints", ref_joints.shape)
             ref_joints_2d = np.reshape(ref_joints, (50, 3))[:, :2]
+            if debug:
+                print("ref_joints_2d", ref_joints_2d.shape)
 
             # Draw these joints on the frame and add text
             draw_frame_2D(ref_frame, ref_joints_2d, offset=(0, -20))
@@ -73,10 +97,16 @@ def plot_skeletons_video(
             cv2.putText(frame, sequence_ID_write, (700, 635), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
 
         # Write the video frame
+        if debug:
+            print(f"Writing frame {frame_index} to video")
+            print(frame.shape)
         video.write(frame)
     # Release the video
     video.release()
 
+    if debug:
+        print(f"Video saved at {video_file}")
+        print("--- Plotting Skeletons Video ---")
 
 def draw_line(
     im: np.ndarray, joint1: np.ndarray, joint2: np.ndarray, c: tuple[int, int, int] = (0, 0, 255), width: int = 3
@@ -112,7 +142,7 @@ def draw_frame_2D(frame: np.ndarray, joints: np.ndarray, offset: tuple[int, int]
     :param offset: The offset to center the skeleton around
     """
     # Line to be between the stacked
-    draw_line(frame, [1, 650], [1, 1], c=(0, 0, 0), t=1, width=1)
+    draw_line(frame, [1, 650], [1, 1], c=(0, 0, 0), width=1)
     # Give an offset to center the skeleton around
 
     # Get the skeleton structure details of each bone, and size
@@ -135,6 +165,5 @@ def draw_frame_2D(frame: np.ndarray, joints: np.ndarray, offset: tuple[int, int]
             [joints[skeleton[j, 0]][0], joints[skeleton[j, 0]][1]],
             [joints[skeleton[j, 1]][0], joints[skeleton[j, 1]][1]],
             c=c,
-            t=1,
             width=1,
         )
