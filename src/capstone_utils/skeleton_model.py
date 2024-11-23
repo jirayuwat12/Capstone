@@ -53,7 +53,7 @@ SKELETON_MODEL = (
     (26, 27, 23),
     (27, 28, 24),
     # right hand - wrist
-    (4, 29, 4), #
+    # (4, 29, 4), #
     # right hand - palm
     (29, 30, 5),
     (29, 34, 9),
@@ -82,6 +82,10 @@ SKELETON_MODEL = (
     (48, 49, 24),
 )
 ROOT_JOINT = 0
+
+PREV_JOINT_INDEX = dict(
+    (bone[1], bone[0]) for bone in SKELETON_MODEL
+)
 
 # This is the format of the 3D data, outputted from the Inverse Kinematics model
 def getSkeletalModelStructure() -> tuple[tuple[int, int, int]]:
@@ -139,12 +143,11 @@ def get_previous_bone(joint_index: int) -> tuple[int, int]:
 
     :raises ValueError: If the joint index is not found in the skeleton model
     """
-
-    for bone in SKELETON_MODEL:
-        if bone[1] == joint_index:
-            return bone[0], bone[1]
-
-    raise ValueError(f"Joint index {joint_index} is not found in the skeleton model")
+    prev_joint_index = PREV_JOINT_INDEX.get(joint_index, None)
+    if prev_joint_index is None:
+        raise ValueError(f"Joint index {joint_index} not found in the skeleton model")
+    
+    return prev_joint_index, joint_index
 
 
 def compute_joint_tree(skeleton: Sequence[Tuple[int, int, int]]) -> dict[int, list[int]]:
