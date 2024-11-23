@@ -3,7 +3,8 @@ import math
 import cv2
 import numpy as np
 
-from capstone_utils.skeleton_model import get_bone_colour, getSkeletalModelStructure
+from capstone_utils.skeleton_utils import get_bone_colour
+from capstone_utils.skeleton_utils.progressive_trans_model import SKELETON_MODEL
 
 
 def plot_skeletons_video(
@@ -108,6 +109,7 @@ def plot_skeletons_video(
         print(f"Video saved at {video_file}")
         print("--- Plotting Skeletons Video ---")
 
+
 def draw_line(
     im: np.ndarray, joint1: np.ndarray, joint2: np.ndarray, c: tuple[int, int, int] = (0, 0, 255), width: int = 3
 ) -> None:
@@ -146,7 +148,7 @@ def draw_frame_2D(frame: np.ndarray, joints: np.ndarray, offset: tuple[int, int]
     # Give an offset to center the skeleton around
 
     # Get the skeleton structure details of each bone, and size
-    skeleton = getSkeletalModelStructure()
+    skeleton = SKELETON_MODEL
     skeleton = np.array(skeleton)
 
     number = skeleton.shape[0]
