@@ -81,3 +81,9 @@ SKELETON_MODEL = (
 )
 
 JOINT_TO_PREV_JOINT_INDEX = dict((bone[1], bone[0]) for bone in SKELETON_MODEL)
+
+JOINT_TO_CHILD_JOINTS_INDEX = {}
+for bone in SKELETON_MODEL:
+    if bone[0] not in JOINT_TO_CHILD_JOINTS_INDEX:
+        JOINT_TO_CHILD_JOINTS_INDEX[bone[0]] = []
+    JOINT_TO_CHILD_JOINTS_INDEX[bone[0]].append(bone[1])
