@@ -21,3 +21,5 @@ val_data_path: './data/toy_data/train.skels'
 save_weight_path: './vq_vae_model.pth'
 log_folder_name: 'vq_vae_finetune'
 resume_weight_path: './logs/vq_vae/version_9/checkpoints/epoch=1999-step=10000.ckpt'
+
+normalize_data: True

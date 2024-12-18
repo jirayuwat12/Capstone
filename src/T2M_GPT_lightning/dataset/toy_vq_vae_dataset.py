@@ -7,6 +7,7 @@ class ToyDataset(Dataset):
         self,
         data_path: str,
         joint_size: int = 150,
+        normalise: bool = True,
         frame_size: int | None = None,
         window_size: int | None = None,
     ) -> None:
@@ -30,6 +31,8 @@ class ToyDataset(Dataset):
 
         self.raw_data = []
 
+        self.normalise = normalise
+
         with open(data_path, "r") as f:
             self.data = f.readlines()
             self.data = [line.strip().split(" ") for line in self.data]
@@ -48,7 +51,8 @@ class ToyDataset(Dataset):
         start_index = torch.randint(0, self.data[idx].shape[0] - self.window_size, (1,)).item()
         end_index = start_index + self.window_size
         data = self.data[idx][start_index:end_index]
-        data = (data - self.min_value) / (self.max_value - self.min_value)
+        if self.normalise:
+            data = (data - self.min_value) / (self.max_value - self.min_value)
         return data
 
     def get_full_sequences_by_idx(self, idx: int) -> torch.Tensor:
@@ -63,7 +67,8 @@ class ToyDataset(Dataset):
         - data (torch.Tensor): The data tensor
         """
         data = self.data[idx]
-        data = (data - self.min_value) / (self.max_value - self.min_value)
+        if self.normalise:
+            data = (data - self.min_value) / (self.max_value - self.min_value)
         return data
 
 

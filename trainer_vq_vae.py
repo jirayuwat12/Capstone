@@ -28,10 +28,16 @@ else:
 
 # Initialize the dataset
 train_dataset = ToyDataset(
-    data_path=config["train_data_path"], joint_size=config["joint_size"], window_size=config["window_size"]
+    data_path=config["train_data_path"],
+    joint_size=config["joint_size"],
+    window_size=config["window_size"],
+    normalise=config["normalize_data"],
 )
 test_dataset = ToyDataset(
-    data_path=config["val_data_path"], joint_size=config["joint_size"], window_size=config["window_size"]
+    data_path=config["val_data_path"],
+    joint_size=config["joint_size"],
+    window_size=config["window_size"],
+    normalise=config["normalize_data"],
 )
 
 # Initialize the dataloaders
