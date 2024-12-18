@@ -23,7 +23,7 @@ pip install -e .
 - `bone_model` to get the bone model.
    1. bone model from progressive transformer paper.
 
-## Traing
+## Training
 
 ### VQ-VAE
 ```bash
