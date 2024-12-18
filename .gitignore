@@ -15,3 +15,5 @@ __pycache__
 
 *.pth
 *.ckpt
+
+.obsidian
