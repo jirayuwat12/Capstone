@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 import torch
 
-from capstone_utils.relative_angle_conversion import convert_vdo_positiion_to_relative_angle
+from capstone_utils.absolute_angle_conversion import convert_vdo_position_to_absolute_angle
 from capstone_utils.skeleton_utils.progressive_trans_model import JOINT_TO_PREV_JOINT_INDEX, ROOT_JOINT
 
 # Parse the command line arguments
@@ -26,7 +26,7 @@ with open(args.pos_skeleton, "r") as f:
 # Convert the positional skeleton to a relative angle skeleton and save it
 with open(args.output, "w") as f:
     for skeletons in positional_skeleton:
-        to_save = convert_vdo_positiion_to_relative_angle(skeletons, JOINT_TO_PREV_JOINT_INDEX, ROOT_JOINT)
+        to_save = convert_vdo_position_to_absolute_angle(skeletons, JOINT_TO_PREV_JOINT_INDEX, ROOT_JOINT)
         to_save = np.hstack([to_save, np.arange(to_save.shape[0]).reshape(-1, 1)])
         to_save = to_save.flatten()
         f.write(" ".join(map(str, to_save)) + "\n")
