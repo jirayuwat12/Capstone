@@ -23,6 +23,39 @@ pip install -e .
 - `bone_model` to get the bone model.
    1. bone model from progressive transformer paper.
 
+## Scripts
+
+### Convert position to relative angle
+
+this file is in `scripts/convert_position_to_relative_angle.py` to convert the position to the relative angle.
+
+to use it:
+```bash
+python ./scripts/convert_position_to_relative.py --pos-skeleton ./data/toy_data/train.skels \
+                                                 --output ./data/toy_data/train.relative.skels \
+                                                 --joint-sizes 150
+```
+
+### Convert position to absolute angle
+
+this file is in `scripts/convert_position_to_absolute_angle.py` to convert the position to the absolute angle.
+
+to use it:
+```bash
+python ./scripts/convert_position_to_absolute.py --pos-skeleton ./data/toy_data/train.skels \
+                                                 --output ./data/toy_data/train.absolute.skels \
+                                                 --joint-sizes 150
+```
+
+### Convert video to face landmarks
+
+this file is in `scripts/convert_vdo_to_face_landmarks.py` to convert the video to the face landmarks.
+
+to use it:
+```bash
+python ./scripts/convert_vdo_to_face_landmarks.py --config ./configs/vdo_to_face_landmarks.example.yaml
+```
+
 ## Training
 
 ### VQ-VAE
