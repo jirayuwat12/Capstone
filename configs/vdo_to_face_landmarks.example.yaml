@@ -1,0 +1,7 @@
+vdo_file: ./path/to/video.mp4
+output_folder: ./path/to/output/folder
+
+face_landmarker_model_path: ./path/to/face_landmarker_v2_with_blendshapes.task
+is_return_landmarked_vdo: True
+# normalized or position
+landmarks_format: 'normalized'
