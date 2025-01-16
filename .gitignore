@@ -17,3 +17,12 @@ __pycache__
 *.ckpt
 
 .obsidian
+
+assets/videos_phoenix
+*.task
+
+notebooks/
+
+output/
+
+*.mp4
