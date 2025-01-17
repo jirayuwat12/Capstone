@@ -96,9 +96,9 @@ This script use configuration yaml file. You can look the example in `configs/vd
 #### Output detail
 
 There are 3 parts of the output:
-1. face landmarks; including 478 landmarks.
-2. hand landmarks; including 42 landmarks(21 for each hand).
-3. pose landmarks; including 33 landmarks.
+1. face landmarks; including `478` landmarks.
+2. hand landmarks; including `42` landmarks(21 for each hand).
+3. pose landmarks; including `33` landmarks.
 
 The output will be saved in the output folder and the name will be the same as the video file name + `.npy`.
 
