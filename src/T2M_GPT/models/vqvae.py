@@ -1,5 +1,4 @@
 import torch.nn as nn
-
 from T2M_GPT.models.encdec import Decoder, Encoder
 from T2M_GPT.models.quantize_cnn import QuantizeEMA, QuantizeEMAReset, Quantizer, QuantizeReset
 
@@ -21,7 +20,6 @@ class VQVAE_251(nn.Module):
         nb_joints=150,
         device="mps:0",
     ):
-
         super().__init__()
         self.code_dim = code_dim
         self.num_code = nb_code
@@ -118,7 +116,6 @@ class HumanVQVAE(nn.Module):
         norm=None,
         device="mps:0",
     ):
-
         super().__init__()
 
         self.nb_joints = args.nb_joints
@@ -144,7 +141,6 @@ class HumanVQVAE(nn.Module):
         return quants
 
     def forward(self, x):
-
         x_out, loss, perplexity = self.vqvae(x)
 
         return x_out, loss, perplexity

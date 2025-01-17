@@ -5,10 +5,9 @@ import yaml
 from lightning.pytorch import Trainer
 from lightning.pytorch.loggers import CSVLogger
 from matplotlib import pyplot as plt
-from torch.utils.data import DataLoader
-
 from T2M_GPT_lightning.dataset.toy_vq_vae_dataset import ToyDataset
 from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
+from torch.utils.data import DataLoader
 
 # Load the configuration
 DEFAULT_CONFIG_PATH = "./configs/trainer_vq_vae.yaml"

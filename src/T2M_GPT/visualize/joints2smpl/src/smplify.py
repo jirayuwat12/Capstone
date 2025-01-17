@@ -50,7 +50,6 @@ class SMPLify3D:
         joints_category="orig",
         device=torch.device("cuda:0"),
     ):
-
         # Store options
         self.batch_size = batch_size
         self.device = device

@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 from lightning.pytorch import LightningModule
-
 from T2M_GPT_lightning.models.vqvae.decoder import Decoder
 from T2M_GPT_lightning.models.vqvae.encoder import Encoder
 from T2M_GPT_lightning.models.vqvae.quantizer import Quantizer

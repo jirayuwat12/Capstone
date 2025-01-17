@@ -97,7 +97,6 @@ class VQMotionDataset(data.Dataset):
 
 
 def DATALoader(dataset_name, batch_size=1, num_workers=8, unit_length=4):
-
     train_loader = torch.utils.data.DataLoader(
         VQMotionDataset(dataset_name, unit_length=unit_length),
         batch_size,

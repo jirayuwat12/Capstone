@@ -1,17 +1,18 @@
 import unittest
-
-import numpy as np
-
+import warnings
 from collections import deque
 
-import warnings
-
-from capstone_utils.relative_angle_conversion import relative_angle_to_position, position_to_relative_angle
-from capstone_utils.skeleton_utils.progressive_trans_model import JOINT_TO_PREV_JOINT_INDEX, ROOT_JOINT, SKELETON_MODEL, JOINT_TO_CHILD_JOINTS_INDEX
+import numpy as np
+from capstone_utils.relative_angle_conversion import position_to_relative_angle, relative_angle_to_position
+from capstone_utils.skeleton_utils.progressive_trans_model import (
+    JOINT_TO_CHILD_JOINTS_INDEX,
+    JOINT_TO_PREV_JOINT_INDEX,
+    ROOT_JOINT,
+    SKELETON_MODEL,
+)
 
 
 class TestRelativeAngleConversion(unittest.TestCase):
-
     def setUp(self):
         # Create random joint positions
         self.random_joints = np.random.rand(50, 3)
@@ -39,7 +40,7 @@ class TestRelativeAngleConversion(unittest.TestCase):
         """Check is same joint position with exception"""
         for exception_joint in self.exception_joints:
             joint1[exception_joint] = joint2[exception_joint]
-        
+
         if not np.allclose(joint1, joint2):
             for bone_index in range(50):
                 if not np.allclose(joint1[bone_index], joint2[bone_index]):
@@ -63,13 +64,17 @@ class TestRelativeAngleConversion(unittest.TestCase):
 
     def test_rtp_workable(self):
         """Test if the function works"""
-        position = relative_angle_to_position(self.random_joints, SKELETON_MODEL, JOINT_TO_PREV_JOINT_INDEX, JOINT_TO_CHILD_JOINTS_INDEX, ROOT_JOINT)
+        position = relative_angle_to_position(
+            self.random_joints, SKELETON_MODEL, JOINT_TO_PREV_JOINT_INDEX, JOINT_TO_CHILD_JOINTS_INDEX, ROOT_JOINT
+        )
         self.assertTrue(position is not None)
 
     def test_return_same(self):
         """Test if the function returns the same value"""
         relative_angle = position_to_relative_angle(self.random_joints, JOINT_TO_PREV_JOINT_INDEX, ROOT_JOINT)
-        position = relative_angle_to_position(relative_angle, SKELETON_MODEL, JOINT_TO_PREV_JOINT_INDEX, JOINT_TO_CHILD_JOINTS_INDEX, ROOT_JOINT)
+        position = relative_angle_to_position(
+            relative_angle, SKELETON_MODEL, JOINT_TO_PREV_JOINT_INDEX, JOINT_TO_CHILD_JOINTS_INDEX, ROOT_JOINT
+        )
         self.is_same_joint(self.random_joints, position)
 
     def test_ptr_correct_x_angle(self):
@@ -89,7 +94,7 @@ class TestRelativeAngleConversion(unittest.TestCase):
                 self.assertTrue(np.allclose(relative_angle[bone_index][1], 0))
             # Check the angle is 0 degree
             self.assertTrue(np.allclose(relative_angle[bone_index][2], 0))
-    
+
     def test_ptr_correct_y_angle(self):
         """Test if the function returns the correct y angle"""
         relative_angle = position_to_relative_angle(self.y_straigh_joints, JOINT_TO_PREV_JOINT_INDEX, ROOT_JOINT)
@@ -107,7 +112,7 @@ class TestRelativeAngleConversion(unittest.TestCase):
                 # Check the angle is 0 degree
                 self.assertTrue(np.allclose(relative_angle[bone_index][1], 0))
                 self.assertTrue(np.allclose(relative_angle[bone_index][2], 0))
-    
+
     def test_ptr_correct_z_angle(self):
         """Test if the function returns the correct z angle"""
         relative_angle = position_to_relative_angle(self.z_straigh_joints, JOINT_TO_PREV_JOINT_INDEX, ROOT_JOINT)

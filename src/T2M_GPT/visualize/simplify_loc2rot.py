@@ -12,7 +12,6 @@ from visualize.joints2smpl.src.smplify import SMPLify3D
 
 
 class joints2smpl:
-
     def __init__(self, num_frames, device_id, cuda=True):
         self.device = torch.device("cuda:" + str(device_id) if cuda else "cpu")
         # self.device = torch.device("cpu")

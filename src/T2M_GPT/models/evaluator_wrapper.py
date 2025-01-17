@@ -2,7 +2,6 @@ from os.path import join as pjoin
 
 import numpy as np
 import torch
-
 from T2M_GPT.models.modules import MotionEncoderBiGRUCo, MovementConvEncoder, TextEncoderBiGRUCo
 from T2M_GPT.utils.word_vectorizer import POS_enumerator
 
@@ -35,9 +34,7 @@ def build_models(opt):
 
 
 class EvaluatorModelWrapper(object):
-
     def __init__(self, opt):
-
         if opt.dataset_name == "t2m":
             opt.dim_pose = 263
         elif opt.dataset_name == "kit":

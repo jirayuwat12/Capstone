@@ -64,7 +64,6 @@ class VQMotionDataset(data.Dataset):
         return data * self.std + self.mean
 
     def compute_sampling_prob(self):
-
         prob = np.array(self.lengths, dtype=np.float32)
         prob /= np.sum(prob)
         return prob
@@ -85,7 +84,6 @@ class VQMotionDataset(data.Dataset):
 
 
 def DATALoader(dataset_name, batch_size, num_workers=8, window_size=64, unit_length=4):
-
     trainSet = VQMotionDataset(dataset_name, window_size=window_size, unit_length=unit_length)
     prob = trainSet.compute_sampling_prob()
     sampler = torch.utils.data.WeightedRandomSampler(prob, num_samples=len(trainSet) * 1000, replacement=True)

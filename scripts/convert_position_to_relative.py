@@ -2,7 +2,6 @@ import argparse
 
 import numpy as np
 import torch
-
 from capstone_utils.relative_angle_conversion import convert_vdo_positiion_to_relative_angle
 from capstone_utils.skeleton_utils.progressive_trans_model import JOINT_TO_PREV_JOINT_INDEX, ROOT_JOINT
 

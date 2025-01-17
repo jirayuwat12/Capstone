@@ -1,9 +1,8 @@
 import clip
 import torch
+from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 from torch import nn
 from torch.utils.data import Dataset
-
-from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 
 
 class ToyDataset(Dataset):

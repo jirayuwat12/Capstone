@@ -2,25 +2,23 @@ import json
 import os
 import warnings
 
-import torch
-import torch.optim as optim
-from torch.utils.tensorboard import SummaryWriter
-
 import T2M_GPT.models.vqvae as vqvae
 import T2M_GPT.options.option_vq as option_vq
 import T2M_GPT.utils.eval_trans as eval_trans
 import T2M_GPT.utils.losses as losses
 import T2M_GPT.utils.utils_model as utils_model
+import torch
+import torch.optim as optim
 from T2M_GPT.dataset import dataset_TM_eval, dataset_VQ
 from T2M_GPT.models.evaluator_wrapper import EvaluatorModelWrapper
 from T2M_GPT.options.get_eval_option import get_opt
+from torch.utils.tensorboard import SummaryWriter
 
 warnings.filterwarnings("ignore")
 from T2M_GPT.utils.word_vectorizer import WordVectorizer
 
 
 def update_lr_warm_up(optimizer, nb_iter, warm_up_iter, lr):
-
     current_lr = lr * (nb_iter + 1) / (warm_up_iter + 1)
     for param_group in optimizer.param_groups:
         param_group["lr"] = current_lr
@@ -100,7 +98,6 @@ Loss = losses.ReConsLoss(args.recons_loss, args.nb_joints)
 avg_recons, avg_perplexity, avg_commit = 0.0, 0.0, 0.0
 
 for nb_iter in range(1, args.warm_up_iter):
-
     optimizer, current_lr = update_lr_warm_up(optimizer, nb_iter, args.warm_up_iter, args.lr)
 
     gt_motion = next(train_loader_iter)
@@ -133,27 +130,34 @@ for nb_iter in range(1, args.warm_up_iter):
 
 ##### ---- Training ---- #####
 avg_recons, avg_perplexity, avg_commit = 0.0, 0.0, 0.0
-best_fid, best_iter, best_div, best_top1, best_top2, best_top3, best_matching, writer, logger = (
-    eval_trans.evaluation_vqvae(
-        args.out_dir,
-        val_loader,
-        net,
-        logger,
-        writer,
-        0,
-        best_fid=1000,
-        best_iter=0,
-        best_div=100,
-        best_top1=0,
-        best_top2=0,
-        best_top3=0,
-        best_matching=100,
-        eval_wrapper=eval_wrapper,
-    )
+(
+    best_fid,
+    best_iter,
+    best_div,
+    best_top1,
+    best_top2,
+    best_top3,
+    best_matching,
+    writer,
+    logger,
+) = eval_trans.evaluation_vqvae(
+    args.out_dir,
+    val_loader,
+    net,
+    logger,
+    writer,
+    0,
+    best_fid=1000,
+    best_iter=0,
+    best_div=100,
+    best_top1=0,
+    best_top2=0,
+    best_top3=0,
+    best_matching=100,
+    eval_wrapper=eval_wrapper,
 )
 
 for nb_iter in range(1, args.total_iter + 1):
-
     gt_motion = next(train_loader_iter)
     gt_motion = gt_motion.cuda().float()  # bs, nb_joints, joints_dim, seq_len
 
@@ -192,21 +196,29 @@ for nb_iter in range(1, args.total_iter + 1):
         )
 
     if nb_iter % args.eval_iter == 0:
-        best_fid, best_iter, best_div, best_top1, best_top2, best_top3, best_matching, writer, logger = (
-            eval_trans.evaluation_vqvae(
-                args.out_dir,
-                val_loader,
-                net,
-                logger,
-                writer,
-                nb_iter,
-                best_fid,
-                best_iter,
-                best_div,
-                best_top1,
-                best_top2,
-                best_top3,
-                best_matching,
-                eval_wrapper=eval_wrapper,
-            )
+        (
+            best_fid,
+            best_iter,
+            best_div,
+            best_top1,
+            best_top2,
+            best_top3,
+            best_matching,
+            writer,
+            logger,
+        ) = eval_trans.evaluation_vqvae(
+            args.out_dir,
+            val_loader,
+            net,
+            logger,
+            writer,
+            nb_iter,
+            best_fid,
+            best_iter,
+            best_div,
+            best_top1,
+            best_top2,
+            best_top3,
+            best_matching,
+            eval_wrapper=eval_wrapper,
         )

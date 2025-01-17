@@ -90,7 +90,6 @@ class L2Prior(nn.Module):
 
 
 class MaxMixturePrior(nn.Module):
-
     def __init__(
         self, prior_folder="prior", num_gaussians=6, dtype=DEFAULT_DTYPE, epsilon=1e-16, use_merged=True, **kwargs
     ):

@@ -52,7 +52,6 @@ class QuantizeEMAReset(nn.Module):
 
     @torch.no_grad()
     def update_codebook(self, x, code_idx):
-
         code_onehot = torch.zeros(self.nb_code, x.shape[0], device=x.device)  # nb_code, N * L
         code_onehot.scatter_(0, code_idx.view(1, x.shape[0]), 1)
 
@@ -85,7 +84,9 @@ class QuantizeEMAReset(nn.Module):
         # Calculate latent code x_l
         k_w = self.codebook.t()
         distance = (
-            torch.sum(x**2, dim=-1, keepdim=True) - 2 * torch.matmul(x, k_w) + torch.sum(k_w**2, dim=0, keepdim=True)
+            torch.sum(x**2, dim=-1, keepdim=True)
+            - 2 * torch.matmul(x, k_w)
+            + torch.sum(k_w**2, dim=0, keepdim=True)
         )  # (N * L, b)
         _, code_idx = torch.min(distance, dim=-1)
         return code_idx
@@ -138,7 +139,6 @@ class Quantizer(nn.Module):
         self.embedding.weight.data.uniform_(-1.0 / self.n_e, 1.0 / self.n_e)
 
     def forward(self, z):
-
         N, width, T = z.shape
         z = self.preprocess(z)
         assert z.shape[-1] == self.e_dim
@@ -167,7 +167,6 @@ class Quantizer(nn.Module):
         return z_q, loss, perplexity
 
     def quantize(self, z):
-
         assert z.shape[-1] == self.e_dim
 
         # B x V
@@ -181,7 +180,6 @@ class Quantizer(nn.Module):
         return min_encoding_indices
 
     def dequantize(self, indices):
-
         index_flattened = indices.view(-1)
         z_q = self.embedding(index_flattened)
         z_q = z_q.view(indices.shape + (self.e_dim,)).contiguous()
@@ -235,7 +233,6 @@ class QuantizeReset(nn.Module):
         return perplexity
 
     def update_codebook(self, x, code_idx):
-
         code_onehot = torch.zeros(self.nb_code, x.shape[0], device=x.device)  # nb_code, N * L
         code_onehot.scatter_(0, code_idx.view(1, x.shape[0]), 1)
 
@@ -264,7 +261,9 @@ class QuantizeReset(nn.Module):
         # Calculate latent code x_l
         k_w = self.codebook.t()
         distance = (
-            torch.sum(x**2, dim=-1, keepdim=True) - 2 * torch.matmul(x, k_w) + torch.sum(k_w**2, dim=0, keepdim=True)
+            torch.sum(x**2, dim=-1, keepdim=True)
+            - 2 * torch.matmul(x, k_w)
+            + torch.sum(k_w**2, dim=0, keepdim=True)
         )  # (N * L, b)
         _, code_idx = torch.min(distance, dim=-1)
         return code_idx
@@ -346,7 +345,6 @@ class QuantizeEMA(nn.Module):
 
     @torch.no_grad()
     def update_codebook(self, x, code_idx):
-
         code_onehot = torch.zeros(self.nb_code, x.shape[0], device=x.device)  # nb_code, N * L
         code_onehot.scatter_(0, code_idx.view(1, x.shape[0]), 1)
 
@@ -375,7 +373,9 @@ class QuantizeEMA(nn.Module):
         # Calculate latent code x_l
         k_w = self.codebook.t()
         distance = (
-            torch.sum(x**2, dim=-1, keepdim=True) - 2 * torch.matmul(x, k_w) + torch.sum(k_w**2, dim=0, keepdim=True)
+            torch.sum(x**2, dim=-1, keepdim=True)
+            - 2 * torch.matmul(x, k_w)
+            + torch.sum(k_w**2, dim=0, keepdim=True)
         )  # (N * L, b)
         _, code_idx = torch.min(distance, dim=-1)
         return code_idx

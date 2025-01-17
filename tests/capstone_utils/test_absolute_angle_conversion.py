@@ -1,17 +1,18 @@
 import unittest
-
-import numpy as np
-
+import warnings
 from collections import deque
 
-import warnings
-
+import numpy as np
 from capstone_utils.absolute_angle_conversion import absolute_angle_to_position, position_to_absolute_angle
-from capstone_utils.skeleton_utils.progressive_trans_model import JOINT_TO_PREV_JOINT_INDEX, ROOT_JOINT, SKELETON_MODEL, JOINT_TO_CHILD_JOINTS_INDEX
+from capstone_utils.skeleton_utils.progressive_trans_model import (
+    JOINT_TO_CHILD_JOINTS_INDEX,
+    JOINT_TO_PREV_JOINT_INDEX,
+    ROOT_JOINT,
+    SKELETON_MODEL,
+)
 
 
 class TestAbsoluteAngleConversion(unittest.TestCase):
-
     def setUp(self):
         # Create random joint positions
         self.random_joints = np.random.rand(50, 3)
@@ -39,7 +40,7 @@ class TestAbsoluteAngleConversion(unittest.TestCase):
         """Check is same joint position with exception"""
         for exception_joint in self.exception_joints:
             joint1[exception_joint] = joint2[exception_joint]
-        
+
         if not np.allclose(joint1, joint2):
             for bone_index in range(50):
                 if not np.allclose(joint1[bone_index], joint2[bone_index]):
@@ -63,7 +64,9 @@ class TestAbsoluteAngleConversion(unittest.TestCase):
 
     def test_atp_workable(self):
         """Test if the function works"""
-        pos_joints = absolute_angle_to_position(self.y_straigh_joints, SKELETON_MODEL, JOINT_TO_PREV_JOINT_INDEX, ROOT_JOINT)
+        pos_joints = absolute_angle_to_position(
+            self.y_straigh_joints, SKELETON_MODEL, JOINT_TO_PREV_JOINT_INDEX, ROOT_JOINT
+        )
         self.assertTrue(pos_joints is not None)
 
     def test_return_same(self):

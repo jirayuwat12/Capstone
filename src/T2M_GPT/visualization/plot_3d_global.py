@@ -54,7 +54,6 @@ def plot_3d_motion(args, figsize=(10, 10), fps=120, radius=4):
     data[..., 2] -= data[:, 0:1, 2]
 
     def update(index):
-
         def init():
             ax.set_xlim(-limits, limits)
             ax.set_ylim(-limits, limits)
@@ -145,7 +144,6 @@ def plot_3d_motion(args, figsize=(10, 10), fps=120, radius=4):
 
 
 def draw_to_batch(smpl_joints_batch, title_batch=None, outname=None):
-
     batch_size = len(smpl_joints_batch)
     out = []
     for i in range(batch_size):

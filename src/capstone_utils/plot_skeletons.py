@@ -2,7 +2,6 @@ import math
 
 import cv2
 import numpy as np
-
 from capstone_utils.skeleton_utils import get_bone_colour
 from capstone_utils.skeleton_utils.progressive_trans_model import SKELETON_MODEL
 
@@ -159,7 +158,6 @@ def draw_frame_2D(frame: np.ndarray, joints: np.ndarray, offset: tuple[int, int]
 
     # Loop through each of the bone structures, and plot the bone
     for j in range(number):
-
         c = get_bone_colour(skeleton, j)
 
         draw_line(

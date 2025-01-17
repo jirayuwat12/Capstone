@@ -1,5 +1,4 @@
 import torch
-
 from T2M_GPT.utils.quaternion import qinv, qrot, quaternion_to_cont6d
 
 

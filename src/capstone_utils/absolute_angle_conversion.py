@@ -2,7 +2,6 @@ import warnings
 from typing import Sequence
 
 import numpy as np
-
 from capstone_utils.skeleton_utils import compute_joint_tree
 
 

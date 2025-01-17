@@ -8,7 +8,6 @@ import torch.optim as optim
 
 
 def getCi(accLog):
-
     mean = np.mean(accLog)
     std = np.std(accLog)
     ci95 = 1.96 * std / np.sqrt(len(accLog))
@@ -35,7 +34,6 @@ def get_logger(out_dir):
 
 ## Optimizer
 def initial_optim(decay_option, lr, weight_decay, net, optimizer):
-
     if optimizer == "adamw":
         optimizer_adam_family = optim.AdamW
     elif optimizer == "adam":

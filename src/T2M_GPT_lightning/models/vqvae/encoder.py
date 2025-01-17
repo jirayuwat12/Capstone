@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-
 from T2M_GPT_lightning.models.vqvae.resnet import Resnet1D
 
 

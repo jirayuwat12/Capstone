@@ -5,18 +5,17 @@ from os.path import join as pjoin
 
 import clip
 import numpy as np
-import torch
-from torch.distributions import Categorical
-from torch.utils.tensorboard import SummaryWriter
-
 import T2M_GPT.models.t2m_trans as trans
 import T2M_GPT.models.vqvae as vqvae
 import T2M_GPT.options.option_transformer as option_trans
 import T2M_GPT.utils.eval_trans as eval_trans
 import T2M_GPT.utils.utils_model as utils_model
+import torch
 from T2M_GPT.dataset import dataset_TM_eval, dataset_TM_train, dataset_tokenize
 from T2M_GPT.models.evaluator_wrapper import EvaluatorModelWrapper
 from T2M_GPT.options.get_eval_option import get_opt
+from torch.distributions import Categorical
+from torch.utils.tensorboard import SummaryWriter
 
 warnings.filterwarnings("ignore")
 
@@ -125,28 +124,35 @@ train_loader_iter = dataset_TM_train.cycle(train_loader)
 
 
 ##### ---- Training ---- #####
-best_fid, best_iter, best_div, best_top1, best_top2, best_top3, best_matching, writer, logger = (
-    eval_trans.evaluation_transformer(
-        args.out_dir,
-        val_loader,
-        net,
-        trans_encoder,
-        logger,
-        writer,
-        0,
-        best_fid=1000,
-        best_iter=0,
-        best_div=100,
-        best_top1=0,
-        best_top2=0,
-        best_top3=0,
-        best_matching=100,
-        clip_model=clip_model,
-        eval_wrapper=eval_wrapper,
-    )
+(
+    best_fid,
+    best_iter,
+    best_div,
+    best_top1,
+    best_top2,
+    best_top3,
+    best_matching,
+    writer,
+    logger,
+) = eval_trans.evaluation_transformer(
+    args.out_dir,
+    val_loader,
+    net,
+    trans_encoder,
+    logger,
+    writer,
+    0,
+    best_fid=1000,
+    best_iter=0,
+    best_div=100,
+    best_top1=0,
+    best_top2=0,
+    best_top3=0,
+    best_matching=100,
+    clip_model=clip_model,
+    eval_wrapper=eval_wrapper,
 )
 while nb_iter <= args.total_iter:
-
     batch = next(train_loader_iter)
     clip_text, m_tokens, m_tokens_len = batch
     m_tokens, m_tokens_len = m_tokens.cuda(), m_tokens_len.cuda()
@@ -210,25 +216,33 @@ while nb_iter <= args.total_iter:
         nb_sample_train = 0
 
     if nb_iter % args.eval_iter == 0:
-        best_fid, best_iter, best_div, best_top1, best_top2, best_top3, best_matching, writer, logger = (
-            eval_trans.evaluation_transformer(
-                args.out_dir,
-                val_loader,
-                net,
-                trans_encoder,
-                logger,
-                writer,
-                nb_iter,
-                best_fid,
-                best_iter,
-                best_div,
-                best_top1,
-                best_top2,
-                best_top3,
-                best_matching,
-                clip_model=clip_model,
-                eval_wrapper=eval_wrapper,
-            )
+        (
+            best_fid,
+            best_iter,
+            best_div,
+            best_top1,
+            best_top2,
+            best_top3,
+            best_matching,
+            writer,
+            logger,
+        ) = eval_trans.evaluation_transformer(
+            args.out_dir,
+            val_loader,
+            net,
+            trans_encoder,
+            logger,
+            writer,
+            nb_iter,
+            best_fid,
+            best_iter,
+            best_div,
+            best_top1,
+            best_top2,
+            best_top3,
+            best_matching,
+            clip_model=clip_model,
+            eval_wrapper=eval_wrapper,
         )
 
     if nb_iter == args.total_iter:

@@ -1,15 +1,13 @@
 import math
 
+import T2M_GPT.models.pos_encoding as pos_encoding
 import torch
 import torch.nn as nn
 from torch.distributions import Categorical
 from torch.nn import functional as F
 
-import T2M_GPT.models.pos_encoding as pos_encoding
-
 
 class Text2Motion_Transformer(nn.Module):
-
     def __init__(
         self,
         num_vq=1024,
@@ -68,7 +66,6 @@ class Text2Motion_Transformer(nn.Module):
 
 
 class CausalCrossConditionalSelfAttention(nn.Module):
-
     def __init__(self, embed_dim=512, block_size=16, n_head=8, drop_out_rate=0.1):
         super().__init__()
         assert embed_dim % 8 == 0
@@ -106,7 +103,6 @@ class CausalCrossConditionalSelfAttention(nn.Module):
 
 
 class Block(nn.Module):
-
     def __init__(self, embed_dim=512, block_size=16, n_head=8, drop_out_rate=0.1, fc_rate=4):
         super().__init__()
         self.ln1 = nn.LayerNorm(embed_dim)
@@ -126,7 +122,6 @@ class Block(nn.Module):
 
 
 class CrossCondTransBase(nn.Module):
-
     def __init__(
         self,
         num_vq=1024,
@@ -184,7 +179,6 @@ class CrossCondTransBase(nn.Module):
 
 
 class CrossCondTransHead(nn.Module):
-
     def __init__(self, num_vq=1024, embed_dim=512, block_size=16, num_layers=2, n_head=8, drop_out_rate=0.1, fc_rate=4):
         super().__init__()
 

@@ -3,12 +3,11 @@ import random
 from os.path import join as pjoin
 
 import numpy as np
+import T2M_GPT.utils.paramUtil as paramUtil
 import torch
 from torch.utils import data
 from torch.utils.data._utils.collate import default_collate
 from tqdm import tqdm
-
-import T2M_GPT.utils.paramUtil as paramUtil
 
 
 def collate_fn(batch):
@@ -21,7 +20,6 @@ def collate_fn(batch):
 
 class Text2MotionDataset(data.Dataset):
     def __init__(self, dataset_name, feat_bias=5, unit_length=4, codebook_size=1024, tokenizer_name=None):
-
         self.max_length = 64
         self.pointer = 0
         self.dataset_name = dataset_name
@@ -148,7 +146,6 @@ class Text2MotionDataset(data.Dataset):
 
 
 def DATALoader(dataset_name, batch_size, codebook_size, tokenizer_name, unit_length=4, num_workers=8):
-
     train_loader = torch.utils.data.DataLoader(
         Text2MotionDataset(
             dataset_name, codebook_size=codebook_size, tokenizer_name=tokenizer_name, unit_length=unit_length

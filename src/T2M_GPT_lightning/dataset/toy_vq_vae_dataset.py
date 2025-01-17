@@ -55,7 +55,7 @@ class ToyDataset(Dataset):
             data = (data - self.min_value) / (self.max_value - self.min_value)
         return data
 
-    def get_full_sequences_by_idx(self, idx: int) -> torch.Tensor:
+    def get_full_sequences_by_idx(self, idx: int, unnorm: bool = False) -> torch.Tensor:
         """
         This method is used to get all the sequences from the given index.
         Note: this is ignore the window size
@@ -67,7 +67,7 @@ class ToyDataset(Dataset):
         - data (torch.Tensor): The data tensor
         """
         data = self.data[idx]
-        if self.normalise:
+        if self.normalise and not unnorm:
             data = (data - self.min_value) / (self.max_value - self.min_value)
         return data
 

@@ -3,12 +3,11 @@ from argparse import Namespace
 import torch
 from lightning.pytorch import LightningModule
 from lightning.pytorch.core.optimizer import LightningOptimizer
-from torch import nn
-from torch.optim.optimizer import Optimizer
-
 from T2M_GPT.models.encdec import Decoder, Encoder
 from T2M_GPT.models.vqvae import HumanVQVAE
 from T2M_GPT.utils.losses import ReConsLoss
+from torch import nn
+from torch.optim.optimizer import Optimizer
 
 
 class HumanVQVAEWrapper(LightningModule):

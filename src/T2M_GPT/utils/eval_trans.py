@@ -2,10 +2,9 @@ import os
 
 import clip
 import numpy as np
+import T2M_GPT.visualization.plot_3d_global as plot_3d
 import torch
 from scipy import linalg
-
-import T2M_GPT.visualization.plot_3d_global as plot_3d
 from T2M_GPT.utils.motion_process import recover_from_ric
 
 
@@ -219,7 +218,6 @@ def evaluation_transformer(
     save=True,
     savegif=False,
 ):
-
     trans.eval()
     nb_sample = 0
 
@@ -413,7 +411,6 @@ def evaluation_transformer_test(
     savegif=False,
     savenpy=False,
 ):
-
     trans.eval()
     nb_sample = 0
 
@@ -434,7 +431,6 @@ def evaluation_transformer_test(
     nb_sample = 0
 
     for batch in val_loader:
-
         word_embeddings, pos_one_hots, clip_text, sent_len, pose, m_length, token, name = batch
         bs, seq = pose.shape[:2]
         num_joints = 21 if pose.shape[-1] == 251 else 22
@@ -641,7 +637,6 @@ def calculate_diversity(activation, diversity_times):
 
 
 def calculate_frechet_distance(mu1, sigma1, mu2, sigma2, eps=1e-6):
-
     mu1 = np.atleast_1d(mu1)
     mu2 = np.atleast_1d(mu2)
 
@@ -674,7 +669,6 @@ def calculate_frechet_distance(mu1, sigma1, mu2, sigma2, eps=1e-6):
 
 
 def calculate_activation_statistics(activations):
-
     mu = np.mean(activations, axis=0)
     cov = np.cov(activations, rowvar=False)
     return mu, cov
