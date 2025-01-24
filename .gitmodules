@@ -1,0 +1,3 @@
+[submodule "BIN"]
+	path = BIN
+	url = https://github.com/laomao0/BIN.git
