@@ -1,33 +1,29 @@
 # Folder name
 vdo_folder: ./assets/
-output_folder: ./mediapipe_skeleton/
+# vdo_file: assets/01March_2011_Tuesday_tagesschau-2211-deblurred-with-BIN.mp4
+output_folder: ./mediapipe_skeleton_test/
 
 # Normal settings
 is_return_landmarked_vdo: True
-landmarks_format: 'normalized'
+landmarks_format: 'pixel'
 save_format: 'npy'
+save_stats: True
+
+# Refinement settings
+max_distance_between_predicted_hand_and_approximated_hand: 1000
 
 # Model settings
 face_model:
-  face_landmarker_model_path: ./assets/face_landmarker_v2_with_blendshapes.task
-  min_face_detection_confidence: 0.0
-  min_face_presence_confidence: 0.0
+  min_detection_confidence: 0.0
   min_tracking_confidence: 0.0
   max_num_faces: 1
-  output_face_blendshapes: True
   replace_not_found_method: 'previous'
 hand_model:
-  hand_landmarker_model_path: ./assets/hand_landmarker.task
-  max_num_hands: 4
-  min_hand_detection_confidence: 0.1
-  min_hand_presence_confidence: 0.01
-  min_tracking_confidence: 0.01
+  max_num_hands: 3
+  min_detection_confidence: 0.5
+  min_tracking_confidence: 0.5
   replace_not_found_method: 'previous'
 pose_model:
-  pose_landmarker_model_path: ./assets/pose_landmarker.task
-  max_num_poses: 2
-  min_pose_detection_confidence: 0.1
-  min_pose_presence_confidence: 0.1
+  min_detection_confidence: 0.1
   min_tracking_confidence: 0.0
-  output_segmentation_masks: False
   replace_not_found_method: 'previous'
