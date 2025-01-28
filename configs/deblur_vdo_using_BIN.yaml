@@ -1,0 +1,6 @@
+input_vdo_path: ./assets/01March_2011_Tuesday_tagesschau-2211.mp4
+output_vdo_path: ./assets/01March_2011_Tuesday_tagesschau-2211-deblurred-with-BIN.mp4
+num_interpolation: 7
+time_step: 0.5
+model_option_yaml: ./assets/BIN/train_adobe_stage4.yml
+model_net_name: bin_stage4
