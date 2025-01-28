@@ -23,7 +23,7 @@ class BaseHandLandmark:
 
 class HandLandmarker(Landmarker):
     def __init__(self, hand_config: dict):
-        self.hands = HandLandmark.Hands(
+        self.hand_landmarker = HandLandmark.Hands(
             static_image_mode=False,  # Set to False for video processing
             max_num_hands=hand_config['max_num_hands'],
             min_detection_confidence=hand_config['min_detection_confidence'],
@@ -59,7 +59,7 @@ class HandLandmarker(Landmarker):
             _, frame = cv2_vdo.read()
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             # Process the frame
-            hand_landmarks = self.hands.process(frame_rgb)
+            hand_landmarks = self.hand_landmarker.process(frame_rgb)
             mediapipe_output_stat.total_processing_frames += 1
 
             # Check if face is detected
@@ -123,8 +123,6 @@ class HandLandmarker(Landmarker):
             landmarks.append(current_frame_landmarks)
 
         # Convert the landmarks to numpy array
-        for i in range(len(landmarks)):
-            print(i, len(landmarks[i]))
         landmarks = np.array(landmarks)
         # Return the landmarks
         if output_stat:
