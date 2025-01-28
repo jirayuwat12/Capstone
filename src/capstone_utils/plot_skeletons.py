@@ -2,6 +2,7 @@ import math
 
 import cv2
 import numpy as np
+
 from capstone_utils.skeleton_utils import get_bone_colour
 from capstone_utils.skeleton_utils.progressive_trans_model import SKELETON_MODEL
 

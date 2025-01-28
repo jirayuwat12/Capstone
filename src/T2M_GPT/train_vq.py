@@ -2,17 +2,18 @@ import json
 import os
 import warnings
 
+import torch
+import torch.optim as optim
+from torch.utils.tensorboard import SummaryWriter
+
 import T2M_GPT.models.vqvae as vqvae
 import T2M_GPT.options.option_vq as option_vq
 import T2M_GPT.utils.eval_trans as eval_trans
 import T2M_GPT.utils.losses as losses
 import T2M_GPT.utils.utils_model as utils_model
-import torch
-import torch.optim as optim
 from T2M_GPT.dataset import dataset_TM_eval, dataset_VQ
 from T2M_GPT.models.evaluator_wrapper import EvaluatorModelWrapper
 from T2M_GPT.options.get_eval_option import get_opt
-from torch.utils.tensorboard import SummaryWriter
 
 warnings.filterwarnings("ignore")
 from T2M_GPT.utils.word_vectorizer import WordVectorizer

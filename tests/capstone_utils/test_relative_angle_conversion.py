@@ -3,6 +3,7 @@ import warnings
 from collections import deque
 
 import numpy as np
+
 from capstone_utils.relative_angle_conversion import position_to_relative_angle, relative_angle_to_position
 from capstone_utils.skeleton_utils.progressive_trans_model import (
     JOINT_TO_CHILD_JOINTS_INDEX,

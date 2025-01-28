@@ -7,10 +7,11 @@ import yaml
 from lightning.pytorch import Trainer
 from lightning.pytorch.loggers import CSVLogger
 from matplotlib import pyplot as plt
+from torch.utils.data import DataLoader
+
 from T2M_GPT_lightning.dataset.toy_t2m_trans_dataset import ToyDataset
 from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 from T2M_GPT_lightning.models_wrapper.t2m_trans_wrapper import Text2MotionTransformerWrapper
-from torch.utils.data import DataLoader
 
 warnings.filterwarnings("ignore")
 

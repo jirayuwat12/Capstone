@@ -1,4 +1,5 @@
 import torch.nn as nn
+
 from T2M_GPT.models.encdec import Decoder, Encoder
 from T2M_GPT.models.quantize_cnn import QuantizeEMA, QuantizeEMAReset, Quantizer, QuantizeReset
 

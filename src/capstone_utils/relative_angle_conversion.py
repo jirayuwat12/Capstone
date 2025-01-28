@@ -2,6 +2,7 @@ import warnings
 from typing import Sequence
 
 import numpy as np
+
 from capstone_utils.absolute_angle_conversion import absolute_angle_to_position, position_to_absolute_angle
 
 

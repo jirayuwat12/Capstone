@@ -2,9 +2,10 @@ import os
 
 import clip
 import numpy as np
-import T2M_GPT.visualization.plot_3d_global as plot_3d
 import torch
 from scipy import linalg
+
+import T2M_GPT.visualization.plot_3d_global as plot_3d
 from T2M_GPT.utils.motion_process import recover_from_ric
 
 

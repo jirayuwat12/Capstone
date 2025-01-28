@@ -3,11 +3,12 @@ import random
 from os.path import join as pjoin
 
 import numpy as np
-import T2M_GPT.utils.paramUtil as paramUtil
 import torch
 from torch.utils import data
 from torch.utils.data._utils.collate import default_collate
 from tqdm import tqdm
+
+import T2M_GPT.utils.paramUtil as paramUtil
 
 
 def collate_fn(batch):

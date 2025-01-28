@@ -4,6 +4,7 @@ import clip
 import clip.model
 import torch
 import yaml
+
 from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel as VQVAE
 from T2M_GPT_lightning.models_wrapper.t2m_trans_wrapper import Text2MotionTransformerWrapper as T2MTransformer
 

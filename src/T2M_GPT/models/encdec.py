@@ -1,4 +1,5 @@
 import torch.nn as nn
+
 from T2M_GPT.models.resnet import Resnet1D
 
 
