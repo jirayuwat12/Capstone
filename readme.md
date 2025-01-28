@@ -84,7 +84,7 @@ This script use configuration yaml file. You can look the example in `configs/vd
 - `is_return_landmarked_vdo`: if you want to return the video with the landmarks drawn on it.
 - `landmarks_format`: there are 2 options `normalized` and `pixel`.
   - `normalized`: the landmarks will be in the range [0, 1] which is `pixel / frame_size`.
-  - `pixel`: the landmarks will be in the range [0, frame_size].
+  - `pixels`: the landmarks will be in the range [0, frame_size].
   - for `z` axis it will be in the range [0, 1] which divided by the frame size in `x` axis.
 - `save_format`: the format of the saved skeletons file. there are 2 options `npy` and `txt`.
   - `npy`: save the skeletons in numpy format (used pickle).
