@@ -3,6 +3,7 @@ import os
 import warnings
 
 import cv2
+import time
 import mediapipe as mp
 import numpy as np
 import yaml
@@ -37,12 +38,13 @@ if "vdo_folder" in config:
             vdo_file_list.append(os.path.join(vdo_folder, file))
 else:
     vdo_file_list = [config["vdo_file"]]
-print(f"Converting {len(vdo_file_list)} VDO files to face landmarks")
+print(f"Converting {len(vdo_file_list)} VDO files to landmarks")
 
 # Create the output folder
 if not os.path.exists(config["output_folder"]):
     os.makedirs(config["output_folder"])
 else:
+    time.sleep(0.2)
     is_remove = input(f"Output folder {config['output_folder']} already exists. Remove it? (y/n): ")
     if is_remove.lower() == "y":
         os.system(f"rm -r {config['output_folder']}")
