@@ -1,14 +1,14 @@
 import os
 import warnings
+from dataclasses import dataclass
 
 import cv2
 import mediapipe as mp
+import mediapipe.python.solutions.hands as HandLandmark
 import numpy as np
 from mediapipe.tasks import python
-from dataclasses import dataclass
 from mediapipe.tasks.python import vision
 from mediapipe.tasks.python.vision import RunningMode
-import mediapipe.python.solutions.hands as HandLandmark 
 
 from mediapipe_utils.mediapipe_output_stat import MediapipeOutputStat
 
@@ -21,13 +21,14 @@ class BaseHandLandmark:
     y: float = 0
     z: float = 0
 
+
 class HandLandmarker(Landmarker):
     def __init__(self, hand_config: dict):
         self.hand_landmarker = HandLandmark.Hands(
             static_image_mode=False,  # Set to False for video processing
-            max_num_hands=hand_config['max_num_hands'],
-            min_detection_confidence=hand_config['min_detection_confidence'],
-            min_tracking_confidence=hand_config['min_tracking_confidence'],
+            max_num_hands=hand_config["max_num_hands"],
+            min_detection_confidence=hand_config["min_detection_confidence"],
+            min_tracking_confidence=hand_config["min_tracking_confidence"],
         )
 
     def landmark_vdo(
@@ -104,8 +105,12 @@ class HandLandmarker(Landmarker):
                     closest_right_hand = None
                 else:
                     closest_left_hand = None
-            concatenated_landmarks.extend(closest_left_hand if closest_left_hand is not None else [BaseHandLandmark()] * 21)
-            concatenated_landmarks.extend(closest_right_hand if closest_right_hand is not None else [BaseHandLandmark()] * 21)
+            concatenated_landmarks.extend(
+                closest_left_hand if closest_left_hand is not None else [BaseHandLandmark()] * 21
+            )
+            concatenated_landmarks.extend(
+                closest_right_hand if closest_right_hand is not None else [BaseHandLandmark()] * 21
+            )
             mediapipe_output_stat.total_found_frames += closest_right_hand is not None or closest_left_hand is not None
 
             # Extract the face landmarks

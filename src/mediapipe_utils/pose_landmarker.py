@@ -3,8 +3,8 @@ import warnings
 
 import cv2
 import mediapipe as mp
-import numpy as np
 import mediapipe.python.solutions.pose as PoseLandmark
+import numpy as np
 
 from mediapipe_utils.mediapipe_output_stat import MediapipeOutputStat
 
@@ -16,7 +16,10 @@ class PoseLandmarker(Landmarker):
     RIGHT_HAND_LANDMARKS_INDICES = [16, 18, 20, 22]
 
     def __init__(self, pose_config: dict):
-        self.pose_landmarker = PoseLandmark.Pose(min_detection_confidence=pose_config["min_detection_confidence"], min_tracking_confidence=pose_config["min_tracking_confidence"])
+        self.pose_landmarker = PoseLandmark.Pose(
+            min_detection_confidence=pose_config["min_detection_confidence"],
+            min_tracking_confidence=pose_config["min_tracking_confidence"],
+        )
 
     def landmark_vdo(
         self, vdo_file: str, output_stat: bool = False
@@ -61,9 +64,7 @@ class PoseLandmarker(Landmarker):
                 if self.pose_config["replace_not_found_method"] == "previous":
                     # Check if the replace_not_found_method is previous
                     if len(landmarks) == 0:
-                        warnings.warn(
-                            f"There is no pose detected in the first frame of {os.path.basename(vdo_file)}"
-                        )
+                        warnings.warn(f"There is no pose detected in the first frame of {os.path.basename(vdo_file)}")
                         landmarks.append([])
                     else:
                         landmarks.append(landmarks[-1])
