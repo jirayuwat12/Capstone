@@ -6,13 +6,11 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import yaml
+from tqdm import tqdm
+
 from mediapipe_utils.face_landmarker import FaceLandmarker
 from mediapipe_utils.hand_landmarker import HandLandmarker
 from mediapipe_utils.pose_landmarker import PoseLandmarker
-from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
-from mediapipe.tasks.python.vision import RunningMode
-from tqdm import tqdm
 
 # Create a parser object
 argparser = argparse.ArgumentParser(description="Convert VDO to skeletons")
@@ -24,17 +22,10 @@ config_path = args.config
 with open(config_path, "r") as file:
     config = yaml.load(file, Loader=yaml.FullLoader)
 
-# Load the face model
-face_config = config["face_model"]
-face_landmarker = FaceLandmarker(face_config)
-
-# Load the hand model
-hand_config = config["hand_model"]
-hand_landmarker = HandLandmarker(hand_config)
-
-# Load the pose model
-pose_config = config["pose_model"]
-pose_landmarker = PoseLandmarker(pose_config)
+# Load the face, hand, and pose landmarker
+face_landmarker = FaceLandmarker(config["face_model"])
+hand_landmarker = HandLandmarker(config["hand_model"])
+pose_landmarker = PoseLandmarker(config["pose_model"])
 
 # Iterate through the folder
 vdo_file_list = []
@@ -48,24 +39,45 @@ else:
     vdo_file_list = [config["vdo_file"]]
 print(f"Converting {len(vdo_file_list)} VDO files to face landmarks")
 
+# Create the output folder
+if not os.path.exists(config["output_folder"]):
+    os.makedirs(config["output_folder"])
+else:
+    is_remove = input(f"Output folder {config['output_folder']} already exists. Remove it? (y/n): ")
+    if is_remove.lower() == "y":
+        os.system(f"rm -r {config['output_folder']}")
+        os.makedirs(config["output_folder"])
+    else:
+        raise ValueError(f"Output folder {config['output_folder']} already exists")
+
 # Iterate through the VDO files
-os.makedirs(config['output_folder'], exist_ok=True)
 looper = tqdm(vdo_file_list)
 for vdo_file in looper:
     looper.set_description(f'Processing {os.path.basename(vdo_file).split(".")[0]}')
 
-    # Extract the landmarks
-    face_landmarks = face_landmarker.landmark_vdo(vdo_file)
-    hand_landmarks = hand_landmarker.landmark_vdo(vdo_file)
-    pose_landmarks = pose_landmarker.landmark_vdo(vdo_file)
+    # Extract the face and pose landmarks
+    face_landmarks, face_output_stat = face_landmarker.landmark_vdo(vdo_file, output_stat=True)
+    pose_landmarks, pose_output_stat = pose_landmarker.landmark_vdo(vdo_file, output_stat=True)
+    # Get left hand approximation from pose landmarks
+    approx_left_hand_landmarks = pose_landmarker.get_approx_left_hand_landmarks(pose_landmarks)
+    approx_right_hand_landmarks = pose_landmarker.get_approx_right_hand_landmarks(pose_landmarks)
+    hand_landmarks, hand_output_stat = hand_landmarker.landmark_vdo(
+        vdo_file,
+        output_stat=True,
+        approx_left_hand_landmarks=approx_left_hand_landmarks,
+        approx_right_hand_landmarks=approx_right_hand_landmarks,
+        max_distance_between_predicted_hand_and_approximated_hand=config[
+            "max_distance_between_predicted_hand_and_approximated_hand"
+        ],
+    )
 
     # Save the landmarks
     all_landmarks = np.concatenate([face_landmarks, hand_landmarks, pose_landmarks], axis=1)
-    save_path = os.path.join(config['output_folder'], os.path.basename(vdo_file).replace('.mp4', '.npy'))
+    save_path = os.path.join(config["output_folder"], os.path.basename(vdo_file).replace(".mp4", ".npy"))
     to_save = None
-    if config['landmarks_format'] == 'normalized':
+    if config["landmarks_format"] == "normalized":
         to_save = all_landmarks
-    elif config['landmarks_format'] == 'pixel':
+    elif config["landmarks_format"] == "pixel":
         original_vdo = cv2.VideoCapture(vdo_file)
         width = int(original_vdo.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(original_vdo.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -76,26 +88,28 @@ for vdo_file in looper:
         to_save = all_landmarks
     else:
         raise ValueError(f"Invalid landmarks format {config['landmarks_format']}")
-    
-    if config['save_format'] == 'npy':
+
+    if config["save_format"] == "npy":
         print(to_save.shape)
         np.save(save_path, to_save)
-    elif config['save_format'] == 'txt':
+    elif config["save_format"] == "txt":
         frame_length, landmark_amount, dimension = to_save.shape
-        to_save = to_save.reshape(frame_length, landmark_amount*dimension)
+        to_save = to_save.reshape(frame_length, landmark_amount * dimension)
         print(to_save.shape)
         np.savetxt(save_path, to_save)
     else:
         raise ValueError(f"Invalid save format {config['save_format']}")
 
     # Save the landmarks video
-    if config['is_return_landmarked_vdo']:
+    if config["is_return_landmarked_vdo"]:
         original_vdo = cv2.VideoCapture(vdo_file)
         fps = original_vdo.get(cv2.CAP_PROP_FPS)
         width = int(original_vdo.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(original_vdo.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-        output_vdo = cv2.VideoWriter(os.path.join(config['output_folder'], os.path.basename(vdo_file)), fourcc, fps, (width*3, height))
+        fourcc = cv2.VideoWriter_fourcc(*"MP4V")
+        output_vdo = cv2.VideoWriter(
+            os.path.join(config["output_folder"], os.path.basename(vdo_file)), fourcc, fps, (width * 3, height)
+        )
 
         for frame_index in range(int(original_vdo.get(cv2.CAP_PROP_FRAME_COUNT))):
             _, frame = original_vdo.read()
@@ -110,13 +124,18 @@ for vdo_file in looper:
                 x, y = int(x * width), int(y * height)
                 for i, c in enumerate(canvas):
                     cv2.circle(c, (x, y), 0, (0, 0, 255), -1)
-            
-            # Draw the hand landmarks
-            for landmark in hand_landmarks[frame_index]:
+
+            # Draw the left hand landmarks
+            for landmark in hand_landmarks[frame_index, :21]:
                 x, y, z = landmark
                 x, y = int(x * width), int(y * height)
                 for i, c in enumerate(canvas):
-                    cv2.circle(c, (x, y), 1, (0, 255, 0), -1)
+                    cv2.circle(c, (x, y), 1, (255, 255, 0), -1)
+            for landmark in hand_landmarks[frame_index, 21:]:
+                x, y, z = landmark
+                x, y = int(x * width), int(y * height)
+                for i, c in enumerate(canvas):
+                    cv2.circle(c, (x, y), 1, (0, 255, 255), -1)
 
             # Draw the pose landmarks
             for landmark in pose_landmarks[frame_index]:
@@ -133,3 +152,18 @@ for vdo_file in looper:
         # Release the video
         output_vdo.release()
         original_vdo.release()
+
+    # Print the statistics
+    print("Face landmark statistics:")
+    print("\t", face_output_stat)
+    print("Hand landmark statistics:")
+    print("\t", hand_output_stat)
+    print("Pose landmark statistics:")
+    print("\t", pose_output_stat)
+    if config["save_stats"]:
+        with open(
+            os.path.join(config["output_folder"], os.path.basename(vdo_file).replace(".mp4", ".txt")), "w"
+        ) as file:
+            file.write(f"Face landmark statistics:\n\t{face_output_stat}\n")
+            file.write(f"Hand landmark statistics:\n\t{hand_output_stat}\n")
+            file.write(f"Pose landmark statistics:\n\t{pose_output_stat}\n")
