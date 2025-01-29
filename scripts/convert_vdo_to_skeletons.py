@@ -1,9 +1,9 @@
 import argparse
 import os
+import time
 import warnings
 
 import cv2
-import time
 import mediapipe as mp
 import numpy as np
 import yaml
