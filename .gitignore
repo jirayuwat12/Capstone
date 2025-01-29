@@ -26,3 +26,11 @@ notebooks/
 output/
 
 *.mp4
+*.npy
+*.txt
+*_temp
+*.json
+src/BIN/data/
+src/BIN/demo_blur/
+assets/BIN/
+mediapipe_skeleton_test/
