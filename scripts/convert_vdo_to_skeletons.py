@@ -16,6 +16,7 @@ from mediapipe_utils.pose_landmarker import PoseLandmarker
 # Create a parser object
 argparser = argparse.ArgumentParser(description="Convert VDO to skeletons")
 argparser.add_argument("--config", help="Path to the config file", default="./configs/vdo_to_skeletons.yaml")
+argparser.add_argument("-y", "--yes", help="Skip the confirmation", action="store_true")
 args = argparser.parse_args()
 
 # Load the config file
@@ -45,12 +46,13 @@ if not os.path.exists(config["output_folder"]):
     os.makedirs(config["output_folder"])
 else:
     time.sleep(0.2)
-    is_remove = input(f"Output folder {config['output_folder']} already exists. Remove it? (y/n): ")
-    if is_remove.lower() == "y":
-        os.system(f"rm -r {config['output_folder']}")
-        os.makedirs(config["output_folder"])
+    if args.yes:
+        is_remove = "y"
     else:
+        is_remove = input(f"Output folder {config['output_folder']} already exists. Overwrite it? (y/n): ")
+    if is_remove.lower() != "y":
         raise ValueError(f"Output folder {config['output_folder']} already exists")
+    os.makedirs(config["output_folder"], exist_ok=True)
 
 # Iterate through the VDO files
 looper = tqdm(vdo_file_list)
@@ -127,17 +129,17 @@ for vdo_file in looper:
                 for i, c in enumerate(canvas):
                     cv2.circle(c, (x, y), 0, (0, 0, 255), -1)
 
-            # Draw the left hand landmarks
+            # Draw the hand landmarks
             for landmark in hand_landmarks[frame_index, :21]:
                 x, y, z = landmark
                 x, y = int(x * width), int(y * height)
                 for i, c in enumerate(canvas):
-                    cv2.circle(c, (x, y), 1, (255, 255, 0), -1)
+                    cv2.circle(c, (x, y), 1, (150, 150, 0), -1)
             for landmark in hand_landmarks[frame_index, 21:]:
                 x, y, z = landmark
                 x, y = int(x * width), int(y * height)
                 for i, c in enumerate(canvas):
-                    cv2.circle(c, (x, y), 1, (0, 255, 255), -1)
+                    cv2.circle(c, (x, y), 1, (0, 180, 180), -1)
 
             # Draw the pose landmarks
             for landmark in pose_landmarks[frame_index]:
