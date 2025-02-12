@@ -8,6 +8,7 @@ class ToyDataset(Dataset):
         data_path: str,
         joint_size: int = 150,
         normalise: bool = True,
+        is_data_has_timestamp: bool = False,
         frame_size: int | None = None,
         window_size: int | None = None,
     ) -> None:
@@ -33,12 +34,19 @@ class ToyDataset(Dataset):
 
         self.normalise = normalise
 
+        self.is_data_has_timestamp = is_data_has_timestamp
+
         with open(data_path, "r") as f:
             self.data = f.readlines()
             self.data = [line.strip().split(" ") for line in self.data]
             self.raw_data.append(self.data.copy())
             self.data = [[float(val) for val in line] for line in self.data]
-            self.data = [torch.tensor(line).reshape(-1, self.joint_size + 1)[:, :-1] for line in self.data]
+            self.data = [
+                torch.tensor(line).reshape(-1, self.joint_size + self.is_data_has_timestamp)[
+                    :, : -1 if self.is_data_has_timestamp else len(line)
+                ]
+                for line in self.data
+            ]
             # Calculate the min and max values
             for line in self.data:
                 self.min_value = min(self.min_value, line.min())
