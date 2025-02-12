@@ -1,13 +1,13 @@
 import torch
-import torch.nn as nn
 import torch.autograd as autograd
+import torch.nn as nn
 import torchvision.models as models
 from torch.autograd import Variable
-
 
 ###############################################################################
 #                             Loss Functions                                  #
 ###############################################################################
+
 
 def multi_scale_loss(n_scale, x, gt, h, w):
     MSE_LossFn = nn.MSELoss()
@@ -16,7 +16,7 @@ def multi_scale_loss(n_scale, x, gt, h, w):
         scale = 0.5 ** (n_scale - i - 1)
         hi = int(round(h * scale))
         wi = int(round(w * scale))  # 88
-        frameGts = nn.functional.interpolate(gt, (hi, wi), mode='bilinear', align_corners=False)
+        frameGts = nn.functional.interpolate(gt, (hi, wi), mode="bilinear", align_corners=False)
         loss += MSE_LossFn(x[i], frameGts) / n_scale
     return loss
 
@@ -32,19 +32,32 @@ def negPSNR_loss(x, epsilon):
 
 
 def tv_loss(x, epsilon):
-    loss = torch.mean(torch.sqrt(
-        (x[:, :, :-1, :-1] - x[:, :, 1:, :-1]) ** 2 +
-        (x[:, :, :-1, :-1] - x[:, :, :-1, 1:]) ** 2 + epsilon * epsilon
-    )
+    loss = torch.mean(
+        torch.sqrt(
+            (x[:, :, :-1, :-1] - x[:, :, 1:, :-1]) ** 2
+            + (x[:, :, :-1, :-1] - x[:, :, :-1, 1:]) ** 2
+            + epsilon * epsilon
+        )
     )
     return loss
 
 
 def gra_adap_tv_loss(flow, image, epsilon):
-    w = torch.exp(- torch.sum(torch.abs(image[:, :, :-1, :-1] - image[:, :, 1:, :-1]) +
-                              torch.abs(image[:, :, :-1, :-1] - image[:, :, :-1, 1:]), dim=1))
-    tv = torch.sum(torch.sqrt((flow[:, :, :-1, :-1] - flow[:, :, 1:, :-1]) ** 2 + (
-                flow[:, :, :-1, :-1] - flow[:, :, :-1, 1:]) ** 2 + epsilon * epsilon), dim=1)
+    w = torch.exp(
+        -torch.sum(
+            torch.abs(image[:, :, :-1, :-1] - image[:, :, 1:, :-1])
+            + torch.abs(image[:, :, :-1, :-1] - image[:, :, :-1, 1:]),
+            dim=1,
+        )
+    )
+    tv = torch.sum(
+        torch.sqrt(
+            (flow[:, :, :-1, :-1] - flow[:, :, 1:, :-1]) ** 2
+            + (flow[:, :, :-1, :-1] - flow[:, :, :-1, 1:]) ** 2
+            + epsilon * epsilon
+        ),
+        dim=1,
+    )
     loss = torch.mean(w * tv)
     return loss
 
@@ -52,8 +65,7 @@ def gra_adap_tv_loss(flow, image, epsilon):
 def smooth_loss(x, epsilon):
     loss = torch.mean(
         torch.sqrt(
-            (x[:, :, :-1, :-1] - x[:, :, 1:, :-1]) ** 2 +
-            (x[:, :, :-1, :-1] - x[:, :, :-1, 1:]) ** 2 + epsilon ** 2
+            (x[:, :, :-1, :-1] - x[:, :, 1:, :-1]) ** 2 + (x[:, :, :-1, :-1] - x[:, :, :-1, 1:]) ** 2 + epsilon**2
         )
     )
     return loss
@@ -62,11 +74,11 @@ def smooth_loss(x, epsilon):
 def motion_sym_loss(offset, epsilon, occlusion=None):
     if occlusion == None:
         # return torch.mean(torch.sqrt( (offset[:,:2,...] + offset[:,2:,...])**2 + epsilon **2))
-        return torch.mean(torch.sqrt((offset[0] + offset[1]) ** 2 + epsilon ** 2))
+        return torch.mean(torch.sqrt((offset[0] + offset[1]) ** 2 + epsilon**2))
     else:
         # TODO: how to design the occlusion aware offset symmetric loss?
         # return torch.mean(torch.sqrt((offset[:,:2,...] + offset[:,2:,...])**2 + epsilon **2))
-        return torch.mean(torch.sqrt((offset[0] + offset[1]) ** 2 + epsilon ** 2))
+        return torch.mean(torch.sqrt((offset[0] + offset[1]) ** 2 + epsilon**2))
 
 
 def df_loss_func(flows, depths):
@@ -86,9 +98,10 @@ def part_loss(diffs, offsets, occlusions, images, epsilon, use_negPSNR=False):
     #               offsets]
 
     if offsets[0][0] is not None:
-        offset_loss = [gra_adap_tv_loss(offset[0], images[0], epsilon) + gra_adap_tv_loss(offset[1], images[1], epsilon)
-                       for offset in
-                       offsets]
+        offset_loss = [
+            gra_adap_tv_loss(offset[0], images[0], epsilon) + gra_adap_tv_loss(offset[1], images[1], epsilon)
+            for offset in offsets
+        ]
     else:
         offset_loss = [Variable(torch.zeros(1).cuda())]
     # print(torch.max(occlusions[0]))
@@ -101,8 +114,9 @@ def part_loss(diffs, offsets, occlusions, images, epsilon, use_negPSNR=False):
     if occlusions[0][0] is not None:
         occlusion_loss = [
             # smooth_loss(occlusion[0], epsilon) + smooth_loss(occlusion[1], epsilon) +
-            charbonier_loss(occlusion[0] + occlusion[1] - 1.0, epsilon)
-            if not occlusion == None else 0 for occlusion in occlusions]
+            charbonier_loss(occlusion[0] + occlusion[1] - 1.0, epsilon) if not occlusion == None else 0
+            for occlusion in occlusions
+        ]
     else:
         occlusion_loss = [Variable(torch.zeros(1).cuda())]
 
@@ -140,6 +154,7 @@ class CharbonnierLoss(nn.Module):
         loss = torch.mean(torch.sqrt(diff * diff + self.eps))
         return loss
 
+
 class ContentLoss:
     def __init__(self, loss):
         self.criterion = loss
@@ -148,7 +163,7 @@ class ContentLoss:
         return self.criterion(fakeIm, realIm)
 
 
-class PerceptualLoss():
+class PerceptualLoss:
 
     def contentFunc(self, gpu_id):
         conv_3_3_layer = 14
@@ -183,11 +198,11 @@ class GANLoss(nn.Module):
         self.real_label_val = real_label_val
         self.fake_label_val = fake_label_val
 
-        if self.gan_type == 'gan' or self.gan_type == 'ragan':
+        if self.gan_type == "gan" or self.gan_type == "ragan":
             self.loss = nn.BCEWithLogitsLoss()
-        elif self.gan_type == 'lsgan':
+        elif self.gan_type == "lsgan":
             self.loss = nn.MSELoss()
-        elif self.gan_type == 'wgan-gp':
+        elif self.gan_type == "wgan-gp":
 
             def wgan_loss(input, target):
                 # target is boolean
@@ -195,10 +210,10 @@ class GANLoss(nn.Module):
 
             self.loss = wgan_loss
         else:
-            raise NotImplementedError('GAN type [{:s}] is not found'.format(self.gan_type))
+            raise NotImplementedError("GAN type [{:s}] is not found".format(self.gan_type))
 
     def get_target_label(self, input, target_is_real):
-        if self.gan_type == 'wgan-gp':
+        if self.gan_type == "wgan-gp":
             return target_is_real
         if target_is_real:
             return torch.empty_like(input).fill_(self.real_label_val)
@@ -211,11 +226,10 @@ class GANLoss(nn.Module):
         return loss
 
 
-
 class GradientPenaltyLoss(nn.Module):
-    def __init__(self, device=torch.device('cpu')):
+    def __init__(self, device=torch.device("cpu")):
         super(GradientPenaltyLoss, self).__init__()
-        self.register_buffer('grad_outputs', torch.Tensor())
+        self.register_buffer("grad_outputs", torch.Tensor())
         self.grad_outputs = self.grad_outputs.to(device)
 
     def get_grad_outputs(self, input):
@@ -225,19 +239,24 @@ class GradientPenaltyLoss(nn.Module):
 
     def forward(self, interp, interp_crit):
         grad_outputs = self.get_grad_outputs(interp_crit)
-        grad_interp = torch.autograd.grad(outputs=interp_crit, inputs=interp,
-                                          grad_outputs=grad_outputs, create_graph=True,
-                                          retain_graph=True, only_inputs=True)[0]
+        grad_interp = torch.autograd.grad(
+            outputs=interp_crit,
+            inputs=interp,
+            grad_outputs=grad_outputs,
+            create_graph=True,
+            retain_graph=True,
+            only_inputs=True,
+        )[0]
         grad_interp = grad_interp.view(grad_interp.size(0), -1)
         grad_interp_norm = grad_interp.norm(2, dim=1)
 
-        loss = ((grad_interp_norm - 1)**2).mean()
+        loss = ((grad_interp_norm - 1) ** 2).mean()
         return loss
 
 
 class DiscLoss:
     def name(self):
-        return 'DiscLoss'
+        return "DiscLoss"
 
     def __init__(self, tensor, gpu_id=0):
         self.criterionGAN = GANLoss(use_l1=False, tensor=tensor, gpu_id=gpu_id)
@@ -267,10 +286,10 @@ class DiscLoss:
 
 class DiscLossLS(DiscLoss):
     def name(self):
-        return 'DiscLossLS'
+        return "DiscLossLS"
 
     def __init__(self, tensor, gpu_id):
-        super(DiscLoss, self).__init__( tensor, gpu_id)
+        super(DiscLoss, self).__init__(tensor, gpu_id)
         # DiscLoss.initialize(self, opt, tensor)
         self.criterionGAN = GANLoss(use_l1=True, tensor=tensor, gpu_id=gpu_id)
 
@@ -283,7 +302,7 @@ class DiscLossLS(DiscLoss):
 
 class DiscLossWGANGP(DiscLossLS):
     def name(self):
-        return 'DiscLossWGAN-GP'
+        return "DiscLossWGAN-GP"
 
     def __init__(self, tensor, gpu_id=0):
         super(DiscLossWGANGP, self).__init__(tensor, gpu_id)
@@ -309,8 +328,12 @@ class DiscLossWGANGP(DiscLossLS):
         disc_interpolates = netD.forward(interpolates)
 
         gradients = autograd.grad(
-            outputs=disc_interpolates, inputs=interpolates, grad_outputs=torch.ones(disc_interpolates.size()).cuda(self.gpu_id),
-            create_graph=True, retain_graph=True, only_inputs=True
+            outputs=disc_interpolates,
+            inputs=interpolates,
+            grad_outputs=torch.ones(disc_interpolates.size()).cuda(self.gpu_id),
+            create_graph=True,
+            retain_graph=True,
+            only_inputs=True,
         )[0]
 
         gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean() * self.LAMBDA
@@ -329,24 +352,24 @@ class DiscLossWGANGP(DiscLossLS):
         return self.loss_D + gradient_penalty
 
 
-def init_loss(model, gan_type, tensor, gpu_id =0):
+def init_loss(model, gan_type, tensor, gpu_id=0):
     # disc_loss = None
     # content_loss = None
 
-    if model == 'content_gan':
+    if model == "content_gan":
         content_loss = PerceptualLoss(nn.MSELoss(), gpu_id)
     # content_loss.initialize(nn.MSELoss())
-    elif model == 'pix2pix':
+    elif model == "pix2pix":
         content_loss = ContentLoss(nn.L1Loss())
     # content_loss.initialize(nn.L1Loss())
     else:
         raise ValueError("Model [%s] not recognized." % model)
 
-    if gan_type == 'wgan-gp':
+    if gan_type == "wgan-gp":
         disc_loss = DiscLossWGANGP(tensor, gpu_id)
-    elif gan_type == 'lsgan':
+    elif gan_type == "lsgan":
         disc_loss = DiscLossLS(tensor, gpu_id=gpu_id)
-    elif gan_type == 'gan':
+    elif gan_type == "gan":
         disc_loss = DiscLoss(tensor, gpu_id=gpu_id)
     else:
         raise ValueError("GAN [%s] not recognized." % gan_type)

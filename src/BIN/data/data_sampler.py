@@ -3,10 +3,12 @@ Modified from torch.utils.data.distributed.DistributedSampler
 Support enlarging the dataset for *iteration-oriented* training, for saving time when restart the
 dataloader after each epoch
 """
+
 import math
+
 import torch
-from torch.utils.data.sampler import Sampler
 import torch.distributed as dist
+from torch.utils.data.sampler import Sampler
 
 
 class DistIterSampler(Sampler):
@@ -53,7 +55,7 @@ class DistIterSampler(Sampler):
         indices = [v % dsize for v in indices]
 
         # subsample
-        indices = indices[self.rank:self.total_size:self.num_replicas]
+        indices = indices[self.rank : self.total_size : self.num_replicas]
         assert len(indices) == self.num_samples
 
         return iter(indices)

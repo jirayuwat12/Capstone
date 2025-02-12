@@ -8,21 +8,24 @@
 """
 
 import argparse
+import math
 import os
 import os.path
-from shutil import rmtree, move, copy
 import random
-from scipy.ndimage import imread
-from scipy.misc import imsave
 import shutil
-import math
+from shutil import copy, move, rmtree
+
+from scipy.misc import imsave
+from scipy.ndimage import imread
 
 # For parsing commandline arguments
 parser = argparse.ArgumentParser()
-parser.add_argument("--ffmpeg_dir", type=str, required=True, help='path to ffmpeg.exe')
-parser.add_argument("--dataset", type=str, default="adobe240fps_blur", help='specify if using "adobe240fps" or custom video dataset')
-parser.add_argument("--videos_folder", type=str, required=True, help='path to the folder containing videos')
-parser.add_argument("--dataset_folder", type=str, required=True, help='path to the output dataset folder')
+parser.add_argument("--ffmpeg_dir", type=str, required=True, help="path to ffmpeg.exe")
+parser.add_argument(
+    "--dataset", type=str, default="adobe240fps_blur", help='specify if using "adobe240fps" or custom video dataset'
+)
+parser.add_argument("--videos_folder", type=str, required=True, help="path to the folder containing videos")
+parser.add_argument("--dataset_folder", type=str, required=True, help="path to the output dataset folder")
 parser.add_argument("--img_width", type=int, default=256, help="output image width")
 parser.add_argument("--img_height", type=int, default=128, help="output image height")
 parser.add_argument("--train_test_split", type=tuple, default=(90, 10), help="train test split for custom dataset")
@@ -32,6 +35,7 @@ args = parser.parse_args()
 
 debug = False
 delte_extract = False
+
 
 def extract_frames(videos, inDir, outDir):
     """
@@ -57,12 +61,14 @@ def extract_frames(videos, inDir, outDir):
 
             os.makedirs(os.path.join(outDir, os.path.splitext(video)[0]), exist_ok=True)
             retn = os.system(
-                '{} -i {} -vf scale={}:{} -vsync 0 -qscale:v 2 {}/%05d.png'.format(os.path.join(args.ffmpeg_dir, "ffmpeg"),
-                                                                                   os.path.join(inDir, video),
-                                                                                   args.img_width, args.img_height,
-                                                                                   os.path.join(outDir,
-                                                                                                os.path.splitext(video)[
-                                                                                                    0])))
+                "{} -i {} -vf scale={}:{} -vsync 0 -qscale:v 2 {}/%05d.png".format(
+                    os.path.join(args.ffmpeg_dir, "ffmpeg"),
+                    os.path.join(inDir, video),
+                    args.img_width,
+                    args.img_height,
+                    os.path.join(outDir, os.path.splitext(video)[0]),
+                )
+            )
             if retn:
                 print("Error converting file:{}. Exiting.".format(video))
 
@@ -94,16 +100,15 @@ def create_clips_overlap(video, root, destination, destionation_blur, listpath):
     for file in files:
         images = os.listdir(os.path.join(root, file))
         images = sorted(images)
-        assert (images[0] == '00001.png')
+        assert images[0] == "00001.png"
         n_length = len(images)
         window_middle = 16
         blurry_frame_idx = [16]
         average_half_range = int((args.window_size - 1) / 2)
         full_half_range = int((args.window_size - 1) / 2)
         window_middle_delta = 8
-        window_total_num = math.floor(n_length/window_middle_delta) - 2
+        window_total_num = math.floor(n_length / window_middle_delta) - 2
         num_blurry = 1
-
 
         for i in range(0, window_total_num):
 
@@ -117,36 +122,31 @@ def create_clips_overlap(video, root, destination, destionation_blur, listpath):
                 mid = blurry_frame_idx[j]
                 mid_list = range(mid - average_half_range, mid + average_half_range + 1)
 
-
                 sum = 0.0
 
                 for loc in mid_list:
-                    image_name = "{}".format(loc+1).zfill(5)+".png"
+                    image_name = "{}".format(loc + 1).zfill(5) + ".png"
                     sum = sum + imread(os.path.join(root, file, image_name)).astype("float32")
                     if loc == mid:
                         blur_image = image_name
                         im_list.append(image_name)
-
 
                 sum = sum / float(len(mid_list))
                 sum = sum.astype("uint8")
                 os.makedirs(os.path.join(destionation_blur, file), exist_ok=True)
                 imsave(os.path.join(destionation_blur, str(file), blur_image), sum)
 
-
-
             window_middle = window_middle + window_middle_delta
-            blurry_frame_idx = [i+window_middle_delta for i in blurry_frame_idx]
+            blurry_frame_idx = [i + window_middle_delta for i in blurry_frame_idx]
 
         print(os.path.join(root, file))
-        if not os.path.exists( os.path.join(destination, file)):
+        if not os.path.exists(os.path.join(destination, file)):
             shutil.copytree(os.path.join(root, file), os.path.join(destination, file))
 
-    fl = open(os.path.join(listpath, file+ "_im_list.txt"), 'w')
-    sep = '\n'
+    fl = open(os.path.join(listpath, file + "_im_list.txt"), "w")
+    sep = "\n"
     fl.write(sep.join(im_list))
     fl.close()
-
 
 
 def main():
@@ -176,12 +176,12 @@ def main():
     os.makedirs(trainPath_blur, exist_ok=True)
     os.makedirs(testPath_blur, exist_ok=True)
 
-    if (args.dataset == "adobe240fps_blur" or args.dataset == "youtube240fps_blur"):
-        f = open('./test_list.txt', "r" )
+    if args.dataset == "adobe240fps_blur" or args.dataset == "youtube240fps_blur":
+        f = open("./test_list.txt", "r")
         if debug == True:
-            videos = [f.read().split('\n')[0]]
+            videos = [f.read().split("\n")[0]]
         else:
-            videos = f.read().split('\n')
+            videos = f.read().split("\n")
 
         for video in videos:
             extract_frames([video], args.videos_folder, extractPath)
@@ -189,16 +189,14 @@ def main():
 
         if args.enable_train == 1:
             print("train")
-            f = open(args.dataset[:-5] + '/train_list.txt', "r")
-            videos = f.read().split('\n')
+            f = open(args.dataset[:-5] + "/train_list.txt", "r")
+            videos = f.read().split("\n")
             if debug == True:
                 videos = [videos[0]]
 
             for video in videos:
                 extract_frames([video], args.videos_folder, extractPath)
                 create_clips_overlap([video], extractPath, trainPath, trainPath_blur, trainPath_list)
-
-
 
     else:  # custom dataset
 

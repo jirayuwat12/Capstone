@@ -1,10 +1,12 @@
-import os.path as osp
 import glob
-import numpy as np
+import os.path as osp
+
 import cv2
+import numpy as np
 import torch
 
-def read_img(img_path, resize, W,H):
+
+def read_img(img_path, resize, W, H):
     """Read an image from a given image path
     Args:
         img_path (str): image path
@@ -17,12 +19,12 @@ def read_img(img_path, resize, W,H):
     if resize == True:
         img = cv2.resize(img, (W, H))
 
-    img = img.astype(np.float32) / 255.
+    img = img.astype(np.float32) / 255.0
 
     return img
 
 
-def read_img_seq(img_folder_path,  resize, W,H):
+def read_img_seq(img_folder_path, resize, W, H):
     """Read a sequence of images from a given folder path
     Args:
         img_folder_path (str): image folder path
@@ -30,7 +32,7 @@ def read_img_seq(img_folder_path,  resize, W,H):
     Returns:
         imgs (Tensor): size (T, C, H, W), RGB, [0, 1]
     """
-    img_path_l = sorted(glob.glob(osp.join(img_folder_path, '*')))
+    img_path_l = sorted(glob.glob(osp.join(img_folder_path, "*")))
     img_l = [read_img(v, resize, W, H) for v in img_path_l]
     # stack to Torch tensor
     imgs = np.stack(img_l, axis=0)
@@ -39,7 +41,7 @@ def read_img_seq(img_folder_path,  resize, W,H):
     return imgs, img_path_l
 
 
-def index_generation(crt_i, max_n, N, padding='reflection'):
+def index_generation(crt_i, max_n, N, padding="reflection"):
     """Generate an index list for reading N frames from a sequence of images
     Args:
         crt_i (int): current center index
@@ -61,27 +63,27 @@ def index_generation(crt_i, max_n, N, padding='reflection'):
 
     for i in range(crt_i - n_pad, crt_i + n_pad + 1):
         if i < 0:
-            if padding == 'replicate':
+            if padding == "replicate":
                 add_idx = 0
-            elif padding == 'reflection':
+            elif padding == "reflection":
                 add_idx = -i
-            elif padding == 'new_info':
+            elif padding == "new_info":
                 add_idx = (crt_i + n_pad) + (-i)
-            elif padding == 'circle':
+            elif padding == "circle":
                 add_idx = N + i
             else:
-                raise ValueError('Wrong padding mode')
+                raise ValueError("Wrong padding mode")
         elif i > max_n:
-            if padding == 'replicate':
+            if padding == "replicate":
                 add_idx = max_n
-            elif padding == 'reflection':
+            elif padding == "reflection":
                 add_idx = max_n * 2 - i
-            elif padding == 'new_info':
+            elif padding == "new_info":
                 add_idx = (crt_i - n_pad) - (i - max_n)
-            elif padding == 'circle':
+            elif padding == "circle":
                 add_idx = i - N
             else:
-                raise ValueError('Wrong padding mode')
+                raise ValueError("Wrong padding mode")
         else:
             add_idx = i
         return_l.append(add_idx)
@@ -120,11 +122,11 @@ def flipx4_forward(model, inp):
     output_f = single_forward(model, inp)
 
     # flip W
-    output = single_forward(model, torch.flip(inp, (-1, )))
-    output_f = output_f + torch.flip(output, (-1, ))
+    output = single_forward(model, torch.flip(inp, (-1,)))
+    output_f = output_f + torch.flip(output, (-1,))
     # flip H
-    output = single_forward(model, torch.flip(inp, (-2, )))
-    output_f = output_f + torch.flip(output, (-2, ))
+    output = single_forward(model, torch.flip(inp, (-2,)))
+    output_f = output_f + torch.flip(output, (-2,))
     # flip both H and W
     output = single_forward(model, torch.flip(inp, (-2, -1)))
     output_f = output_f + torch.flip(output, (-2, -1))

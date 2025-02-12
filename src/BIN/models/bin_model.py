@@ -1,38 +1,43 @@
-import torch.nn.functional as F
-import BIN.utils.AverageMeter as AverageMeter
-import numpy
-import torch.nn.init as weight_init
-import math
+import itertools
 import logging
+import math
 from collections import OrderedDict
+
+import numpy
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+import torch.nn.init as weight_init
 from torch.nn.parallel import DataParallel, DistributedDataParallel
-import BIN.models.networks as networks
-import BIN.models.lr_scheduler as lr_scheduler
-from .base_model import BaseModel
-from BIN.models.loss import CharbonnierLoss
-import itertools
-import BIN.utils.util as util
-import BIN.data.util as data_util
 
-logger = logging.getLogger('base')
+import BIN.data.util as data_util
+import BIN.models.lr_scheduler as lr_scheduler
+import BIN.models.networks as networks
+import BIN.utils.AverageMeter as AverageMeter
+import BIN.utils.util as util
+from BIN.models.loss import CharbonnierLoss
+
+from .base_model import BaseModel
+
+logger = logging.getLogger("base")
+
 
 class bin_model(BaseModel):
     """
-        The model for Blurry Video Frame Interpolation 
+    The model for Blurry Video Frame Interpolation
     """
+
     def __init__(self, opt):
         super(bin_model, self).__init__(opt)
 
-        self.nframes = int(opt['network_G']['nframes'])
-        self.version = int(opt['network_G']['version'])
+        self.nframes = int(opt["network_G"]["nframes"])
+        self.version = int(opt["network_G"]["version"])
 
-        if opt['dist']:
+        if opt["dist"]:
             self.rank = torch.distributed.get_rank()
         else:
-            self.rank = -1 # non dist training
-        train_opt = opt['train']
+            self.rank = -1  # non dist training
+        train_opt = opt["train"]
 
         # define network and load pretrained models
         self.netG = networks.define_G(opt).to(self.device)
@@ -48,43 +53,37 @@ class bin_model(BaseModel):
 
         if self.is_train:
             self.netG.train()
-            self.loss_type = train_opt['pixel_criterion']
+            self.loss_type = train_opt["pixel_criterion"]
 
             #### loss
-            loss_type = train_opt['pixel_criterion']
-            if loss_type == 'l1':
-                self.cri_pix = nn.L1Loss(reduction='sum').to(self.device)
-            elif loss_type == 'l2':
-                self.cri_pix = nn.MSELoss(reduction='sum').to(self.device)
-            elif loss_type == 'cb':
+            loss_type = train_opt["pixel_criterion"]
+            if loss_type == "l1":
+                self.cri_pix = nn.L1Loss(reduction="sum").to(self.device)
+            elif loss_type == "l2":
+                self.cri_pix = nn.MSELoss(reduction="sum").to(self.device)
+            elif loss_type == "cb":
                 self.cri_pix = CharbonnierLoss().to(self.device)
             else:
-                raise NotImplementedError('Loss type [{:s}] is not recognized.'.format(loss_type))
-            self.l_pix_w = train_opt['pixel_weight']
+                raise NotImplementedError("Loss type [{:s}] is not recognized.".format(loss_type))
+            self.l_pix_w = train_opt["pixel_weight"]
 
             #### optimizers
-            wd_G = train_opt['weight_decay_G'] if train_opt['weight_decay_G'] else 0
-            if train_opt['ft_tsa_only']:
+            wd_G = train_opt["weight_decay_G"] if train_opt["weight_decay_G"] else 0
+            if train_opt["ft_tsa_only"]:
                 normal_params = []
                 tsa_fusion_params = []
                 for k, v in self.netG.named_parameters():
                     if v.requires_grad:
-                        if 'tsa_fusion' in k:
+                        if "tsa_fusion" in k:
                             tsa_fusion_params.append(v)
                         else:
                             normal_params.append(v)
                     else:
                         if self.rank <= 0:
-                            logger.warning('Params [{:s}] will not optimize.'.format(k))
+                            logger.warning("Params [{:s}] will not optimize.".format(k))
                 optim_params = [
-                    {  # add normal params first
-                        'params': normal_params,
-                        'lr': train_opt['lr_G']
-                    },
-                    {
-                        'params': tsa_fusion_params,
-                        'lr': train_opt['lr_G']
-                    },
+                    {"params": normal_params, "lr": train_opt["lr_G"]},  # add normal params first
+                    {"params": tsa_fusion_params, "lr": train_opt["lr_G"]},
                 ]
             else:
                 optim_params = []
@@ -93,45 +92,56 @@ class bin_model(BaseModel):
                         optim_params.append(v)
                     else:
                         if self.rank <= 0:
-                            logger.warning('Params [{:s}] will not optimize.'.format(k))
+                            logger.warning("Params [{:s}] will not optimize.".format(k))
 
-            self.optimizer_G = torch.optim.Adam(optim_params, lr=train_opt['lr_G'],
-                                                weight_decay=wd_G,
-                                                betas=(train_opt['beta1'], train_opt['beta2']))
+            self.optimizer_G = torch.optim.Adam(
+                optim_params, lr=train_opt["lr_G"], weight_decay=wd_G, betas=(train_opt["beta1"], train_opt["beta2"])
+            )
             self.optimizers.append(self.optimizer_G)
 
             #### schedulers
-            if train_opt['lr_scheme'] == 'MultiStepLR':
+            if train_opt["lr_scheme"] == "MultiStepLR":
                 for optimizer in self.optimizers:
                     self.schedulers.append(
-                        lr_scheduler.MultiStepLR_Restart(optimizer, train_opt['lr_steps'],
-                                                         restarts=train_opt['restarts'],
-                                                         weights=train_opt['restart_weights'],
-                                                         gamma=train_opt['lr_gamma'],
-                                                         clear_state=train_opt['clear_state']))
-            elif train_opt['lr_scheme'] == 'CosineAnnealingLR_Restart':
+                        lr_scheduler.MultiStepLR_Restart(
+                            optimizer,
+                            train_opt["lr_steps"],
+                            restarts=train_opt["restarts"],
+                            weights=train_opt["restart_weights"],
+                            gamma=train_opt["lr_gamma"],
+                            clear_state=train_opt["clear_state"],
+                        )
+                    )
+            elif train_opt["lr_scheme"] == "CosineAnnealingLR_Restart":
                 for optimizer in self.optimizers:
                     self.schedulers.append(
                         lr_scheduler.CosineAnnealingLR_Restart(
-                            optimizer, train_opt['T_period'], eta_min=train_opt['eta_min'],
-                            restarts=train_opt['restarts'], weights=train_opt['restart_weights']))
+                            optimizer,
+                            train_opt["T_period"],
+                            eta_min=train_opt["eta_min"],
+                            restarts=train_opt["restarts"],
+                            weights=train_opt["restart_weights"],
+                        )
+                    )
 
-            elif train_opt['lr_scheme'] == 'ReduceLROnPlateau':
+            elif train_opt["lr_scheme"] == "ReduceLROnPlateau":
                 for optimizer in self.optimizers:  # optimizers[0] =adam
                     self.schedulers.append(  # schedulers[0] = ReduceLROnPlateau
                         torch.optim.lr_scheduler.ReduceLROnPlateau(
-                            optimizer, 'min', factor=train_opt['factor'], patience=train_opt['patience'],verbose=True))
-                print('Use ReduceLROnPlateau')
+                            optimizer, "min", factor=train_opt["factor"], patience=train_opt["patience"], verbose=True
+                        )
+                    )
+                print("Use ReduceLROnPlateau")
             else:
                 raise NotImplementedError()
 
             self.avg_log_dict = OrderedDict()
             self.inst_log_dict = OrderedDict()
-    
+
     def optimize_parameters(self, step):
-        if self.opt['train']['ft_tsa_only'] and step < self.opt['train']['ft_tsa_only']:
+        if self.opt["train"]["ft_tsa_only"] and step < self.opt["train"]["ft_tsa_only"]:
             self.set_params_lr_zero()
-        
+
         self.optimizer_G.zero_grad()
         self.Ft_p = self.forward()
         self.loss, self.loss_list = self.get_loss(ret=1)
@@ -143,37 +153,37 @@ class bin_model(BaseModel):
 
     def set_params_lr_zero(self):
         # fix normal module
-        self.optimizers[0].param_groups[0]['lr'] = 0
+        self.optimizers[0].param_groups[0]["lr"] = 0
 
     def feed_data(self, trainData, need_GT=True):
 
         # Read all inputs
 
-        LQs =   trainData['LQs']  # B N C H W
-        GTenh = trainData['GTenh']
-        GTinp = trainData['GTinp']
+        LQs = trainData["LQs"]  # B N C H W
+        GTenh = trainData["GTenh"]
+        GTinp = trainData["GTinp"]
 
         # print('LQs.size', LQs.shape)  # NCHW
 
-        B1 =  LQs[:,0,...]
-        B3 =  LQs[:,1,...]
-        B5 =  LQs[:,2,...]
-        B7 =  LQs[:,3,...]
-        B9 =  LQs[:,4,...]
-        B11 =  LQs[:,5,...]
+        B1 = LQs[:, 0, ...]
+        B3 = LQs[:, 1, ...]
+        B5 = LQs[:, 2, ...]
+        B7 = LQs[:, 3, ...]
+        B9 = LQs[:, 4, ...]
+        B11 = LQs[:, 5, ...]
 
-        I1 =  GTenh[:,0,...]
-        I3 =  GTenh[:,1,...]
-        I5 =  GTenh[:,2,...]
-        I7 =  GTenh[:,3,...]
-        I9 =  GTenh[:,4,...]
-        I11 =  GTenh[:,5,...]
+        I1 = GTenh[:, 0, ...]
+        I3 = GTenh[:, 1, ...]
+        I5 = GTenh[:, 2, ...]
+        I7 = GTenh[:, 3, ...]
+        I9 = GTenh[:, 4, ...]
+        I11 = GTenh[:, 5, ...]
 
-        I2  = GTinp[:,0,...]
-        I4  = GTinp[:,1,...]
-        I6  = GTinp[:,2,...]
-        I8  = GTinp[:,3,...]
-        I10  = GTinp[:,4,...]
+        I2 = GTinp[:, 0, ...]
+        I4 = GTinp[:, 1, ...]
+        I6 = GTinp[:, 2, ...]
+        I8 = GTinp[:, 3, ...]
+        I10 = GTinp[:, 4, ...]
 
         self.B1 = B1.to(self.device)
         self.B3 = B3.to(self.device)
@@ -194,7 +204,6 @@ class bin_model(BaseModel):
         self.I6 = I6.to(self.device)
         self.I8 = I8.to(self.device)
         self.I10 = I10.to(self.device)
-
 
         # shape
         self.batch = self.I1.size(0)
@@ -267,7 +276,6 @@ class bin_model(BaseModel):
             self.B9 = B9.to(self.device)
             self.B11 = B11.to(self.device)
 
-
         # shape
         self.batch = self.B1.size(0)
         self.channel = self.B1.size(1)
@@ -278,7 +286,7 @@ class bin_model(BaseModel):
         self.netG.eval()
         with torch.no_grad():
             if self.nframes == 1:
-                if self.opt['network_G']['which_model_G'] == 'deep_long_stage1_memc':
+                if self.opt["network_G"]["which_model_G"] == "deep_long_stage1_memc":
                     indata = torch.stack((self.B1, self.B3), dim=0)
                     Ft_p = self.netG(indata)[0]
                     Ft_p = [Ft_p[-1]]
@@ -301,7 +309,7 @@ class bin_model(BaseModel):
     def forward(self):
 
         if self.nframes == 1:
-            if self.opt['network_G']['which_model_G'] == 'deep_long_stage1_memc':
+            if self.opt["network_G"]["which_model_G"] == "deep_long_stage1_memc":
                 indata = torch.stack((self.B1, self.I2, self.B3), dim=0)
                 Ft_p = self.netG(indata)[-1]
                 Ft_p = [Ft_p]
@@ -324,7 +332,7 @@ class bin_model(BaseModel):
         self.netG.prev_state = None
         self.netG.hidden_state = None
 
-    def get_current_log(self, mode='train'):
+    def get_current_log(self, mode="train"):
         # get the averaged loss
         num = self.get_info()
 
@@ -332,32 +340,32 @@ class bin_model(BaseModel):
         self.avg_psnr_dict = OrderedDict()
         self.inst_log_dict = OrderedDict()
 
-        if mode == 'train':
+        if mode == "train":
             for i in range(num):
                 self.avg_log_dict[str(i)] = self.train_loss_total[i].avg
                 self.inst_log_dict[str(i)] = self.loss_list[i].item()
             # the total train loss
-            self.avg_log_dict['Al'] = self.train_loss_total[-1].avg
+            self.avg_log_dict["Al"] = self.train_loss_total[-1].avg
 
-            return self.inst_log_dict,  self.avg_log_dict
+            return self.inst_log_dict, self.avg_log_dict
 
-        elif mode == 'val':
+        elif mode == "val":
             psnr_total_avg = 0
             ssim_total_avg = 0
             val_loss_total_avg = 0
             for i in range(num):
-                self.avg_log_dict['Al'+str(i)] = self.val_loss_total[i].avg
-                self.avg_psnr_dict['Ap'+str(i)] = self.psnr_interp[i].avg
+                self.avg_log_dict["Al" + str(i)] = self.val_loss_total[i].avg
+                self.avg_psnr_dict["Ap" + str(i)] = self.psnr_interp[i].avg
                 # self.avg_log_dict['Avg. ssim'+str(i)] = self.ssim_interp[i].avg
                 psnr_total_avg = psnr_total_avg + self.psnr_interp[i].avg
                 ssim_total_avg = ssim_total_avg + self.ssim_interp[i].avg
 
-            self.avg_log_dict['Al'] = self.val_loss_total[-1].avg
-            self.avg_psnr_dict['Ap'] = psnr_total_avg/num
+            self.avg_log_dict["Al"] = self.val_loss_total[-1].avg
+            self.avg_psnr_dict["Ap"] = psnr_total_avg / num
 
             val_loss_total_avg = self.val_loss_total[-1].avg
 
-            return self.avg_log_dict, self.avg_psnr_dict, psnr_total_avg/num, ssim_total_avg/num, val_loss_total_avg
+            return self.avg_log_dict, self.avg_psnr_dict, psnr_total_avg / num, ssim_total_avg / num, val_loss_total_avg
 
     def test_forward(self):
 
@@ -382,7 +390,7 @@ class bin_model(BaseModel):
 
     def test_sharp_forward(self):
         """
-            Direct interp use sharp frames.
+        Direct interp use sharp frames.
         """
         if self.nframes == 1:
             self.Ft_p = self.netG(self.I1, self.I3)
@@ -418,7 +426,6 @@ class bin_model(BaseModel):
 
         loss_list = loss_list[:num]
 
-
         if ret == 1:
             return loss, loss_list
         else:
@@ -427,10 +434,10 @@ class bin_model(BaseModel):
 
     def get_current_visuals(self, need_GT=True):
         """
-            For validation, the batchsize is always 1
-        """ 
+        For validation, the batchsize is always 1
+        """
         self.Restored_IMG = []
-        self.Restored_GT_IMG = [] 
+        self.Restored_GT_IMG = []
 
         num, gt_list, lq_list = self.get_info(mode=2)
         rlt_list = self.Ft_p
@@ -438,10 +445,10 @@ class bin_model(BaseModel):
         assert num == len(gt_list)
 
         out_dict = OrderedDict()
-        out_dict['LQ'] = [data.detach()[0].float().cpu() for data in lq_list]
-        out_dict['rlt'] = [rlt_list[idx].detach()[0].float().cpu() for idx in range(num)]
+        out_dict["LQ"] = [data.detach()[0].float().cpu() for data in lq_list]
+        out_dict["rlt"] = [rlt_list[idx].detach()[0].float().cpu() for idx in range(num)]
         if need_GT:
-            out_dict['GT'] = [data.detach()[0].float().cpu() for data in gt_list]
+            out_dict["GT"] = [data.detach()[0].float().cpu() for data in gt_list]
 
         return out_dict
 
@@ -511,28 +518,33 @@ class bin_model(BaseModel):
                 lq_list = [self.B1, self.B3, self.B5]
             elif self.nframes == 4:
                 if self.version == 4 or self.version == 5:
-                    gt_list = [self.I2, self.I4, self.I6, 
-                            self.I3, self.I5, self.I4]
+                    gt_list = [self.I2, self.I4, self.I6, self.I3, self.I5, self.I4]
                 else:
-                    gt_list = [self.I2, self.I4, self.I3, 
-                            self.I6, self.I5]
+                    gt_list = [self.I2, self.I4, self.I3, self.I6, self.I5]
                 lq_list = [self.B1, self.B3, self.B5, self.B7]
             elif self.nframes == 5:
                 if self.version == 2:
-                    gt_list = [self.I2, self.I4, self.I6, 
-                                self.I3, self.I5, self.I4, 
-                                self.I8, self.I7, self.I6]
+                    gt_list = [self.I2, self.I4, self.I6, self.I3, self.I5, self.I4, self.I8, self.I7, self.I6]
                 else:
-                    gt_list =[self.I2, self.I4, self.I6,
-                            self.I8, self.I3, self.I5,
-                            self.I7, self.I4, self.I6, self.I5]
+                    gt_list = [self.I2, self.I4, self.I6, self.I8, self.I3, self.I5, self.I7, self.I4, self.I6, self.I5]
                 lq_list = [self.B1, self.B3, self.B5, self.B7, self.B9]
             elif self.nframes == 6:
-                gt_list = [self.I2, self.I4, self.I6,
-                                self.I8, self.I3, self.I5,
-                                self.I7, self.I4, self.I6,
-                                self.I5, self.I10, self.I9,
-                                self.I8, self.I7]
+                gt_list = [
+                    self.I2,
+                    self.I4,
+                    self.I6,
+                    self.I8,
+                    self.I3,
+                    self.I5,
+                    self.I7,
+                    self.I4,
+                    self.I6,
+                    self.I5,
+                    self.I10,
+                    self.I9,
+                    self.I8,
+                    self.I7,
+                ]
                 lq_list = [self.B1, self.B3, self.B5, self.B7, self.B9, self.B11]
 
         if mode == 0:
@@ -563,9 +575,8 @@ class bin_model(BaseModel):
             self.ssim_interp[i].reset()
 
     def compute_current_psnr_ssim(self, save=False, name=None, save_path=None):
-
         """
-             compute ssim, psnr when validate the model
+        compute ssim, psnr when validate the model
         """
         num = self.get_info()
         visuals = self.get_current_visuals()
@@ -573,8 +584,8 @@ class bin_model(BaseModel):
         psnr_interp_t_t = []
         ssim_interp_t_t = []
         for i in range(num):
-            rlt_img = util.tensor2img(visuals['rlt'][i])
-            gt_img = util.tensor2img(visuals['GT'][i])
+            rlt_img = util.tensor2img(visuals["rlt"][i])
+            gt_img = util.tensor2img(visuals["GT"][i])
             psnr = util.calculate_psnr(rlt_img, gt_img)
             ssim = util.calculate_ssim(rlt_img, gt_img)
 
@@ -583,34 +594,34 @@ class bin_model(BaseModel):
 
             if save == True:
                 import os.path as osp
+
                 import cv2
-                cv2.imwrite(osp.join(save_path, 'rlt_{}_{}.png'.format(name, i)), rlt_img)
-                cv2.imwrite(osp.join(save_path, 'gt_{}_{}.png'.format(name, i)), gt_img)
+
+                cv2.imwrite(osp.join(save_path, "rlt_{}_{}.png".format(name, i)), rlt_img)
+                cv2.imwrite(osp.join(save_path, "gt_{}_{}.png".format(name, i)), gt_img)
 
         return psnr_interp_t_t, ssim_interp_t_t
 
     def print_network(self):
         s, n = self.get_network_description(self.netG)
         if isinstance(self.netG, nn.DataParallel):
-            net_struc_str = '{} - {}'.format(self.netG.__class__.__name__,
-                                                self.netG.module.__class__.__name__)
+            net_struc_str = "{} - {}".format(self.netG.__class__.__name__, self.netG.module.__class__.__name__)
         else:
-            net_struc_str = '{}'.format(self.netG.__class__.__name__)
+            net_struc_str = "{}".format(self.netG.__class__.__name__)
         if self.rank <= 0:
-            logger.info('Network G structure: {}, with parameters: {:,d}'.format(net_struc_str, n))
+            logger.info("Network G structure: {}, with parameters: {:,d}".format(net_struc_str, n))
             logger.info(s)
 
     def load(self):
-        load_path_G = self.opt['path']['pretrain_model_G']
+        load_path_G = self.opt["path"]["pretrain_model_G"]
         if load_path_G is not None:
-            logger.info('Loading model for G [{:s}] ...'.format(load_path_G))
-            self.load_network(load_path_G, self.netG, self.opt['path']['strict_load'])
+            logger.info("Loading model for G [{:s}] ...".format(load_path_G))
+            self.load_network(load_path_G, self.netG, self.opt["path"]["strict_load"])
 
     def save(self, iter_label):
-        self.save_network(self.netG, 'G', iter_label)
+        self.save_network(self.netG, "G", iter_label)
 
     @staticmethod
     def get_lr(optimizer):
         for param_group in optimizer.param_groups:
-            return param_group['lr']
-
+            return param_group["lr"]

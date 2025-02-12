@@ -1,13 +1,16 @@
-from .landmarker import Landmarker
+import os
+import warnings
+
+import cv2
+import mediapipe as mp
+import numpy as np
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from mediapipe.tasks.python.vision import RunningMode
+
 from mediapipe_utils.mediapipe_output_stat import MediapipeOutputStat
-import numpy as np
-import cv2
-import warnings
-import mediapipe as mp
-import os
+
+from .landmarker import Landmarker
 
 
 class FaceLandmarker(Landmarker):
@@ -25,7 +28,9 @@ class FaceLandmarker(Landmarker):
             running_mode=RunningMode.VIDEO,
         )
 
-    def landmark_vdo(self, vdo_file: str, output_stat: bool = False) -> np.ndarray | tuple[np.ndarray, MediapipeOutputStat]:
+    def landmark_vdo(
+        self, vdo_file: str, output_stat: bool = False
+    ) -> np.ndarray | tuple[np.ndarray, MediapipeOutputStat]:
         """
         This function will read the video file and return the face landmarks of the video.
 
@@ -65,25 +70,29 @@ class FaceLandmarker(Landmarker):
 
                 # Append the current frame landmarks to the landmarks list
                 if len(current_frame_landmarks) == 0:
-                    if self.face_config['replace_not_found_method'] == 'previous':
+                    if self.face_config["replace_not_found_method"] == "previous":
                         # Check if the replace_not_found_method is previous
                         if len(landmarks) == 0:
-                            warnings.warn(f"There is no face detected in the first frame of {os.path.basename(vdo_file)}")
+                            warnings.warn(
+                                f"There is no face detected in the first frame of {os.path.basename(vdo_file)}"
+                            )
                             landmarks.append([])
                         else:
                             landmarks.append(landmarks[-1])
                     else:
                         # Check if the replace_not_found_method is invalid
-                        raise ValueError(f"Invalide replace_not_found_method: {self.face_config['replace_not_found_method']}")
+                        raise ValueError(
+                            f"Invalide replace_not_found_method: {self.face_config['replace_not_found_method']}"
+                        )
                 else:
                     # Normal case
                     landmarks.append(current_frame_landmarks)
                     media_pipe_output_stat.total_found_frames += 1
 
             # Convert the landmarks to numpy array
-            for frame_index in range(len(landmarks)-1, -1, -1):
+            for frame_index in range(len(landmarks) - 1, -1, -1):
                 if len(landmarks[frame_index]) == 0:
-                    landmarks[frame_index] = landmarks[frame_index+1]
+                    landmarks[frame_index] = landmarks[frame_index + 1]
             landmarks = np.array(landmarks)
             # Return the landmarks
             if output_stat:
