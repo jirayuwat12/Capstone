@@ -3,3 +3,4 @@ scipy==1.14.1
 matplotlib==3.9.2
 clip @ git+https://github.com/openai/CLIP.git
 tqdm==4.66.5
+requests

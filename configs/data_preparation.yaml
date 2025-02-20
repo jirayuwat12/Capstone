@@ -1,0 +1,5 @@
+phoenix_tar_url: "https://www-i6.informatik.rwth-aachen.de/ftp/pub/rwth-phoenix/2016/phoenix-2014-T.v3.tar.gz"
+phoenix_tar_folder: "./data"
+log_folder: "./script_logs"
+target_folder: "./data/extracted_phoenix"
+phoenix_extracted_folder: "./data/PHOENIX-2014-T-release-v3/PHOENIX-2014-T"
