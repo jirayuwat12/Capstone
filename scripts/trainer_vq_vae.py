@@ -1,8 +1,10 @@
 import argparse
+import os
 
 import pandas as pd
 import yaml
 from lightning.pytorch import Trainer
+from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.loggers import CSVLogger
 from matplotlib import pyplot as plt
 from torch.utils.data import DataLoader
@@ -54,8 +56,20 @@ test_loader = DataLoader(
 # Initialize the logger
 csv_logger = CSVLogger("logs", name=config["log_folder_name"])
 
+# Create checkpoint callback
+checkpoint_callback = ModelCheckpoint(
+    monitor="val_loss",
+    dirpath=os.path.join(csv_logger.log_dir, "checkpoints"),
+    filename="vqvae-{epoch:02d}-{val_loss:.4f}",
+    save_top_k=1,
+    mode="min",
+    every_n_epochs=config["save_every_n_epochs"],
+)
+
 # Initialize the trainer
-trainer = Trainer(log_every_n_steps=10, max_epochs=config["max_epochs"], logger=csv_logger)
+trainer = Trainer(
+    log_every_n_steps=10, max_epochs=config["max_epochs"], logger=csv_logger, callbacks=[checkpoint_callback]
+)
 
 # Train the model
 trainer.fit(model, train_loader, test_loader)
