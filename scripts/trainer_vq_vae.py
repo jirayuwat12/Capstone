@@ -7,6 +7,7 @@ from lightning.pytorch.loggers import CSVLogger
 from matplotlib import pyplot as plt
 from torch.utils.data import DataLoader
 
+from capstone_utils.dataloader.collate_fn import minibatch_padding_collate_fn
 from T2M_GPT_lightning.dataset.toy_vq_vae_dataset import ToyDataset
 from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 
@@ -43,8 +44,12 @@ test_dataset = ToyDataset(
 )
 
 # Initialize the dataloaders
-train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=config["batch_size"], shuffle=False)
+train_loader = DataLoader(
+    train_dataset, batch_size=config["batch_size"], collate_fn=minibatch_padding_collate_fn, shuffle=True
+)
+test_loader = DataLoader(
+    test_dataset, batch_size=config["batch_size"], collate_fn=minibatch_padding_collate_fn, shuffle=False
+)
 
 # Initialize the logger
 csv_logger = CSVLogger("logs", name=config["log_folder_name"])
