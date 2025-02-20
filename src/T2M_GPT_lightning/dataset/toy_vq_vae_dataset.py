@@ -10,7 +10,7 @@ class ToyDataset(Dataset):
         normalise: bool = True,
         is_data_has_timestamp: bool = False,
         frame_size: int | None = None,
-        window_size: int | None = None,
+        window_size: int = -1,
     ) -> None:
         """
         Load the toy dataset from the given path.
@@ -18,7 +18,7 @@ class ToyDataset(Dataset):
         Args:
         - joint_size (int): The number of joints in the skeleton.
         - frame_size (int): The number of frames in the skeleton. If None, the frames will not be truncated or zero-padded.
-        - window_size (int): The number of frames in the window. If None, the window will not be applied.
+        - window_size (int): The number of frames in the window. If -1, the window size will not be used.
         - dataset_size (int): The number of samples in the dataset.
         """
         # Set attributes
@@ -56,8 +56,12 @@ class ToyDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx: int) -> torch.Tensor:
-        start_index = torch.randint(0, self.data[idx].shape[0] - self.window_size, (1,)).item()
-        end_index = start_index + self.window_size
+        if self.window_size != -1:
+            start_index = torch.randint(0, self.data[idx].shape[0] - self.window_size, (1,)).item()
+            end_index = start_index + self.window_size
+        else:
+            start_index = 0
+            end_index = self.data[idx].shape[0]
         data = self.data[idx][start_index:end_index]
         if self.normalise:
             data = (data - self.min_value) / (self.max_value - self.min_value)
