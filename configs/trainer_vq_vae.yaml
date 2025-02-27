@@ -1,25 +1,28 @@
 # Data parameters
-joint_size: 150
-window_size: 48
+joint_size: 1659
+# Window size -1 means that the whole sequence is used
+window_size: -1
 
 # Training parameters
 batch_size: 1
-max_epochs: 1000
+max_epochs: 2000
+save_every_n_epochs: 10
 model_hyperparameters:
-  learning_rate: 0.0005
+  learning_rate: 0.0001
   L: 2
-  codebook_size: 512
-  quantizer_decay: 0.99
-  skels_dim: 150
+  codebook_size: 128
+  quantizer_decay: 0.7
+  skels_dim: 1659
   embedding_dim: 512
-  is_focus_hand_mode: True
-  ratio_for_hand: 0.7
+  is_focus_hand_mode: False
+  ratio_for_hand: 0.9
 
 # Paths
-train_data_path: './data/toy_data/train.skels'
-val_data_path: './data/toy_data/train.skels'
+train_data_path: './data/toy_data/IamKittitat 2110488-Capstone-Text2Sign main T2S-GPT-data_scaled_skeleton/dev.skels'
+val_data_path: './data/toy_data/IamKittitat 2110488-Capstone-Text2Sign main T2S-GPT-data_scaled_skeleton/dev.skels'
+is_data_has_timestamp: False
 save_weight_path: './vq_vae_model.pth'
-log_folder_name: 'vq_vae_finetune'
-resume_weight_path: './logs/vq_vae/version_9/checkpoints/epoch=1999-step=10000.ckpt'
+log_folder_name: 'vq_vae_all_body'
+resume_weight_path: './logs/vq_vae_all_body/version_2/checkpoints/vqvae-epoch=1999-val_loss=0.0036.ckpt'
 
 normalize_data: True
