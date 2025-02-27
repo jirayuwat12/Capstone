@@ -1,6 +1,13 @@
-input_vdo_path: ./assets/01March_2011_Tuesday_tagesschau-2211.mp4
-output_vdo_path: ./assets/01March_2011_Tuesday_tagesschau-2211-deblurred-with-BIN.mp4
+# Input video path
+input_vdo_path: ./assets/09August_2011_Tuesday_heute-2641.mp4
+# Output video path
+output_vdo_path: ./assets/deblurred/09August_2011_Tuesday_heute-2641-deblurred-with-BIN.mp4
+
+# Number of frames used to feed the model
 num_interpolation: 7
+# Time step between each frame
 time_step: 0.5
+# Path to the model option yaml file
 model_option_yaml: ./assets/BIN/train_adobe_stage4.yml
+# Name of the model
 model_net_name: bin_stage4

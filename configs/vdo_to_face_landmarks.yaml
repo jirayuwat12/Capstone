@@ -1,0 +1,11 @@
+# Video path
+vdo_file: ./assets/videos_phoenix/videos/dev/01April_2010_Thursday_heute-6698.mp4
+# Output folder
+output_folder: ./output
+
+# Face model path
+face_landmarker_model_path: ./assets/face_landmarker_v2_with_blendshapes.task
+# Return landmarked video or not which contains the comparison between the original video and the landmarked video
+is_return_landmarked_vdo: True
+# normalized or position
+landmarks_format: 'normalized'

@@ -1,8 +1,11 @@
+# Path to annotation gzip file
 annotation_file: './assets/videos_phoenix/phoenix14t.pami0.dev.annotations_only.gzip'
+# List of target file names
 target_file_names:
     - '01April_2010_Thursday_heute-6698'
     - '01June_2010_Tuesday_tagesschau-5002'
     - '01March_2011_Tuesday_tagesschau-2210'
     - '01March_2011_Tuesday_tagesschau-2211'
 
+# Path to the output folder
 output_folder: './assets'

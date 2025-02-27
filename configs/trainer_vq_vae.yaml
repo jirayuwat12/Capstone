@@ -25,4 +25,5 @@ save_weight_path: './vq_vae_model.pth'
 log_folder_name: 'vq_vae_all_body'
 resume_weight_path: './logs/vq_vae_all_body/version_2/checkpoints/vqvae-epoch=1999-val_loss=0.0036.ckpt'
 
+# Is data normalized before training
 normalize_data: True

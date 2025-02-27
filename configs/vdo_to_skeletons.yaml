@@ -1,12 +1,14 @@
-# Folder name
-vdo_folder: ./assets/
-# vdo_file: assets/01March_2011_Tuesday_tagesschau-2211-deblurred-with-BIN.mp4
-output_folder: ./mediapipe_skeleton_test/
+# Folder name or vdo_file for one video
+vdo_folder: ./assets/deblurred/
+output_folder: ./mediapipe_skeleton_deblurred/
 
 # Normal settings
 is_return_landmarked_vdo: True
+# Landmarks format: 'normalized' or 'pixel'
 landmarks_format: 'pixel'
+# Save format: 'npy' or 'txt'
 save_format: 'npy'
+# Save statistics file or not
 save_stats: True
 
 # Refinement settings
@@ -14,19 +16,26 @@ max_distance_between_predicted_hand_and_approximated_hand: 1000
 
 # Model settings
 face_model:
+  # Path to the face landmark model
   face_landmarker_model_path: ./assets/face_landmarker.task
+  # How to deal with the face if not found: previous
+  replace_not_found_method: 'previous'
+  # See https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker#configurations_options for more details
   min_face_detection_confidence: 0.0
   min_face_presence_confidence: 0.0
   min_tracking_confidence: 0.0
   max_num_faces: 1
   output_face_blendshapes: True
-  replace_not_found_method: 'previous'
 hand_model:
-  max_num_hands: 3
-  min_detection_confidence: 0.5
-  min_tracking_confidence: 0.5
+  # How to deal with the hand if not found: previous
   replace_not_found_method: 'previous'
+  # See https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker for more details
+  max_num_hands: 3
+  min_detection_confidence: 0.2
+  min_tracking_confidence: 0.2
 pose_model:
+  # How to deal with the pose if not found: previous
+  replace_not_found_method: 'previous'
+  # See https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker for more details
   min_detection_confidence: 0.1
   min_tracking_confidence: 0.0
-  replace_not_found_method: 'previous'

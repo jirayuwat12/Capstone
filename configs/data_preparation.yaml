@@ -1,17 +1,16 @@
 phoenix_tar_file: "./data/phoenix-2014-T.v3.tar.gz"
-# If already extracted, set the path, or else leave it empty
+# If already extracted, set the path, or else leave it empty ("")
 phoenix_extracted_folder: "./data/PHOENIX-2014-T-release-v3/PHOENIX-2014-T"
 # Folder where the extracted data will be stored
 target_folder: "./data/extracted_phoenix"
 
-# Folder where the logs will be stored
-log_folder: "./script_logs"
 # Video framerate
 video_fps: 25
 
-# Use BIN or not
+# Use BIN or not and its config
 use_bin: True
 bin_config:
+  # See deblur_vdo_using_BIN.yaml for more details
   num_interpolation: 7
   time_step: 0.5
   model_option_yaml: "./assets/BIN/train_adobe_stage4.yml"
@@ -19,16 +18,12 @@ bin_config:
 
 # Convert VDO to skeletons config
 vdo_to_skeletons_config:
-# Normal settings
+  # See vdo_to_skeletons.yaml for more details
   is_return_landmarked_vdo: False
   landmarks_format: 'pixel'
   save_format: 'npy'
   save_stats: True
-
-  # Refinement settings
   max_distance_between_predicted_hand_and_approximated_hand: 1000
-
-  # Model settings
   face_model:
     face_landmarker_model_path: ./assets/face_landmarker.task
     min_face_detection_confidence: 0.0
@@ -46,3 +41,6 @@ vdo_to_skeletons_config:
     min_detection_confidence: 0.1
     min_tracking_confidence: 0.0
     replace_not_found_method: 'previous'
+
+# Folder where the logs will be stored
+log_folder: "./scripts_logs"
