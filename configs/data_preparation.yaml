@@ -1,5 +1,12 @@
-phoenix_tar_url: "https://www-i6.informatik.rwth-aachen.de/ftp/pub/rwth-phoenix/2016/phoenix-2014-T.v3.tar.gz"
-phoenix_tar_folder: "./data"
+phoenix_tar_file: "./data/phoenix-2014-T.v3.tar.gz"
+
+# Folder where the logs will be stored
 log_folder: "./script_logs"
-target_folder: "./data/extracted_phoenix"
+# If already extracted, set the path, or else leave it empty
 phoenix_extracted_folder: "./data/PHOENIX-2014-T-release-v3/PHOENIX-2014-T"
+# Folder where the extracted data will be stored
+target_folder: "./data/extracted_phoenix"
+# Video framerate
+video_fps: 25
+# Use BIN or not
+use_bin: True
