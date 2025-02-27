@@ -30,7 +30,6 @@ output/
 *.txt
 *_temp
 *.json
-src/BIN/data/
-src/BIN/demo_blur/
-assets/BIN/
+assets/BIN/demo_blur
 mediapipe_skeleton_test/
+script_logs/
