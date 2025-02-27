@@ -29,7 +29,7 @@ def deblur_vdo_using_BIN_main(
     ## Create a temporary folder
     if os.path.exists(TEMP_FOLDER_NAME):
         warnings.warn("The temporary folder already exists. It will be overwritten.")
-        os.system(f"rm -r {TEMP_FOLDER_NAME}")
+        os.system(f"rm -r {TEMP_FOLDER_NAME} > /dev/null")
     os.makedirs(TEMP_FOLDER_NAME)
     os.makedirs(ALL_CONVERTED_VDO_PATH)
     os.makedirs(CONVERTED_VDO_PATH)
@@ -37,7 +37,7 @@ def deblur_vdo_using_BIN_main(
     os.makedirs(os.path.dirname(output_vdo_path), exist_ok=True)
     ## Convert from .mp4 to vdo folder if needed
     if not IS_VDO_PATH_A_FOLDER:
-        os.system(f"ffmpeg -i {input_vdo_path} {CONVERTED_VDO_PATH}/%05d.png")
+        os.system(f"ffmpeg -i {input_vdo_path} {CONVERTED_VDO_PATH}/%05d.png -y > /dev/null")
         print(f"Converted {input_vdo_path} to {CONVERTED_VDO_PATH}")
         ## Change each file name from 00001.png to 00002.png, 00002.png to 00004.png, etc.
         for i, file_name in enumerate(sorted(os.listdir(CONVERTED_VDO_PATH))):
@@ -48,7 +48,7 @@ def deblur_vdo_using_BIN_main(
             os.rename(to_be_renamed, new_name)
         print(f"Renamed files in {CONVERTED_VDO_PATH} to match the interpolation")
     else:
-        os.system(f"cp -R {input_vdo_path} {ALL_CONVERTED_VDO_PATH}")
+        os.system(f"cp -R {input_vdo_path} {ALL_CONVERTED_VDO_PATH} > /dev/null")
         print(f"Copied {input_vdo_path} to {CONVERTED_VDO_PATH}")
 
     # Run BIN to deblur the vdo -----------------------------------------
@@ -71,12 +71,12 @@ def deblur_vdo_using_BIN_main(
     original_fps = cv2.VideoCapture(input_vdo_path).get(cv2.CAP_PROP_FPS)
     after_fps = original_fps * (1 / time_step)
     os.system(
-        f"ffmpeg -framerate {after_fps} -pattern_type glob -i './{DEBLURRED_VDO_PATH}/{VDO_NAME}/*.png' -c:v libx264 -pix_fmt yuv420p {output_vdo_path}"
+        f"ffmpeg -framerate {after_fps} -pattern_type glob -i './{DEBLURRED_VDO_PATH}/{VDO_NAME}/*.png' -c:v libx264 -pix_fmt yuv420p {output_vdo_path} -y > /dev/null"
     )
     print(f"Converted ./{DEBLURRED_VDO_PATH}/{VDO_NAME} to {output_vdo_path}")
 
     # Clear temporary folder -------------------------------------------
-    os.system(f"rm -r {TEMP_FOLDER_NAME}")
+    os.system(f"rm -r {TEMP_FOLDER_NAME} > /dev/null")
     print(f"Removed {TEMP_FOLDER_NAME}")
 
 
