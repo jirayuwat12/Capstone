@@ -32,4 +32,4 @@ output/
 *.json
 assets/BIN/demo_blur
 mediapipe_skeleton_test/
-script_logs/
+*_logs/
