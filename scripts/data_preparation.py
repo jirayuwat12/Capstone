@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 from .convert_vdo_to_skeletons import convert_vdo_to_skeleton_main
 from .deblur_vdo_using_BIN import deblur_vdo_using_BIN_main
+from .norm_standardize import norm_standardize
 
 # Create a parser object
 args = argparse.ArgumentParser()
@@ -156,5 +157,23 @@ for split in ["dev", "train", "test"]:
         yes=True,
     )
 logging.info("All skeleton files created successfully")
+
+# Normalization to Reference Skeleton & Min-Max Scaling
+logging.info("Normalization to Reference Skeleton & Min-Max Scaling")
+train_folder = os.path.join(config["target_folder"], "train")
+reference_dir = None
+for file in os.listdir(train_folder):
+    file_path = os.path.join(train_folder, file)
+    if os.path.isfile(file_path) and file.endswith(".npy"):
+        reference_dir = file_path
+if reference_dir is None:
+    logging.error("Reference skeleton file not found")
+    exit(1)
+norm_standardize(
+    input_dir = config["target_folder"],
+    reference_dir = reference_dir ,
+    output_file = config["target_folder"], 
+)
+logging.info("Normalization, Scaling successfully")
 
 logging.info("Data preparation completed")
