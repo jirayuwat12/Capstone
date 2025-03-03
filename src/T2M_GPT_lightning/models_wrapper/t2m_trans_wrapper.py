@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from lightning.pytorch import LightningModule
 from lightning.pytorch.core.optimizer import LightningOptimizer
+from torch.optim.lr_scheduler import LambdaLR
 from torch.optim.optimizer import Optimizer
 
 from T2M_GPT.models.t2m_trans import Text2Motion_Transformer
@@ -81,10 +82,28 @@ class Text2MotionTransformerWrapper(LightningModule):
         self.log("train_loss", loss_cls, prog_bar=True)
         self.log("train_accuracy", avg_accuracy, prog_bar=True)
 
+        # Log the learning rate
+        self.log("learning_rate", self.trainer.optimizers[0].param_groups[0]["lr"], prog_bar=True)
+
         return loss_cls
 
     def configure_optimizers(self):
-        return torch.optim.AdamW(self.parameters(), lr=self.learning_rate, betas=(0.5, 0.99), eps=1e-8)
+        optim = torch.optim.AdamW(self.parameters(), lr=self.learning_rate, betas=(0.5, 0.99), eps=1e-8)
+
+        # Learning rate scheduler
+        def lr_lambda(epoch: int) -> float:
+            if epoch > 5000:
+                return 5e-6
+            else:
+                return 1e-4
+
+        scheduler = LambdaLR(optim, lr_lambda)
+
+        return {
+            "optimizer": optim,
+            "lr_scheduler": scheduler,
+            "monitor": "val_loss",
+        }
 
     def validation_step(self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
         text_features, skels_indices = batch

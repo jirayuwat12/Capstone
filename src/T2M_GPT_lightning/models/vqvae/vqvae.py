@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from lightning.pytorch import LightningModule
+from torch.optim.lr_scheduler import LambdaLR
 
 from T2M_GPT_lightning.models.vqvae.decoder import Decoder
 from T2M_GPT_lightning.models.vqvae.encoder import Encoder
@@ -97,6 +98,9 @@ class VQVAEModel(LightningModule):
         self.log("train_rec_loss", loss_reconstruction, prog_bar=True)
         self.log("train_vae_loss", vae_loss, prog_bar=True)
 
+        # Log the learning rate
+        self.log("learning_rate", self.trainer.optimizers[0].param_groups[0]["lr"], prog_bar=True)
+
         return loss
 
     def compute_reconstruction_loss(
@@ -158,10 +162,26 @@ class VQVAEModel(LightningModule):
         return loss
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
+        optim = None
         if self.learning_rate:
-            return torch.optim.Adam(self.parameters(), lr=self.learning_rate, betas=self.betas)
+            optim = torch.optim.Adam(self.parameters(), lr=self.learning_rate, betas=self.betas)
         else:
-            return torch.optim.Adam(self.parameters(), betas=self.betas)
+            optim = torch.optim.Adam(self.parameters(), betas=self.betas)
+
+        # Learning rate scheduler
+        def lr_lambda(epoch: int) -> float:
+            if epoch > 6666:
+                return 1e-5
+            else:
+                return 2e-4
+
+        scheduler = LambdaLR(optim, lr_lambda)
+
+        return {
+            "optimizer": optim,
+            "lr_scheduler": scheduler,
+            "monitor": "val_loss",
+        }
 
     def decode_indices(self, indices: torch.Tensor) -> torch.Tensor:
         """
