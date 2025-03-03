@@ -56,7 +56,7 @@ class Quantizer(nn.Module):
         """
         # Reshape input tensor to (B*T/l, embed_dim)
         x = x.permute(0, 2, 1)  # (B, T/l, embed_dim)
-        x_flatten = x.view(x.shape[0], -1, self.codebook_dim)  # Flattened to (B*T/l, embed_dim)
+        x_flatten = x.reshape(-1, self.codebook_dim)  # Flattened to (B*T/l, embed_dim)
 
         # Calculate distances between x and embeddings
         embedding = self.embedding.weight  # (codebook_size, embed_dim)
