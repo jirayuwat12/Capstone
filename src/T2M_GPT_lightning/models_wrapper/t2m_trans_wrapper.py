@@ -84,7 +84,7 @@ class Text2MotionTransformerWrapper(LightningModule):
         return loss_cls
 
     def configure_optimizers(self):
-        return torch.optim.AdamW(self.parameters(), lr=self.learning_rate, betas=(0.5, 0.9), eps=1e-8)
+        return torch.optim.AdamW(self.parameters(), lr=self.learning_rate, betas=(0.5, 0.99), eps=1e-8)
 
     def validation_step(self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
         text_features, skels_indices = batch
