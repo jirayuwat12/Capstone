@@ -1,0 +1,32 @@
+# VQ VAE model
+vq_vae_model_path: './src/T2M_GPT_lightning/models/vqvae/weights/vq_vae_model.pth'
+vq_vae_model_config_path: './configs/trainer_vq_vae.yaml'
+
+# Gpt model
+model_hyperparameters:
+  num_vq: 512 # Number of codebook vectors
+  embed_dim: 512 # Dimension of the embeddings
+  clip_dim: 512 # Dimension of the clip model
+  block_size: 100 # Size of the block
+  num_layers: 18 # Number of layers
+  n_head: 16 # Number of heads
+  drop_out_rate: 0.1 # Drop out rate
+  fc_rate: 4 # Rate of the fully connected layer
+  learning_rate: 0.00005 # Learning rate
+
+# Trainer
+is_toy: True
+batch_size: 128
+max_epochs: 10000
+# Path to save the weights
+save_weights_path: './t2m_trans.pth'
+
+# Path to the train text and skels files
+train_text_path: './data/toy_data/train.text'
+train_skels_path: './data/toy_data/train.skels'
+# Path to the val text and skels files
+val_text_path: './data/toy_data/train.text'
+val_skels_path: './data/toy_data/train.skels'
+
+# Path to load the weights and resume training
+resume_weights_path: ''
