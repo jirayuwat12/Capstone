@@ -19,6 +19,7 @@ class VQVAEModel(LightningModule):
         quantizer_decay: float = 0.99,
         is_focus_hand_mode: bool = False,
         ratio_for_hand: float = 0.5,
+        betas: tuple[float, float] = (0.9, 0.99),
     ) -> None:
         """
         Initialize the VQVAE model
@@ -41,6 +42,7 @@ class VQVAEModel(LightningModule):
 
         # Hyperparameters
         self.learning_rate = learning_rate
+        self.betas = betas
 
     def reconstruct(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
@@ -157,9 +159,9 @@ class VQVAEModel(LightningModule):
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
         if self.learning_rate:
-            return torch.optim.Adam(self.parameters(), lr=self.learning_rate)
+            return torch.optim.Adam(self.parameters(), lr=self.learning_rate, betas=self.betas)
         else:
-            return torch.optim.Adam(self.parameters())
+            return torch.optim.Adam(self.parameters(), betas=self.betas)
 
     def decode_indices(self, indices: torch.Tensor) -> torch.Tensor:
         """
