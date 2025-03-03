@@ -8,7 +8,13 @@ from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 
 class ToyDataset(Dataset):
     def __init__(
-        self, clip_model: nn.Module, vq_vae_model: VQVAEModel, text_path: str, skels_path: str, block_size: int
+        self,
+        clip_model: nn.Module,
+        vq_vae_model: VQVAEModel,
+        text_path: str,
+        skels_path: str,
+        joint_size: int,
+        has_timestamp: bool,
     ) -> None:
         super().__init__()
 
@@ -17,10 +23,12 @@ class ToyDataset(Dataset):
 
         self.text_path = text_path
         self.skels_path = skels_path
-        self.block_size = block_size
 
         self.texts = self.load_texts()
         self.texts_features = self.get_text_features().to(self.vq_vae_model.device)
+
+        self.joint_size = joint_size
+        self.has_timestamp = has_timestamp
 
         self.skels = self.load_skels()
 
@@ -29,7 +37,7 @@ class ToyDataset(Dataset):
         with open(self.skels_path, "r") as f:
             for line in f.readlines():
                 skel = torch.tensor([float(val) for val in line.strip().split()])
-                skel = skel.reshape(-1, 151)[:, :150]
+                skel = skel.reshape(-1, (self.joint_size + self.has_timestamp))[:, : self.joint_size]
                 skels.append(skel)
         return skels
 

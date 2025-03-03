@@ -45,14 +45,16 @@ if config["is_toy"]:
         vq_vae_model=vq_vae_model,
         text_path=config["train_text_path"],
         skels_path=config["train_skels_path"],
-        block_size=config["model_hyperparameters"]["block_size"],
+        joint_size=vq_vae_config["joint_size"],
+        has_timestamp=vq_vae_config["is_data_has_timestamp"],
     )
     val_dataset = ToyDataset(
         clip_model=clip_model,
         vq_vae_model=vq_vae_model,
         text_path=config["val_text_path"],
         skels_path=config["val_skels_path"],
-        block_size=config["model_hyperparameters"]["block_size"],
+        joint_size=vq_vae_config["joint_size"],
+        has_timestamp=vq_vae_config["is_data_has_timestamp"],
     )
 else:
     assert False, "Not implemented yet"
