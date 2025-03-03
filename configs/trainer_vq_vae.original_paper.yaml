@@ -8,7 +8,7 @@ batch_size: 256
 max_epochs: 10000
 save_every_n_epochs: 50
 model_hyperparameters:
-  learning_rate: 2e-4
+  learning_rate: 0.0002
   betas:
     - 0.9
     - 0.99
@@ -25,7 +25,7 @@ train_data_path: './data/toy_data/IamKittitat 2110488-Capstone-Text2Sign main T2
 val_data_path: './data/toy_data/IamKittitat 2110488-Capstone-Text2Sign main T2S-GPT-data_scaled_skeleton/dev.skels'
 is_data_has_timestamp: False
 save_weight_path: './vq_vae_model.pth'
-log_folder_name: 'vq_vae_all_body'
+log_folder_name: 'vq_vae_lanta'
 resume_weight_path: './logs/vq_vae_all_body/version_2/checkpoints/vqvae-epoch=1999-val_loss=0.0036.ckpt'
 
 # Is data normalized before training
