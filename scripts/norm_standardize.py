@@ -1,8 +1,7 @@
 import os
+from collections import defaultdict
 
 import numpy as np
-
-from collections import defaultdict
 
 
 def normalized_data(input_skeleton, reference_skeleton):

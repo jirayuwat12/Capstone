@@ -25,7 +25,7 @@ os.makedirs(config["log_folder"], exist_ok=True)
 log_file = os.path.join(config["log_folder"], "data_preparation.log")
 # Add show on standard output as well
 logging.basicConfig(
-    level=logging.DEBUG if config['log_level'] == "DEBUG" else logging.INFO,
+    level=logging.DEBUG if config["log_level"] == "DEBUG" else logging.INFO,
     format="%(asctime)s - %(message)s",
     handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
 )
