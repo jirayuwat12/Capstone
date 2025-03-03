@@ -13,11 +13,11 @@ from .norm_standardize import norm_standardize
 
 # Create a parser object
 args = argparse.ArgumentParser()
-args.add_argument("--config", default="./configs/data_preparation.yaml")
+args.add_argument("--config_path", default="./configs/data_preparation.yaml")
 args = args.parse_args()
 
 # Load the configuration file
-with open(args.config, "r") as file:
+with open(args.config_path, "r") as file:
     config = yaml.safe_load(file)
 
 # Create logger
