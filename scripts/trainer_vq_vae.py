@@ -92,5 +92,3 @@ plt.xlabel("Epoch")
 plt.ylabel("Loss")
 # Save the plot
 plt.savefig(logging_path + "/train_loss.png")
-# Show the plot
-plt.show()
