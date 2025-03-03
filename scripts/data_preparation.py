@@ -170,9 +170,9 @@ if reference_dir is None:
     logging.error("Reference skeleton file not found")
     exit(1)
 norm_standardize(
-    input_dir = config["target_folder"],
-    reference_dir = reference_dir ,
-    output_file = config["target_folder"], 
+    input_dir=config["target_folder"],
+    reference_dir=reference_dir,
+    output_file=config["target_folder"],
 )
 logging.info("Normalization, Scaling successfully")
 
