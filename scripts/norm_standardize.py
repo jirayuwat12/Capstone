@@ -2,6 +2,8 @@ import os
 
 import numpy as np
 
+from collections import defaultdict
+
 
 def normalized_data(input_skeleton, reference_skeleton):
     # Normalization to reference_skeleton
@@ -53,7 +55,7 @@ def compute_global_stats(all_scaled_skeletons):
 
 def norm_standardize(input_dir: str, reference_dir: str, output_file: str):
     reference_skeleton = np.load(reference_dir)
-    all_scaled_skeletons = []
+    all_scaled_skeletons_by_split = defaultdict(list)
     train_scaled_skeletons = []
     NUM_JOINT = reference_skeleton.shape[1]
 
@@ -62,7 +64,7 @@ def norm_standardize(input_dir: str, reference_dir: str, output_file: str):
             if skeleton_file.endswith(".npy"):
                 input_skeleton = np.load(os.path.join(input_dir, split, skeleton_file))
                 scaled_skeleton = normalized_data(input_skeleton, reference_skeleton)
-                all_scaled_skeletons.append(scaled_skeleton)
+                all_scaled_skeletons_by_split[split].append(scaled_skeleton)
                 if split == "train":
                     train_scaled_skeletons.append(scaled_skeleton)
 
@@ -74,7 +76,7 @@ def norm_standardize(input_dir: str, reference_dir: str, output_file: str):
 
     for split in ["dev", "train", "test"]:
         with open(os.path.join(output_file, split, f"{split}.skels"), "w") as f:
-            for scaled_skeleton in all_scaled_skeletons:
+            for scaled_skeleton in all_scaled_skeletons_by_split[split]:
                 standardized_skeleton = standardized_data(scaled_skeleton, global_min, global_max, NUM_JOINT)
                 if (standardized_skeleton.shape[1] != NUM_JOINT) | (standardized_skeleton.shape[2] != 3):
                     # (standardized_skeleton.min() < -1) |
