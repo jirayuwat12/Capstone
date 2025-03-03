@@ -21,12 +21,12 @@ model_hyperparameters:
   ratio_for_hand: 0.9
 
 # Paths
-train_data_path: './data/toy_data/IamKittitat 2110488-Capstone-Text2Sign main T2S-GPT-data_scaled_skeleton/dev.skels'
-val_data_path: './data/toy_data/IamKittitat 2110488-Capstone-Text2Sign main T2S-GPT-data_scaled_skeleton/dev.skels'
+train_data_path: '/Users/jirayuwat/Desktop/Capstone/data/extracted_phoenix/train/train.skels'
+val_data_path: '/Users/jirayuwat/Desktop/Capstone/data/extracted_phoenix/dev/dev.skels'
 is_data_has_timestamp: False
-save_weight_path: './vq_vae_model.pth'
+save_weight_path: '/Users/jirayuwat/Desktop/Capstone/vq_vae_model.pth'
 log_folder_name: 'vq_vae_lanta'
-resume_weight_path: './logs/vq_vae_all_body/version_2/checkpoints/vqvae-epoch=1999-val_loss=0.0036.ckpt'
+resume_weight_path: ''
 
 # Is data normalized before training
 normalize_data: True
