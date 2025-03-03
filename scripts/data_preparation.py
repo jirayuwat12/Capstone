@@ -25,7 +25,7 @@ os.makedirs(config["log_folder"], exist_ok=True)
 log_file = os.path.join(config["log_folder"], "data_preparation.log")
 # Add show on standard output as well
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.DEBUG if config['log_level'] == "DEBUG" else logging.INFO,
     format="%(asctime)s - %(message)s",
     handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
 )
@@ -50,7 +50,8 @@ if config["phoenix_extracted_folder"] == "":
         logging.error(f"Error while extracting the dataset: {err}")
         exit(1)
 else:
-    PHOENIX_BASE_FOLDER = config["phoenix_extracted_folder"]
+    # PHOENIX_BASE_FOLDER = config["phoenix_extracted_folder"]
+    PHOENIX_BASE_FOLDER = os.path.join(config["phoenix_extracted_folder"], "PHOENIX-2014-T")
 logging.info(f"Phoenix dataset is available at {os.path.abspath(PHOENIX_BASE_FOLDER)}")
 
 # Create folder for the text files from the dataset
@@ -175,5 +176,17 @@ norm_standardize(
     output_file=config["target_folder"],
 )
 logging.info("Normalization, Scaling successfully")
+
+# Create .txt files for the dataset
+logging.info("Creating the .txt files for the dataset")
+for split in ["dev", "train", "test"]:
+    logging.info(f"Creating the .txt files for {split}")
+    file_name_list = sorted(os.listdir(os.path.join(config["target_folder"], split)))
+    with open(os.path.join(config["target_folder"], split, f"{split}.txt"), "w") as f:
+        for file_name in tqdm(file_name_list):
+            if file_name.endswith(".json"):
+                json_file = json.load(open(os.path.join(config["target_folder"], split, file_name)))
+                f.write(f"{json_file['text']}\n")
+logging.info("All .txt files created successfully")
 
 logging.info("Data preparation completed")
