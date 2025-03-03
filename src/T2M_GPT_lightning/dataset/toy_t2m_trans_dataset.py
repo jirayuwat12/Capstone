@@ -25,7 +25,6 @@ class ToyDataset(Dataset):
         self.skels_path = skels_path
 
         self.texts = self.load_texts()
-        self.texts_features = self.get_text_features().to(self.vq_vae_model.device)
 
         self.joint_size = joint_size
         self.has_timestamp = has_timestamp
@@ -45,9 +44,9 @@ class ToyDataset(Dataset):
         with open(self.text_path, "r") as f:
             return [text.strip() for text in f.readlines()]
 
-    def get_text_features(self) -> torch.Tensor:
-        tokenized_texts = clip.tokenize(self.texts, truncate=True)
-        return self.clip_model.encode_text(tokenized_texts).detach()
+    def get_text_features(self, text: str) -> torch.Tensor:
+        tokenized_texts = clip.tokenize([text], truncate=True)
+        return self.clip_model.encode_text(tokenized_texts)[0].detach()
 
     def __len__(self) -> int:
         return len(self.texts)
@@ -66,7 +65,11 @@ class ToyDataset(Dataset):
         code_indices = torch.cat(
             [code_indices, torch.tensor([self.vq_vae_model.quantizer.codebook_size], device=code_indices.device)]
         )
-        return self.texts_features[idx], code_indices
+
+        # get text features
+        text_features = self.get_text_features(self.texts[0]).to(self.vq_vae_model.device)
+
+        return text_features, code_indices
 
 
 if __name__ == "__main__":
