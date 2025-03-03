@@ -108,10 +108,11 @@ class Text2MotionTransformerWrapper(LightningModule):
     def validation_step(self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
         text_features, skels_indices = batch
         cls_pred = self.forward(skels_indices, text_features)  # Shape: (batch_size, seq_len, num_classes)
+        cls_pred = cls_pred[:, :-1, :]
 
         # Reshape for loss computation
-        logits = cls_pred.view(-1, self.total_tokens)[:-1, :]  # Shape: (batch_size * seq_len, num_classes)
-        targets = skels_indices.view(-1)  # Shape: (batch_size * seq_len)
+        logits = cls_pred.reshape(-1, self.total_tokens)  # Shape: (batch_size * seq_len, num_classes)
+        targets = skels_indices.reshape(-1)  # Shape: (batch_size * seq_len)
 
         # Compute loss
         loss_cls = nn.CrossEntropyLoss()(logits, targets)
