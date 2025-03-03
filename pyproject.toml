@@ -15,4 +15,5 @@ dependencies = [
     "tqdm==4.66.5",
     "requests",
     "opencv-python",
+    "mediapipe",
 ]
