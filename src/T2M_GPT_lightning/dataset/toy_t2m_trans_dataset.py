@@ -46,7 +46,7 @@ class ToyDataset(Dataset):
             return [text.strip() for text in f.readlines()]
 
     def get_text_features(self) -> torch.Tensor:
-        tokenized_texts = clip.tokenize(self.texts)
+        tokenized_texts = clip.tokenize(self.texts, truncate=True)
         return self.clip_model.encode_text(tokenized_texts).detach()
 
     def __len__(self) -> int:
