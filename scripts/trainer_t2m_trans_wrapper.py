@@ -64,7 +64,7 @@ train_loader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffl
 val_loader = DataLoader(val_dataset, batch_size=config["batch_size"], shuffle=False)
 
 # Initialize the logger
-csv_logger = CSVLogger("logs", name="t2m_trans")
+csv_logger = CSVLogger("logs", name=config["log_folder_name"])
 
 # Initialize the trainer
 trainer = Trainer(log_every_n_steps=10, max_epochs=config["max_epochs"], logger=csv_logger)

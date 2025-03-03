@@ -28,5 +28,7 @@ train_skels_path: './data/toy_data/train.skels'
 val_text_path: './data/toy_data/train.text'
 val_skels_path: './data/toy_data/train.skels'
 
+log_folder_name: 't2m_trans_lanta'
+
 # Path to load the weights and resume training
 resume_weights_path: ''
