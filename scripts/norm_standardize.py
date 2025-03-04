@@ -74,7 +74,11 @@ def norm_standardize(input_dir: str, reference_dir: str, output_file: str):
     np.save(os.path.join(output_file, "preproces_data_global_max.npy"), global_max)
 
     for split in ["dev", "train", "test"]:
-        with open(os.path.join(output_file, split, f"{split}.skels"), "w") as f:
+        output_path = os.path.join(output_file, split, f"{split}.skels")
+        if os.path.exists(output_path):
+            print(f"Skipping {output_path} as it already exists")
+            continue
+        with open(output_path, "w") as f:
             for scaled_skeleton in all_scaled_skeletons_by_split[split]:
                 standardized_skeleton = standardized_data(scaled_skeleton, global_min, global_max, NUM_JOINT)
                 if (standardized_skeleton.shape[1] != NUM_JOINT) | (standardized_skeleton.shape[2] != 3):

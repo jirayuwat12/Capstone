@@ -63,6 +63,10 @@ def convert_vdo_to_skeleton_main(
     looper = tqdm(vdo_file_list)
     for vdo_file in looper:
         looper.set_description(f'Processing {os.path.basename(vdo_file).split(".")[0]}')
+        save_path = os.path.join(output_folder, os.path.basename(vdo_file).replace(".mp4", ".npy"))
+        if os.path.exists(save_path):
+            print(f"Skipping {os.path.basename(vdo_file)} as it already exists")
+            continue
 
         # Extract the face and pose landmarks
         face_landmarks, face_output_stat = face_landmarker.landmark_vdo(vdo_file, output_stat=True)
@@ -80,7 +84,6 @@ def convert_vdo_to_skeleton_main(
 
         # Save the landmarks
         all_landmarks = np.concatenate([face_landmarks, hand_landmarks, pose_landmarks], axis=1)
-        save_path = os.path.join(output_folder, os.path.basename(vdo_file).replace(".mp4", ".npy"))
         to_save = None
         if landmarks_format == "normalized":
             to_save = all_landmarks

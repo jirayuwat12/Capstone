@@ -70,8 +70,12 @@ for split in ["dev", "train", "test"]:
     looper = tqdm(df.iterrows(), total=len(df), desc=f"Extracting annotations for {split}")
     for idx, row in looper:
         try:
+            target_path = os.path.join(config["target_folder"], split, f'{row["name"]}.json')
             if row["start"] != -1 and row["end"] != -1:
                 logging.info(f"Skipping the row {idx}/{row['name']} due to start and end time is not -1")
+                continue
+            if os.path.exists(target_path):
+                logging.info(f"Skipping the row {idx}/{row['name']} as the file already exists")
                 continue
             target_json = {
                 "name": row["name"],
@@ -79,7 +83,6 @@ for split in ["dev", "train", "test"]:
                 "gloss": row["orth"],
                 "text": row["translation"],
             }
-            target_path = os.path.join(config["target_folder"], split, f'{row["name"]}.json')
             with open(target_path, "w") as file:
                 json.dump(target_json, file)
             logging.debug(f"File {target_path} created successfully")
@@ -102,6 +105,9 @@ for split in ["dev", "train", "test"]:
             video_file = os.path.join(video_folder_path, video_file)
             video_file = "/".join(video_file.split("/")[:-1]) + "/images%04d.png"
             output_video_path = os.path.join(config["target_folder"], split, f"{video_folder}.mp4")
+            if os.path.exists(output_video_path):
+                logging.info(f"Skipping the video {split}/{output_video_path} as the file already exists")
+                continue
             logging.debug(f"Using the video files: {video_file}")
             logging.debug(f"Creating the video {split}/{output_video_path}")
             if (
@@ -182,7 +188,11 @@ logging.info("Creating the .txt files for the dataset")
 for split in ["dev", "train", "test"]:
     logging.info(f"Creating the .txt files for {split}")
     file_name_list = sorted(os.listdir(os.path.join(config["target_folder"], split)))
-    with open(os.path.join(config["target_folder"], split, f"{split}.txt"), "w") as f:
+    output_path = os.path.join(config["target_folder"], split, f"{split}.txt")
+    if os.path.exists(output_path):
+        logging.info(f"Skipping the .txt file for {split} as the file already exists")
+        continue
+    with open(output_path, "w") as f:
         for file_name in tqdm(file_name_list):
             if file_name.endswith(".json"):
                 json_file = json.load(open(os.path.join(config["target_folder"], split, file_name)))
