@@ -172,8 +172,9 @@ class CrossCondTransBase(nn.Module):
             assert t <= self.block_size, "Cannot forward, model block size is exhausted."
             # forward the Trans model
             token_embeddings = self.tok_emb(idx)
-            with autocast(device_type=self.device.type):
-                token_embeddings = torch.cat([self.cond_emb(clip_feature).unsqueeze(1), token_embeddings], dim=1)
+            # token_embeddings = torch.cat([self.cond_emb(clip_feature).unsqueeze(1), token_embeddings], dim=1)
+            # To fix this: RuntimeError: mat1 and mat2 must have the same dtype, but got Half and Float
+            token_embeddings = torch.cat([self.cond_emb(clip_feature.float()).unsqueeze(1), token_embeddings], dim=1)
 
         x = self.pos_embed(token_embeddings)
         x = self.blocks(x)
