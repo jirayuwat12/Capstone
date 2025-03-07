@@ -6,6 +6,7 @@ from torch.distributions import Categorical
 from torch.nn import functional as F
 
 import T2M_GPT.models.pos_encoding as pos_encoding
+from torch.amp import autocast
 
 
 class Text2Motion_Transformer(nn.Module):
@@ -171,7 +172,8 @@ class CrossCondTransBase(nn.Module):
             assert t <= self.block_size, "Cannot forward, model block size is exhausted."
             # forward the Trans model
             token_embeddings = self.tok_emb(idx)
-            token_embeddings = torch.cat([self.cond_emb(clip_feature).unsqueeze(1), token_embeddings], dim=1)
+            with autocast(device_type=self.device.type):
+                token_embeddings = torch.cat([self.cond_emb(clip_feature).unsqueeze(1), token_embeddings], dim=1)
 
         x = self.pos_embed(token_embeddings)
         x = self.blocks(x)
