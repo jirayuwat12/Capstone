@@ -1,11 +1,12 @@
 import argparse
+import time
 import warnings
 
 import clip
-import time
 import pandas as pd
 import yaml
 from lightning.pytorch import Trainer
+from lightning.pytorch.callbacks import DeviceStatsMonitor
 from lightning.pytorch.loggers import CSVLogger
 from matplotlib import pyplot as plt
 from torch.utils.data import DataLoader
@@ -74,8 +75,13 @@ print(f"T2M trans load dataset time: {time.time() - start_load_dataset_time}")
 # Initialize the logger
 csv_logger = CSVLogger("logs", name=config["log_folder_name"])
 
+# Create device stats monitor
+device_stats_monitor = DeviceStatsMonitor()
+
 # Initialize the trainer
-trainer = Trainer(log_every_n_steps=10, max_epochs=config["max_epochs"], logger=csv_logger)
+trainer = Trainer(
+    log_every_n_steps=10, max_epochs=config["max_epochs"], logger=csv_logger, callbacks=[device_stats_monitor]
+)
 
 start_train_time = time.time()
 # Train the model

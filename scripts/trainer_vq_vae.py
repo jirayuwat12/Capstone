@@ -1,13 +1,14 @@
 import argparse
 import os
+import time
 
 import pandas as pd
-import time
 import yaml
 from lightning.pytorch import Trainer
 from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.loggers import CSVLogger
 from matplotlib import pyplot as plt
+from pytorch_lightning.callbacks import DeviceStatsMonitor
 from torch.utils.data import DataLoader
 
 from capstone_utils.dataloader.collate_fn import minibatch_padding_collate_fn
@@ -68,10 +69,14 @@ checkpoint_callback = ModelCheckpoint(
     mode="min",
     every_n_epochs=config["save_every_n_epochs"],
 )
+device_stats_monitor = DeviceStatsMonitor()
 
 # Initialize the trainer
 trainer = Trainer(
-    log_every_n_steps=10, max_epochs=config["max_epochs"], logger=csv_logger, callbacks=[checkpoint_callback]
+    log_every_n_steps=10,
+    max_epochs=config["max_epochs"],
+    logger=csv_logger,
+    callbacks=[checkpoint_callback, device_stats_monitor],
 )
 
 start_train_time = time.time()
