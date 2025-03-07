@@ -39,7 +39,7 @@ else:
 
 start_load_dataset_time = time.time()
 # Initialize the dataset
-clip_model, _ = clip.load("ViT-B/32")
+clip_model, _ = clip.load(config['clip_model_path'])
 with open(config["vq_vae_model_config_path"], "r") as f:
     vq_vae_config = yaml.safe_load(f)
 vq_vae_model = VQVAEModel.load_from_checkpoint(config["vq_vae_model_path"], **vq_vae_config["model_hyperparameters"])
