@@ -1,5 +1,6 @@
 import torch
 from torch.utils.data import Dataset
+from tqdm import tqdm
 
 
 class ToyDataset(Dataset):
@@ -30,23 +31,19 @@ class ToyDataset(Dataset):
         self.min_value = float("inf")
         self.max_value = -float("inf")
 
-        self.raw_data = []
-
         self.normalise = normalise
 
         self.is_data_has_timestamp = is_data_has_timestamp
 
         with open(data_path, "r") as f:
-            self.data = f.readlines()
-            self.data = [line.strip().split(" ") for line in self.data]
-            self.raw_data.append(self.data.copy())
-            self.data = [[float(val) for val in line] for line in self.data]
-            self.data = [
-                torch.tensor(line).reshape(-1, self.joint_size + self.is_data_has_timestamp)[
+            self.data = []
+            for line in tqdm(f.readlines(), desc="Loading data"):
+                line = line.strip().split(" ")
+                line = [float(val) for val in line]
+                line = torch.tensor(line).reshape(-1, self.joint_size + self.is_data_has_timestamp)[
                     :, : -1 if self.is_data_has_timestamp else len(line)
                 ]
-                for line in self.data
-            ]
+                self.data.append(line)
             # Calculate the min and max values
             for line in self.data:
                 self.min_value = min(self.min_value, line.min())
@@ -86,5 +83,4 @@ class ToyDataset(Dataset):
 
 if __name__ == "__main__":
     dataset = ToyDataset(data_path="./data/toy_data/train.skels", joint_size=150, frame_size=64, window_size=16)
-    print(len(dataset.raw_data[0][0]) / (150 + 1))
     print(dataset.min_value, dataset.max_value)

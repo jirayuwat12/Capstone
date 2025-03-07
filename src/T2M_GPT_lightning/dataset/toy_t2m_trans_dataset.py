@@ -5,6 +5,8 @@ from torch.utils.data import Dataset
 
 from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 
+from tqdm import tqdm
+
 
 class ToyDataset(Dataset):
     def __init__(
@@ -34,7 +36,7 @@ class ToyDataset(Dataset):
     def load_skels(self) -> list[torch.Tensor]:
         skels = []
         with open(self.skels_path, "r") as f:
-            for line in f.readlines():
+            for line in tqdm(f.readlines(), desc="Loading skels"):
                 skel = torch.tensor([float(val) for val in line.strip().split()])
                 skel = skel.reshape(-1, (self.joint_size + self.has_timestamp))[:, : self.joint_size]
                 skels.append(skel)
@@ -42,7 +44,7 @@ class ToyDataset(Dataset):
 
     def load_texts(self) -> list[str]:
         with open(self.text_path, "r") as f:
-            return [text.strip() for text in f.readlines()]
+            return [text.strip() for text in tqdm(f.readlines(), desc="Loading texts")]
 
     def get_text_features(self, text: str) -> torch.Tensor:
         tokenized_texts = clip.tokenize([text], truncate=True)

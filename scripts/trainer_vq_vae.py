@@ -5,10 +5,9 @@ import time
 import pandas as pd
 import yaml
 from lightning.pytorch import Trainer
-from lightning.pytorch.callbacks import ModelCheckpoint
+from lightning.pytorch.callbacks import ModelCheckpoint, DeviceStatsMonitor
 from lightning.pytorch.loggers import CSVLogger
 from matplotlib import pyplot as plt
-from pytorch_lightning.callbacks import DeviceStatsMonitor
 from torch.utils.data import DataLoader
 
 from capstone_utils.dataloader.collate_fn import minibatch_padding_collate_fn
