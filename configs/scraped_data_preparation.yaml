@@ -1,0 +1,42 @@
+scraped_folder: "/Users/jirayuwat/Desktop/Capstone/assets/raw_scrape_data/"
+# Folder where the extracted data will be stored
+target_folder: "/Users/jirayuwat/Desktop/Capstone/data/extracted_scraped_data/"
+
+# Use BIN or not and its config
+use_bin: False
+bin_config:
+  # See deblur_vdo_using_BIN.yaml for more details
+  num_interpolation: 7
+  time_step: 0.5
+  model_option_yaml: "/Users/jirayuwat/Desktop/Capstone/assets/BIN/train_adobe_stage4.yml"
+  model_net_name: "bin_stage4"
+
+# Convert VDO to skeletons config
+vdo_to_skeletons_config:
+  # See vdo_to_skeletons.yaml for more details
+  is_return_landmarked_vdo: False
+  landmarks_format: 'pixel'
+  save_format: 'npy'
+  save_stats: True
+  max_distance_between_predicted_hand_and_approximated_hand: 1000
+  face_model:
+    face_landmarker_model_path: "/Users/jirayuwat/Desktop/Capstone/assets/face_landmarker.task"
+    min_face_detection_confidence: 0.0
+    min_face_presence_confidence: 0.0
+    min_tracking_confidence: 0.0
+    max_num_faces: 1
+    output_face_blendshapes: True
+    replace_not_found_method: 'previous'
+  hand_model:
+    max_num_hands: 3
+    min_detection_confidence: 0.2
+    min_tracking_confidence: 0.2
+    replace_not_found_method: 'previous'
+  pose_model:
+    min_detection_confidence: 0.1
+    min_tracking_confidence: 0.0
+    replace_not_found_method: 'previous'
+
+# Folder where the logs will be stored
+log_folder: "scripts_logs"
+log_level: "INFO"
