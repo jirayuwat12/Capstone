@@ -80,7 +80,7 @@ device_stats_monitor = DeviceStatsMonitor()
 
 # Initialize the trainer
 trainer = Trainer(
-    log_every_n_steps=10, max_epochs=config["max_epochs"], logger=csv_logger, callbacks=[device_stats_monitor]
+    log_every_n_steps=10, max_epochs=config["max_epochs"], logger=csv_logger, callbacks=[device_stats_monitor], strategy='ddp_find_unused_parameters_true'
 )
 
 start_train_time = time.time()
