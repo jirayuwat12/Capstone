@@ -2,6 +2,7 @@ import argparse
 import warnings
 
 import clip
+import time
 import pandas as pd
 import yaml
 from lightning.pytorch import Trainer
@@ -35,6 +36,7 @@ else:
         config["resume_weights_path"], **model_hyperparameters
     )
 
+start_load_dataset_time = time.time()
 # Initialize the dataset
 clip_model, _ = clip.load("ViT-B/32")
 with open(config["vq_vae_model_config_path"], "r") as f:
@@ -67,6 +69,7 @@ train_loader = DataLoader(
 val_loader = DataLoader(
     val_dataset, batch_size=config["batch_size"], shuffle=False, collate_fn=minibatch_padding_collate_fn
 )
+print(f"T2M trans load dataset time: {time.time() - start_load_dataset_time}")
 
 # Initialize the logger
 csv_logger = CSVLogger("logs", name=config["log_folder_name"])
@@ -74,8 +77,10 @@ csv_logger = CSVLogger("logs", name=config["log_folder_name"])
 # Initialize the trainer
 trainer = Trainer(log_every_n_steps=10, max_epochs=config["max_epochs"], logger=csv_logger)
 
+start_train_time = time.time()
 # Train the model
 trainer.fit(t2m_trans_model, train_loader, val_loader)
+print(f"T2M trans train time: {time.time() - start_train_time}")
 
 # Save the model
 trainer.save_checkpoint(config["save_weights_path"])

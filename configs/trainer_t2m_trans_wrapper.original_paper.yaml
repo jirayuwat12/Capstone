@@ -17,7 +17,8 @@ model_hyperparameters:
 # Trainer
 is_toy: True
 batch_size: 128
-max_epochs: 10000
+# max_epochs: 10000
+max_epochs: 3
 # Path to save the weights
 save_weights_path: '/Users/jirayuwat/Desktop/Capstone/t2m_trans.pth'
 

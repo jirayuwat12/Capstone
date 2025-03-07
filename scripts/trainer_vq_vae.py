@@ -2,6 +2,7 @@ import argparse
 import os
 
 import pandas as pd
+import time
 import yaml
 from lightning.pytorch import Trainer
 from lightning.pytorch.callbacks import ModelCheckpoint
@@ -29,6 +30,7 @@ if config["resume_weight_path"]:
 else:
     model = VQVAEModel(**model_hyperparameters)
 
+start_load_dataset_time = time.time()
 # Initialize the dataset
 train_dataset = ToyDataset(
     data_path=config["train_data_path"],
@@ -52,6 +54,7 @@ train_loader = DataLoader(
 test_loader = DataLoader(
     test_dataset, batch_size=config["batch_size"], collate_fn=minibatch_padding_collate_fn, shuffle=False
 )
+print(f"VQVAR load dataset time: {time.time() - start_load_dataset_time}")
 
 # Initialize the logger
 csv_logger = CSVLogger("logs", name=config["log_folder_name"])
@@ -71,8 +74,10 @@ trainer = Trainer(
     log_every_n_steps=10, max_epochs=config["max_epochs"], logger=csv_logger, callbacks=[checkpoint_callback]
 )
 
+start_train_time = time.time()
 # Train the model
 trainer.fit(model, train_loader, test_loader)
+print(f"VQVAE train time: {time.time() - start_train_time}")
 
 # Save config file into the logging directory
 with open(csv_logger.log_dir + "/config.yaml", "w") as config_file:

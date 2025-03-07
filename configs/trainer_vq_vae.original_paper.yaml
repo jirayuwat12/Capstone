@@ -5,7 +5,8 @@ window_size: -1
 
 # Training parameters
 batch_size: 256
-max_epochs: 10000
+# max_epochs: 10000
+max_epochs: 3
 save_every_n_epochs: 50
 model_hyperparameters:
   learning_rate: 0.0002
