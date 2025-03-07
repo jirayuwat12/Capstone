@@ -1,17 +1,17 @@
 import clip
+import clip.model
 import torch
 from torch import nn
 from torch.utils.data import Dataset
+from tqdm import tqdm
 
 from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
-
-from tqdm import tqdm
 
 
 class ToyDataset(Dataset):
     def __init__(
         self,
-        clip_model: nn.Module,
+        clip_model: clip.model.CLIP,
         vq_vae_model: VQVAEModel,
         text_path: str,
         skels_path: str,
@@ -47,11 +47,11 @@ class ToyDataset(Dataset):
             return [text.strip() for text in tqdm(f.readlines(), desc="Loading texts")]
 
     def get_text_features(self, text: str) -> torch.Tensor:
-        tokenized_texts = clip.tokenize([text], truncate=True).to(self.clip_model.device)
+        tokenized_texts = clip.tokenize([text], truncate=True).to("cuda" if torch.cuda.is_available() else "cpu")
         return self.clip_model.encode_text(tokenized_texts)[0].detach()
 
     def __len__(self) -> int:
-        return len(self.texts)
+        return len(self.skels)
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
         """
