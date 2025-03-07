@@ -79,11 +79,11 @@ class Text2MotionTransformerWrapper(LightningModule):
 
         loss_cls = torch.stack(all_loss).mean()
         avg_accuracy = torch.stack(all_accuracy).mean()
-        self.log("train_loss", loss_cls, prog_bar=True)
-        self.log("train_accuracy", avg_accuracy, prog_bar=True)
+        self.log("train_loss", loss_cls, prog_bar=True, on_step=True, on_epoch=True)
+        self.log("train_accuracy", avg_accuracy, prog_bar=True, on_step=True, on_epoch=True)
 
         # Log the learning rate
-        self.log("learning_rate", self.trainer.optimizers[0].param_groups[0]["lr"], prog_bar=True)
+        self.log("learning_rate", self.trainer.optimizers[0].param_groups[0]["lr"], prog_bar=True, on_step=True, on_epoch=True)
 
         return loss_cls
 
@@ -118,6 +118,6 @@ class Text2MotionTransformerWrapper(LightningModule):
         loss_cls = nn.CrossEntropyLoss()(logits, targets)
 
         # Log the loss (optional)
-        self.log("val_loss", loss_cls, prog_bar=True)
+        self.log("val_loss", loss_cls, prog_bar=True, on_step=True, on_epoch=True)
 
         return loss_cls
