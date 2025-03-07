@@ -47,7 +47,7 @@ class ToyDataset(Dataset):
             return [text.strip() for text in tqdm(f.readlines(), desc="Loading texts")]
 
     def get_text_features(self, text: str) -> torch.Tensor:
-        tokenized_texts = clip.tokenize([text], truncate=True)
+        tokenized_texts = clip.tokenize([text], truncate=True).to(self.clip_model.device)
         return self.clip_model.encode_text(tokenized_texts)[0].detach()
 
     def __len__(self) -> int:
