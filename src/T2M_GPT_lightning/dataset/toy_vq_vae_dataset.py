@@ -30,16 +30,15 @@ class ToyDataset(Dataset):
         self.min_value = float("inf")
         self.max_value = -float("inf")
 
-        self.raw_data = []
-
         self.normalise = normalise
 
         self.is_data_has_timestamp = is_data_has_timestamp
 
         with open(data_path, "r") as f:
+            # Read data
             self.data = f.readlines()
             self.data = [line.strip().split(" ") for line in self.data]
-            self.raw_data.append(self.data.copy())
+            # Convert the data to a tensor
             self.data = [[float(val) for val in line] for line in self.data]
             self.data = [
                 torch.tensor(line).reshape(-1, self.joint_size + self.is_data_has_timestamp)[

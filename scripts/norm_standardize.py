@@ -1,10 +1,8 @@
+import glob
 import os
 from collections import defaultdict
 
 import numpy as np
-
-import glob
-
 from tqdm import tqdm
 
 

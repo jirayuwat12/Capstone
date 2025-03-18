@@ -35,11 +35,9 @@ logging.info("Starting data preparation")
 if config["use_bin"]:
     logging.info("BIN is used for deblurring the video")
     mp4_folder = config["target_folder"]
-    looper = tqdm(
-        os.listdir(config['scraped_folder']), total=len(os.listdir(mp4_folder)), desc=f"Deblurring the video"
-    )
+    looper = tqdm(os.listdir(config["scraped_folder"]), total=len(os.listdir(mp4_folder)), desc=f"Deblurring the video")
     for video_file in looper:
-        input_vdo_path = os.path.join(config['scraped_folder'], video_file)
+        input_vdo_path = os.path.join(config["scraped_folder"], video_file)
         if input_vdo_path.endswith(".mp4"):
             deblur_vdo_using_BIN_main(
                 input_vdo_path=input_vdo_path,
