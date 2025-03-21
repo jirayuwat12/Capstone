@@ -37,8 +37,6 @@ class VQVAEModel(LightningModule):
 
         self.l = 2**L
 
-        self.loss_criteria = nn.SmoothL1Loss()
-
         # Training var
         self.is_focus_hand_mode = is_focus_hand_mode
         self.ratio_for_hand = ratio_for_hand
@@ -128,25 +126,20 @@ class VQVAEModel(LightningModule):
             loss (torch.Tensor): Loss
         """
         if not is_focus_hand_mode:
-            loss_reconstruction = self.loss_criteria(x_hat, x)
-            left_shifted_x_hat = x_hat.roll(1, dims=1)
-            left_shifted_x_hat[:, 0] = 0
-            left_shifted_x = x.roll(1, dims=1)
-            left_shifted_x[:, 0] = 0
-            loss_velocities = self.loss_criteria(left_shifted_x_hat - x_hat, left_shifted_x - x)
+            loss_reconstruction = nn.SmoothL1Loss()(x_hat, x)
+            loss_velocities = nn.SmoothL1Loss()(x_hat[:, 1:] - x_hat[:, :-1], x[:, 1:] - x[:, :-1])
         else:
-            # TODO: If the not focus hand mode works, refactor this to use roll instead of slicing
             x_hand = x[:, :, start_of_hand_index:end_of_hand_index]
             x_hat_hand = x_hat[:, :, start_of_hand_index:end_of_hand_index]
             x_non_hand = torch.cat([x[:, :, :start_of_hand_index], x[:, :, end_of_hand_index:]], dim=-1)
             x_hat_non_hand = torch.cat([x_hat[:, :, :start_of_hand_index], x_hat[:, :, end_of_hand_index:]], dim=-1)
 
-            loss_reconstruction_hand = self.loss_criteria(x_hat_hand, x_hand)
-            loss_velocities_hand = self.loss_criteria(
+            loss_reconstruction_hand = nn.SmoothL1Loss()(x_hat_hand, x_hand)
+            loss_velocities_hand = nn.SmoothL1Loss()(
                 x_hat_hand[:, 1:] - x_hat_hand[:, :-1], x_hand[:, 1:] - x_hand[:, :-1]
             )
-            loss_reconstruction_non_hand = self.loss_criteria(x_hat_non_hand, x_non_hand)
-            loss_velocities_non_hand = self.loss_criteria(
+            loss_reconstruction_non_hand = nn.SmoothL1Loss()(x_hat_non_hand, x_non_hand)
+            loss_velocities_non_hand = nn.SmoothL1Loss()(
                 x_hat_non_hand[:, 1:] - x_hat_non_hand[:, :-1], x_non_hand[:, 1:] - x_non_hand[:, :-1]
             )
 
