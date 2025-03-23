@@ -1,17 +1,20 @@
 import argparse
 import os
 
-import pandas as pd
+import lightning
 import yaml
 from lightning.pytorch import Trainer
 from lightning.pytorch.callbacks import ModelCheckpoint
-from lightning.pytorch.loggers import CSVLogger
-from matplotlib import pyplot as plt
+from lightning.pytorch.loggers import WandbLogger
 from torch.utils.data import DataLoader
 
+import wandb
 from capstone_utils.dataloader.collate_fn import minibatch_padding_collate_fn
 from T2M_GPT_lightning.dataset.toy_vq_vae_dataset import ToyDataset
 from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
+
+# Set the random seed
+lightning.seed_everything(42)
 
 # Load the configuration
 DEFAULT_CONFIG_PATH = "./configs/trainer_vq_vae.yaml"
@@ -21,6 +24,9 @@ args = parser.parse_args()
 CONFIG_PATH = args.config_path
 with open(CONFIG_PATH, "r") as config_file:
     config = yaml.safe_load(config_file)
+
+# Login to wandb
+wandb.login(key=config["wandb_api_key"])
 
 # Load the model
 model_hyperparameters = config["model_hyperparameters"]
@@ -51,12 +57,12 @@ test_loader = DataLoader(
 )
 
 # Initialize the logger
-csv_logger = CSVLogger("logs", name=config["log_folder_name"])
+wandb_logger = WandbLogger(name=config["log_folder_name"], project="vqvae", log_model=True)
 
 # Create checkpoint callback
 checkpoint_callback = ModelCheckpoint(
     monitor="val_loss",
-    dirpath=os.path.join(csv_logger.log_dir, "checkpoints"),
+    dirpath=os.path.join(wandb_logger.experiment.dir, "checkpoints"),
     filename="vqvae-{epoch:02d}-{val_loss:.4f}",
     save_top_k=1,
     mode="min",
@@ -65,27 +71,13 @@ checkpoint_callback = ModelCheckpoint(
 
 # Initialize the trainer
 trainer = Trainer(
-    log_every_n_steps=10, max_epochs=config["max_epochs"], logger=csv_logger, callbacks=[checkpoint_callback]
+    log_every_n_steps=10, max_epochs=config["max_epochs"], logger=wandb_logger, callbacks=[checkpoint_callback]
 )
 
 # Train the model
-trainer.fit(model, train_loader, test_loader, ckpt_path=config["resume_weight_path"] if config["resume_weight_path"] else None)
-
-# Save config file into the logging directory
-with open(csv_logger.log_dir + "/config.yaml", "w") as config_file:
-    yaml.safe_dump(config, config_file)
+trainer.fit(
+    model, train_loader, test_loader, ckpt_path=config["resume_weight_path"] if config["resume_weight_path"] else None
+)
 
 # Save the model
 trainer.save_checkpoint(config["save_weight_path"])
-
-# Get logging path
-logging_path = model.logger.log_dir
-# Read csv file
-df = pd.read_csv(logging_path + "/metrics.csv")
-# Plot the loss
-plt.title("Train Loss")
-plt.plot(df.loc[df["train_loss"].notnull(), "train_loss"])
-plt.xlabel("Epoch")
-plt.ylabel("Loss")
-# Save the plot
-plt.savefig(logging_path + "/train_loss.png")
