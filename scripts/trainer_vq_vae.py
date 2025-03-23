@@ -24,10 +24,7 @@ with open(CONFIG_PATH, "r") as config_file:
 
 # Load the model
 model_hyperparameters = config["model_hyperparameters"]
-if config["resume_weight_path"]:
-    model = VQVAEModel.load_from_checkpoint(config["resume_weight_path"], **model_hyperparameters)
-else:
-    model = VQVAEModel(**model_hyperparameters)
+model = VQVAEModel(**model_hyperparameters)
 
 # Initialize the dataset
 train_dataset = ToyDataset(
@@ -72,7 +69,7 @@ trainer = Trainer(
 )
 
 # Train the model
-trainer.fit(model, train_loader, test_loader)
+trainer.fit(model, train_loader, test_loader, ckpt_path=config["resume_weight_path"] if config["resume_weight_path"] else None)
 
 # Save config file into the logging directory
 with open(csv_logger.log_dir + "/config.yaml", "w") as config_file:
