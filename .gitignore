@@ -33,3 +33,4 @@ output/
 assets/BIN/demo_blur
 mediapipe_skeleton_test/
 *_logs/
+wandb/
