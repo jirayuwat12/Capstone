@@ -16,4 +16,6 @@ dependencies = [
     "requests",
     "opencv-python",
     "mediapipe",
+    "pandas",
+    "wandb>=0.12.10",
 ]
