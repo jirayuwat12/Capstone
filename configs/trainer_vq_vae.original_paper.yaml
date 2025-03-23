@@ -3,6 +3,9 @@ joint_size: 1659
 # Window size -1 means that the whole sequence is used
 window_size: -1
 
+# Wandb parameters
+wandb_api_key: 
+
 # Training parameters
 batch_size: 256
 max_epochs: 10000

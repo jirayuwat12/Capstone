@@ -2,6 +2,9 @@
 vq_vae_model_path: '/Users/jirayuwat/Desktop/Capstone/vq_vae_model.pth'
 vq_vae_model_config_path: '/Users/jirayuwat/Desktop/Capstone/configs/trainer_vq_vae.yaml'
 
+# Wandb parameters
+wandb_api_key: 
+
 # Gpt model
 model_hyperparameters:
   num_vq: 512 # Number of codebook vectors
