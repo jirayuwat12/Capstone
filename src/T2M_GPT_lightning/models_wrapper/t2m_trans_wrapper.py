@@ -32,6 +32,7 @@ class Text2MotionTransformerWrapper(LightningModule):
             drop_out_rate=drop_out_rate,
             fc_rate=fc_rate,
         )
+        self.save_hyperparameters()
         self.number_of_codebooks = num_vq
         self.total_tokens = num_vq + 1
         self.learning_rate = learning_rate

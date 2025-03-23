@@ -29,6 +29,7 @@ class VQVAEModel(LightningModule):
             learning_rate (int): Learning rate for the optimizer
         """
         super(VQVAEModel, self).__init__()
+        self.save_hyperparameters()
         self.encoder = Encoder(L=L, in_dim=skels_dim, emb_dim=embedding_dim)
         self.decoder = Decoder(L=L, emb_dim=embedding_dim, out_dim=skels_dim)
         self.quantizer = Quantizer(codebook_size=codebook_size, decay=quantizer_decay, codebook_dim=embedding_dim)
