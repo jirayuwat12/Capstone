@@ -95,9 +95,9 @@ class VQVAEModel(LightningModule):
         loss_reconstruction = self.compute_reconstruction_loss(x, x_hat, is_focus_hand_mode=self.is_focus_hand_mode)
         loss = loss_reconstruction + vae_loss
 
-        self.log("train_loss", loss, prog_bar=True)
-        self.log("train_rec_loss", loss_reconstruction, prog_bar=True)
-        self.log("train_vae_loss", vae_loss, prog_bar=True)
+        self.log("train_loss", loss.detach(), prog_bar=True)
+        self.log("train_rec_loss", loss_reconstruction.detach(), prog_bar=True)
+        self.log("train_vae_loss", vae_loss.detach(), prog_bar=True)
 
         # Log the learning rate
         self.log("learning_rate", self.trainer.optimizers[0].param_groups[0]["lr"], prog_bar=True)
@@ -127,20 +127,18 @@ class VQVAEModel(LightningModule):
             loss (torch.Tensor): Loss
         """
         if not is_focus_hand_mode:
-            loss_reconstruction = nn.SmoothL1Loss()(x_hat, x)
-            loss_velocities = nn.SmoothL1Loss()(x_hat[:, 1:] - x_hat[:, :-1], x[:, 1:] - x[:, :-1])
+            loss_reconstruction = nn.L1Loss()(x_hat, x)
+            loss_velocities = nn.L1Loss()(x_hat[:, 1:] - x_hat[:, :-1], x[:, 1:] - x[:, :-1])
         else:
             x_hand = x[:, :, start_of_hand_index:end_of_hand_index]
             x_hat_hand = x_hat[:, :, start_of_hand_index:end_of_hand_index]
             x_non_hand = torch.cat([x[:, :, :start_of_hand_index], x[:, :, end_of_hand_index:]], dim=-1)
             x_hat_non_hand = torch.cat([x_hat[:, :, :start_of_hand_index], x_hat[:, :, end_of_hand_index:]], dim=-1)
 
-            loss_reconstruction_hand = nn.SmoothL1Loss()(x_hat_hand, x_hand)
-            loss_velocities_hand = nn.SmoothL1Loss()(
-                x_hat_hand[:, 1:] - x_hat_hand[:, :-1], x_hand[:, 1:] - x_hand[:, :-1]
-            )
-            loss_reconstruction_non_hand = nn.SmoothL1Loss()(x_hat_non_hand, x_non_hand)
-            loss_velocities_non_hand = nn.SmoothL1Loss()(
+            loss_reconstruction_hand = nn.L1Loss()(x_hat_hand, x_hand)
+            loss_velocities_hand = nn.L1Loss()(x_hat_hand[:, 1:] - x_hat_hand[:, :-1], x_hand[:, 1:] - x_hand[:, :-1])
+            loss_reconstruction_non_hand = nn.L1Loss()(x_hat_non_hand, x_non_hand)
+            loss_velocities_non_hand = nn.L1Loss()(
                 x_hat_non_hand[:, 1:] - x_hat_non_hand[:, :-1], x_non_hand[:, 1:] - x_non_hand[:, :-1]
             )
 
@@ -159,7 +157,7 @@ class VQVAEModel(LightningModule):
         loss_reconstruction = self.compute_reconstruction_loss(x, x_hat, is_focus_hand_mode=self.is_focus_hand_mode)
         loss = loss_reconstruction + vae_loss
 
-        self.log("val_loss", loss, prog_bar=True)
+        self.log("val_loss", loss.detach(), prog_bar=True)
         return loss
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
