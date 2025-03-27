@@ -127,18 +127,18 @@ class VQVAEModel(LightningModule):
             loss (torch.Tensor): Loss
         """
         if not is_focus_hand_mode:
-            loss_reconstruction = nn.L1Loss()(x_hat, x)
-            loss_velocities = nn.L1Loss()(x_hat[:, 1:] - x_hat[:, :-1], x[:, 1:] - x[:, :-1])
+            loss_reconstruction = nn.SmoothL1Loss()(x_hat, x)
+            loss_velocities = nn.SmoothL1Loss()(x_hat[:, 1:] - x_hat[:, :-1], x[:, 1:] - x[:, :-1])
         else:
             x_hand = x[:, :, start_of_hand_index:end_of_hand_index]
             x_hat_hand = x_hat[:, :, start_of_hand_index:end_of_hand_index]
             x_non_hand = torch.cat([x[:, :, :start_of_hand_index], x[:, :, end_of_hand_index:]], dim=-1)
             x_hat_non_hand = torch.cat([x_hat[:, :, :start_of_hand_index], x_hat[:, :, end_of_hand_index:]], dim=-1)
 
-            loss_reconstruction_hand = nn.L1Loss()(x_hat_hand, x_hand)
-            loss_velocities_hand = nn.L1Loss()(x_hat_hand[:, 1:] - x_hat_hand[:, :-1], x_hand[:, 1:] - x_hand[:, :-1])
-            loss_reconstruction_non_hand = nn.L1Loss()(x_hat_non_hand, x_non_hand)
-            loss_velocities_non_hand = nn.L1Loss()(
+            loss_reconstruction_hand = nn.SmoothL1Loss()(x_hat_hand, x_hand)
+            loss_velocities_hand = nn.SmoothL1Loss()(x_hat_hand[:, 1:] - x_hat_hand[:, :-1], x_hand[:, 1:] - x_hand[:, :-1])
+            loss_reconstruction_non_hand = nn.SmoothL1Loss()(x_hat_non_hand, x_non_hand)
+            loss_velocities_non_hand = nn.SmoothL1Loss()(
                 x_hat_non_hand[:, 1:] - x_hat_non_hand[:, :-1], x_non_hand[:, 1:] - x_non_hand[:, :-1]
             )
 
