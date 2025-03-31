@@ -37,7 +37,9 @@ class PoseLandmarker(Landmarker):
         # Iterate through the video
         landmarks = []
         for frame_index in range(int(cv2_vdo.get(cv2.CAP_PROP_FRAME_COUNT))):
-            _, frame = cv2_vdo.read()
+            ret, frame = cv2_vdo.read()
+            if ret is False:
+                break
             # Convert the frame to meidapipe image
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             # Process the frame

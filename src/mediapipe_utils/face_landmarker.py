@@ -46,7 +46,10 @@ class FaceLandmarker(Landmarker):
             # Iterate through the video
             landmarks = []
             for frame_index in range(int(cv2_vdo.get(cv2.CAP_PROP_FRAME_COUNT))):
-                _, frame = cv2_vdo.read()
+                ret , frame = cv2_vdo.read()
+                # print(frame)
+                if ret is False:
+                    break
                 # Convert the frame to meidapipe image
                 frame_mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
                 # Process the frame

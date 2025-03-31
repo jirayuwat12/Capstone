@@ -122,7 +122,10 @@ def convert_vdo_to_skeleton_main(
             )
 
             for frame_index in range(int(original_vdo.get(cv2.CAP_PROP_FRAME_COUNT))):
-                _, frame = original_vdo.read()
+                ret, frame = original_vdo.read()
+                if ret is False:
+                    break
+
                 original_frame = cv2.resize(frame, (width, height))
                 overwrite_frame = original_frame.copy()
                 white_frame = np.ones_like(original_frame) * 255
