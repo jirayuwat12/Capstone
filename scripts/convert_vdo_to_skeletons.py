@@ -38,7 +38,7 @@ def convert_vdo_to_skeleton_main(
     if vdo_folder is not None:
         print(f"Processing folder {vdo_folder}")
         for file in os.listdir(vdo_folder):
-            if file.endswith(".mp4"):
+            if file.endswith([".mp4", ".MP4"]):
                 vdo_file_list.append(os.path.join(vdo_folder, file))
     elif vdo_file is not None:
         vdo_file_list = [vdo_file]
@@ -63,7 +63,8 @@ def convert_vdo_to_skeleton_main(
     looper = tqdm(vdo_file_list)
     for vdo_file in looper:
         looper.set_description(f'Processing {os.path.basename(vdo_file).split(".")[0]}')
-        save_path = os.path.join(output_folder, os.path.basename(vdo_file).replace(".mp4", ".npy"))
+        # save_path = os.path.join(output_folder, os.path.basename(vdo_file).replace(".mp4", ".npy"))
+        save_path = os.path.join(output_folder, os.path.basename(vdo_file).split(".")[0] + ".npy")
         if os.path.exists(save_path):
             print(f"Skipping {os.path.basename(vdo_file)} as it already exists")
             continue
@@ -118,7 +119,7 @@ def convert_vdo_to_skeleton_main(
             height = int(original_vdo.get(cv2.CAP_PROP_FRAME_HEIGHT))
             fourcc = cv2.VideoWriter_fourcc(*"MP4V")
             output_vdo = cv2.VideoWriter(
-                os.path.join(output_folder, os.path.basename(vdo_file)), fourcc, fps, (width * 3, height)
+                os.path.join(output_folder, os.path.basename(vdo_file).replace(".MP4", ".mp4")), fourcc, fps, (width * 3, height)
             )
 
             for frame_index in range(int(original_vdo.get(cv2.CAP_PROP_FRAME_COUNT))):
@@ -174,7 +175,8 @@ def convert_vdo_to_skeleton_main(
         print("Pose landmark statistics:")
         print("\t", pose_output_stat)
         if save_stats:
-            with open(os.path.join(output_folder, os.path.basename(vdo_file).replace(".mp4", ".txt")), "w") as file:
+            # with open(os.path.join(output_folder, os.path.basename(vdo_file).replace(".mp4", ".txt")), "w") as file:
+            with open(os.path.join(output_folder, os.path.basename(vdo_file).split(".")[0] + ".txt"), "w") as file:
                 file.write(f"Face landmark statistics:\n\t{face_output_stat}\n")
                 file.write(f"Hand landmark statistics:\n\t{hand_output_stat}\n")
                 file.write(f"Pose landmark statistics:\n\t{pose_output_stat}\n")

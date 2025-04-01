@@ -26,6 +26,7 @@ notebooks/
 output/
 
 *.mp4
+*.MP4
 *.npy
 *.txt
 *_temp
