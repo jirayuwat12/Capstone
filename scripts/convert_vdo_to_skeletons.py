@@ -1,18 +1,17 @@
 import argparse
 import os
 import time
-import warnings
 
 import cv2
-import mediapipe as mp
 import numpy as np
 import yaml
+import json
 from tqdm import tqdm
 
 from mediapipe_utils.face_landmarker import FaceLandmarker
 from mediapipe_utils.hand_landmarker import HandLandmarker
 from mediapipe_utils.pose_landmarker import PoseLandmarker
-
+from .norm_standardize import norm_standardize
 
 def convert_vdo_to_skeleton_main(
     face_model_config: dict,
@@ -38,7 +37,7 @@ def convert_vdo_to_skeleton_main(
     if vdo_folder is not None:
         print(f"Processing folder {vdo_folder}")
         for file in os.listdir(vdo_folder):
-            if file.endswith([".mp4", ".MP4"]):
+            if file.endswith((".mp4", ".MP4")):
                 vdo_file_list.append(os.path.join(vdo_folder, file))
     elif vdo_file is not None:
         vdo_file_list = [vdo_file]
@@ -180,6 +179,33 @@ def convert_vdo_to_skeleton_main(
                 file.write(f"Face landmark statistics:\n\t{face_output_stat}\n")
                 file.write(f"Hand landmark statistics:\n\t{hand_output_stat}\n")
                 file.write(f"Pose landmark statistics:\n\t{pose_output_stat}\n")
+
+    
+    # Normalization to Reference Skeleton & Min-Max Scaling
+    reference_dir = None
+    for file in os.listdir(output_folder):
+        file_path = os.path.join(output_folder, file)
+        if os.path.isfile(file_path) and file.endswith(".npy"):
+            reference_dir = file_path
+    if reference_dir is None:
+        exit(1)
+    norm_standardize(
+        input_dir=output_folder,
+        reference_dir=reference_dir,
+        output_file=output_folder,
+        iterate_split_folder=False,
+    )
+
+    # TODO: Create a .txt file for the dataset
+    # # Create .txt files for the dataset
+    # file_name_list = sorted(os.listdir(output_folder))
+    # output_path = os.path.join(output_folder, f"translate.txt")
+
+    # with open(output_path, "w") as f:
+    #     for file_name in tqdm(file_name_list):
+    #         if file_name.endswith(".json"):
+    #             json_file = json.load(open(os.path.join(output_folder, file_name)))
+    #             f.write(f"{json_file['text']}\n")
 
 
 if __name__ == "__main__":

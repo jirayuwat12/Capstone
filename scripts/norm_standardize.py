@@ -62,7 +62,7 @@ def norm_standardize(input_dir: str, reference_dir: str, output_file: str, itera
                 all_scaled_skeletons_by_split[split].append(scaled_skeleton)
     else:
         for skeleton_file in tqdm(glob.glob(os.path.join(input_dir, "*.npy")), desc="Gathering"):
-            input_skeleton = np.load(os.path.join(input_dir, skeleton_file))
+            input_skeleton = np.load(skeleton_file)
             scaled_skeleton = normalized_data(input_skeleton, reference_skeleton)
             all_scaled_skeletons_by_split["train"].append(scaled_skeleton)
 
