@@ -1,5 +1,6 @@
 import torch
 from torch.utils.data import Dataset
+from tqdm import tqdm
 
 
 class ToyDataset(Dataset):
@@ -26,28 +27,23 @@ class ToyDataset(Dataset):
         self.joint_size = joint_size
         self.frame_size = frame_size
         self.window_size = window_size
+        self.normalise = normalise
+        self.is_data_has_timestamp = is_data_has_timestamp
 
         self.min_value = float("inf")
         self.max_value = -float("inf")
 
-        self.normalise = normalise
-
-        self.is_data_has_timestamp = is_data_has_timestamp
-
+        self.data = []
         with open(data_path, "r") as f:
-            # Read data
-            self.data = f.readlines()
-            self.data = [line.strip().split(" ") for line in self.data]
-            # Convert the data to a tensor
-            self.data = [[float(val) for val in line] for line in self.data]
-            self.data = [
-                torch.tensor(line).reshape(-1, self.joint_size + self.is_data_has_timestamp)[
+            # for line in f:
+            for line in tqdm(f, desc="Loading data", unit="line"):
+                line = line.strip().split(" ")
+                line = [float(val) for val in line]
+                line = torch.tensor(line).reshape(-1, self.joint_size + self.is_data_has_timestamp)[
                     :, : -1 if self.is_data_has_timestamp else len(line)
                 ]
-                for line in self.data
-            ]
-            # Calculate the min and max values
-            for line in self.data:
+                self.data.append(line)
+                # Calculate the min and max values
                 self.min_value = min(self.min_value, line.min())
                 self.max_value = max(self.max_value, line.max())
 

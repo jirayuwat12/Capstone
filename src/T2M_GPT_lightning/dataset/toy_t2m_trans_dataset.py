@@ -35,7 +35,7 @@ class ToyDataset(Dataset):
     def load_skels(self) -> list[torch.Tensor]:
         skels = []
         with open(self.skels_path, "r") as f:
-            for line in tqdm(f.readlines(), desc="T2M Trans Dataset loading Skeletons"):
+            for line in tqdm(f, desc="T2M Trans Dataset loading Skeletons", unit="line"):
                 skel = torch.tensor([float(val) for val in line.strip().split()])
                 skel = skel.reshape(-1, (self.joint_size + self.has_timestamp))[:, : self.joint_size]
                 skels.append(skel)
@@ -44,6 +44,7 @@ class ToyDataset(Dataset):
     def load_texts(self) -> list[str]:
         with open(self.text_path, "r") as f:
             return [text.strip() for text in tqdm(f.readlines(), desc="T2M Trans Dataset loading Texts")]
+
 
     def get_text_features(self, text: str) -> torch.Tensor:
         tokenized_texts = clip.tokenize([text], truncate=True)
