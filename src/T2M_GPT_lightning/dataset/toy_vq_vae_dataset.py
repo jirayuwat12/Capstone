@@ -51,13 +51,11 @@ class ToyDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx: int) -> torch.Tensor:
+        data = self.data[idx]
         if self.window_size != -1:
-            start_index = torch.randint(0, self.data[idx].shape[0] - self.window_size, (1,)).item()
+            start_index = torch.randint(0, data.shape[0] - self.window_size, (1,)).item()
             end_index = start_index + self.window_size
-        else:
-            start_index = 0
-            end_index = self.data[idx].shape[0]
-        data = self.data[idx][start_index:end_index]
+            data = data[start_index:end_index]
         if self.normalise:
             data = (data - self.min_value) / (self.max_value - self.min_value)
         return data
