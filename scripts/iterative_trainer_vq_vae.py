@@ -41,3 +41,14 @@ for epoch_num in range(args.epoch_per_iteration, main_config["max_epochs"]+args.
     temp_config_path = os.path.join("temp_config", f"config_iter_{epoch_num:06d}.yaml")
     with open(temp_config_path, "w") as temp_config_file:
         yaml.dump(config, temp_config_file)
+
+    # Run the training script with the new config
+    subprocess.run(
+        [
+            "python",
+            "-m",
+            "scripts.trainer_vq_vae",
+            "--config",
+            temp_config_path,
+        ]
+    )
