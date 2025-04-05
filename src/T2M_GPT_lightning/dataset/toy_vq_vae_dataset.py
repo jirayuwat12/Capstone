@@ -40,8 +40,12 @@ class ToyDataset(Dataset):
             # Load the data from the tensor file
             self.data = torch.load(data_tensor_path)
             # Calculate the min and max values
-            self.min_value = self.data.min()
-            self.max_value = self.data.max()
+            self.min_value = min(
+                [data.min() for data in self.data]
+            )
+            self.max_value = max(
+                [data.max() for data in self.data]
+            )
         else:
             self.data = []
             with open(data_path, "r") as f:
