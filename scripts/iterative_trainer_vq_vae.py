@@ -30,7 +30,7 @@ for epoch_num in range(args.epoch_per_iteration, main_config["max_epochs"]+args.
     # Find the latest checkpoint file
     prev_log_folder = f"{main_config['log_folder_name']}_iter_{epoch_num - args.epoch_per_iteration}"
     checkpoint_file = glob.glob(
-        f"{main_config["wandb_save_dir"]}/{prev_log_folder}/wandb/run-*/files/checkpoints/*.ckpt"
+        f"{main_config['wandb_save_dir']}/{prev_log_folder}/wandb/run-*/files/checkpoints/*.ckpt"
     )[0]
     config["resume_weight_path"] = checkpoint_file
 
