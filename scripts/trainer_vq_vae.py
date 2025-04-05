@@ -34,14 +34,16 @@ model = VQVAEModel(**model_hyperparameters)
 
 # Initialize the dataset
 train_dataset = ToyDataset(
-    data_path=config["train_data_path"],
+    data_path=config["train_data_path"] if "train_data_path" in config else None,
+    data_tensor_path=config["train_data_tensor_path"] if "train_data_tensor_path" in config else None,
     joint_size=config["joint_size"],
     window_size=config["window_size"],
     normalise=config["normalize_data"],
     is_data_has_timestamp=config["is_data_has_timestamp"],
 )
 test_dataset = ToyDataset(
-    data_path=config["val_data_path"],
+    data_path=config["val_data_path"] if "val_data_path" in config else None,
+    data_tensor_path=config["val_data_tensor_path"] if "val_data_tensor_path" in config else None,
     joint_size=config["joint_size"],
     window_size=config["window_size"],
     normalise=config["normalize_data"],

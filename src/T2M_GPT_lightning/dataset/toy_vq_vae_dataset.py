@@ -6,7 +6,8 @@ from tqdm import tqdm
 class ToyDataset(Dataset):
     def __init__(
         self,
-        data_path: str,
+        data_path: str | None = None,
+        data_tensor_path: str | None = None,
         joint_size: int = 150,
         normalise: bool = True,
         is_data_has_timestamp: bool = False,
@@ -21,9 +22,9 @@ class ToyDataset(Dataset):
         - frame_size (int): The number of frames in the skeleton. If None, the frames will not be truncated or zero-padded.
         - window_size (int): The number of frames in the window. If -1, the window size will not be used.
         - dataset_size (int): The number of samples in the dataset.
+
         """
         # Set attributes
-        self.data_path = data_path
         self.joint_size = joint_size
         self.frame_size = frame_size
         self.window_size = window_size
@@ -33,19 +34,28 @@ class ToyDataset(Dataset):
         self.min_value = float("inf")
         self.max_value = -float("inf")
 
-        self.data = []
-        with open(data_path, "r") as f:
-            # for line in f:
-            for line in tqdm(f, desc="Loading data", unit="line"):
-                line = line.strip().split(" ")
-                line = [float(val) for val in line]
-                line = torch.tensor(line).reshape(-1, self.joint_size + self.is_data_has_timestamp)[
-                    :, : -1 if self.is_data_has_timestamp else len(line)
-                ]
-                self.data.append(line)
-                # Calculate the min and max values
-                self.min_value = min(self.min_value, line.min())
-                self.max_value = max(self.max_value, line.max())
+        if data_path is None and data_tensor_path is None:
+            raise ValueError("Either data_path or data_tensor_path must be provided.")
+        if data_tensor_path is not None:
+            # Load the data from the tensor file
+            self.data = torch.load(data_tensor_path)
+            # Calculate the min and max values
+            self.min_value = self.data.min()
+            self.max_value = self.data.max()
+        else:
+            self.data = []
+            with open(data_path, "r") as f:
+                # for line in f:
+                for line in tqdm(f, desc="Loading data", unit="line"):
+                    line = line.strip().split(" ")
+                    line = [float(val) for val in line]
+                    line = torch.tensor(line).reshape(-1, self.joint_size + self.is_data_has_timestamp)[
+                        :, : -1 if self.is_data_has_timestamp else len(line)
+                    ]
+                    self.data.append(line)
+                    # Calculate the min and max values
+                    self.min_value = min(self.min_value, line.min())
+                    self.max_value = max(self.max_value, line.max())
 
     def __len__(self) -> int:
         return len(self.data)
