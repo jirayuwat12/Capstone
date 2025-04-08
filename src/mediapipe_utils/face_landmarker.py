@@ -46,7 +46,7 @@ class FaceLandmarker(Landmarker):
             # Iterate through the video
             landmarks = []
             for frame_index in range(int(cv2_vdo.get(cv2.CAP_PROP_FRAME_COUNT))):
-                ret , frame = cv2_vdo.read()
+                ret, frame = cv2_vdo.read()
                 # print(frame)
                 if ret is False:
                     break

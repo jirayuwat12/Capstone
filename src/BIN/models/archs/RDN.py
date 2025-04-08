@@ -52,7 +52,6 @@ class ConvLSTMCell(nn.Module):
     #     zeros = tf.zeros([batch_size, shape[0], shape[1], num_features * 2])
     #     return zeros
     def forward(self, input_, prev_state):
-
         # get batch and spatial sizes
         batch_size = input_.data.size()[0]
         spatial_size = input_.data.size()[2:]
@@ -363,9 +362,7 @@ class RDN_residual_interp_5_input(nn.Module):
             self.model4_1 = RDN_residual_interp()
 
     def forward(self, B1, B3, B5, B7, B9, previous_input=None):
-
         if self.lstm == True:
-
             self.I2_prime = self.model1_1(B1, B3)
             self.I4_prime = self.model1_2(B3, B5)
             self.I6_prime = self.model1_3(B5, B7)

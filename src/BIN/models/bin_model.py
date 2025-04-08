@@ -156,7 +156,6 @@ class bin_model(BaseModel):
         self.optimizers[0].param_groups[0]["lr"] = 0
 
     def feed_data(self, trainData, need_GT=True):
-
         # Read all inputs
 
         LQs = trainData["LQs"]  # B N C H W
@@ -212,17 +211,14 @@ class bin_model(BaseModel):
         self.width = self.I1.size(3)
 
     def test_set_input(self, testData):
-
         # Read all inputs
         if self.nframes == 1:
-
             B1, B3, frame_index = testData
 
             self.B1 = B1.to(self.device)
             self.B3 = B3.to(self.device)
 
         elif self.nframes == 3:
-
             B1, B3, B5, _ = testData
 
             self.B1 = B1.to(self.device)
@@ -230,7 +226,6 @@ class bin_model(BaseModel):
             self.B5 = B5.to(self.device)
 
         elif self.nframes == 4 and self.version == 1:  # long-term LSTM
-
             B1, B3, B5, _ = testData
 
             self.B1 = B1.to(self.device)
@@ -238,7 +233,6 @@ class bin_model(BaseModel):
             self.B5 = B5.to(self.device)
 
         elif (self.nframes == 4 and self.version == 2) or (self.nframes == 4 and self.version == 3):  # short-term LSTM
-
             B1, B3, B5, B7, _ = testData
 
             self.B1 = B1.to(self.device)
@@ -247,7 +241,6 @@ class bin_model(BaseModel):
             self.B7 = B7.to(self.device)
 
         elif (self.nframes == 4 and self.version == 4) or (self.nframes == 4 and self.version == 5):
-
             B1, B3, B5, B7, _ = testData
 
             self.B1 = B1.to(self.device)
@@ -256,7 +249,6 @@ class bin_model(BaseModel):
             self.B7 = B7.to(self.device)
 
         elif self.nframes == 5:
-
             B1, B3, B5, B7, B9, _ = testData
 
             self.B1 = B1.to(self.device)
@@ -266,7 +258,6 @@ class bin_model(BaseModel):
             self.B9 = B9.to(self.device)
 
         elif self.nframes == 6:
-
             B1, B3, B5, B7, B9, B11, _ = testData
 
             self.B1 = B1.to(self.device)
@@ -307,7 +298,6 @@ class bin_model(BaseModel):
         return Ft_p
 
     def forward(self):
-
         if self.nframes == 1:
             if self.opt["network_G"]["which_model_G"] == "deep_long_stage1_memc":
                 indata = torch.stack((self.B1, self.I2, self.B3), dim=0)
@@ -368,7 +358,6 @@ class bin_model(BaseModel):
             return self.avg_log_dict, self.avg_psnr_dict, psnr_total_avg / num, ssim_total_avg / num, val_loss_total_avg
 
     def test_forward(self):
-
         if self.nframes == 1:
             self.Ft_p = self.netG(self.B1, self.B3)
         elif self.nframes == 3:
@@ -402,7 +391,6 @@ class bin_model(BaseModel):
             self.Ft_p = self.netG(self.I1, self.I3, self.I5, self.I7, self.I9)
 
     def get_loss(self, ret=0):
-
         loss_list = []
         num, gt_list = self.get_info(mode=1)
         assert num == len(gt_list)  # if num == 1, todo  modify model
@@ -459,7 +447,6 @@ class bin_model(BaseModel):
             self.train_loss_total.append(AverageMeter())
 
     def train_AverageMeter_update(self):
-
         num = len(self.loss_list)
         for i in range(num):
             self.train_loss_total[i].update(self.loss_list[i].item(), 1)
@@ -467,7 +454,6 @@ class bin_model(BaseModel):
         self.train_loss_total[num].update(self.loss.item(), 1)
 
     def train_AverageMeter_reset(self):
-
         num = self.get_info() + 1
         for i in range(num):
             self.train_loss_total[i].reset()

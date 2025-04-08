@@ -136,7 +136,9 @@ class VQVAEModel(LightningModule):
             x_hat_non_hand = torch.cat([x_hat[:, :, :start_of_hand_index], x_hat[:, :, end_of_hand_index:]], dim=-1)
 
             loss_reconstruction_hand = nn.SmoothL1Loss()(x_hat_hand, x_hand)
-            loss_velocities_hand = nn.SmoothL1Loss()(x_hat_hand[:, 1:] - x_hat_hand[:, :-1], x_hand[:, 1:] - x_hand[:, :-1])
+            loss_velocities_hand = nn.SmoothL1Loss()(
+                x_hat_hand[:, 1:] - x_hat_hand[:, :-1], x_hand[:, 1:] - x_hand[:, :-1]
+            )
             loss_reconstruction_non_hand = nn.SmoothL1Loss()(x_hat_non_hand, x_non_hand)
             loss_velocities_non_hand = nn.SmoothL1Loss()(
                 x_hat_non_hand[:, 1:] - x_hat_non_hand[:, :-1], x_non_hand[:, 1:] - x_non_hand[:, :-1]

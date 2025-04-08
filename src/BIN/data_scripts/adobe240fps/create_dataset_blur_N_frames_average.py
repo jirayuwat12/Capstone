@@ -56,9 +56,7 @@ def extract_frames(videos, inDir, outDir):
     """
 
     for video in videos:
-
         if not os.path.exists(os.path.join(outDir, os.path.splitext(video)[0])):
-
             os.makedirs(os.path.join(outDir, os.path.splitext(video)[0]), exist_ok=True)
             retn = os.system(
                 "{} -i {} -vf scale={}:{} -vsync 0 -qscale:v 2 {}/%05d.png".format(
@@ -111,7 +109,6 @@ def create_clips_overlap(video, root, destination, destionation_blur, listpath):
         num_blurry = 1
 
         for i in range(0, window_total_num):
-
             # create one folder for each outer window
             folderCounter += 1
 
@@ -199,7 +196,6 @@ def main():
                 create_clips_overlap([video], extractPath, trainPath, trainPath_blur, trainPath_list)
 
     else:  # custom dataset
-
         # Extract video names
         videos = os.listdir(args.videos_folder)
 

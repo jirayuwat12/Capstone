@@ -60,7 +60,6 @@ def count_network_parameters(model):
 
 
 def main(args=None):
-
     #################
     # configurations
     #################
@@ -167,7 +166,6 @@ def main(args=None):
     assert our_model == True
 
     for dir in subdir:
-
         cnt = 0
         model.prev_state = None
         model.hidden_state = None
@@ -182,7 +180,6 @@ def main(args=None):
         offset_file = 0
 
         for index, frame in enumerate(frames):
-
             if index == 0:
                 first_frame_num = int(frame[:-4])
 
@@ -252,7 +249,6 @@ def main(args=None):
                 print("interpolate all 7 frames")
 
             for frame_time_step, frame_index in zip(time_step, frame_indexs):
-
                 middle_frame_num = interpolated_sharp_list[frame_index]  # set 4 as the middle
                 middle_frame_name = str(middle_frame_num).zfill(5) + ".png"
                 arguments_strOut = os.path.join(gen_dir, dir, middle_frame_name)
@@ -311,7 +307,6 @@ def main(args=None):
                 proc_end = time.time()
 
                 if not os.path.exists(arguments_strOut):
-
                     model.test_set_input(testData)
                     model.test_forward()
                     y_ = model.Ft_p[13]  # I7_prime_prime_prime

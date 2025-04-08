@@ -311,7 +311,6 @@ class VideoBaseModel(BaseModel):
     #     return l_pix
 
     def get_current_visuals(self, need_GT=True, save=False, name=None, save_path=None):
-
         out_dict = OrderedDict()
         out_dict["LQ"] = self.var_L.detach()[0].float().cpu()
         out_dict["rlt"] = self.fake_H.detach()[0].float().cpu()

@@ -164,7 +164,6 @@ class ContentLoss:
 
 
 class PerceptualLoss:
-
     def contentFunc(self, gpu_id):
         conv_3_3_layer = 14
         cnn = models.vgg19(pretrained=True).features

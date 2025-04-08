@@ -45,7 +45,6 @@ class ToyDataset(Dataset):
         with open(self.text_path, "r") as f:
             return [text.strip() for text in tqdm(f.readlines(), desc="T2M Trans Dataset loading Texts")]
 
-
     def get_text_features(self, text: str) -> torch.Tensor:
         tokenized_texts = clip.tokenize([text], truncate=True)
         return self.clip_model.encode_text(tokenized_texts)[0].detach()

@@ -1,17 +1,19 @@
 import argparse
+import json
 import os
 import time
 
 import cv2
 import numpy as np
 import yaml
-import json
 from tqdm import tqdm
 
 from mediapipe_utils.face_landmarker import FaceLandmarker
 from mediapipe_utils.hand_landmarker import HandLandmarker
 from mediapipe_utils.pose_landmarker import PoseLandmarker
+
 from .norm_standardize import norm_standardize
+
 
 def convert_vdo_to_skeleton_main(
     face_model_config: dict,
@@ -118,7 +120,10 @@ def convert_vdo_to_skeleton_main(
             height = int(original_vdo.get(cv2.CAP_PROP_FRAME_HEIGHT))
             fourcc = cv2.VideoWriter_fourcc(*"MP4V")
             output_vdo = cv2.VideoWriter(
-                os.path.join(output_folder, os.path.basename(vdo_file).replace(".MP4", ".mp4")), fourcc, fps, (width * 3, height)
+                os.path.join(output_folder, os.path.basename(vdo_file).replace(".MP4", ".mp4")),
+                fourcc,
+                fps,
+                (width * 3, height),
             )
 
             for frame_index in range(int(original_vdo.get(cv2.CAP_PROP_FRAME_COUNT))):
@@ -180,7 +185,6 @@ def convert_vdo_to_skeleton_main(
                 file.write(f"Hand landmark statistics:\n\t{hand_output_stat}\n")
                 file.write(f"Pose landmark statistics:\n\t{pose_output_stat}\n")
 
-    
     # Normalization to Reference Skeleton & Min-Max Scaling
     reference_dir = None
     for file in os.listdir(output_folder):

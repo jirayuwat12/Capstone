@@ -31,7 +31,6 @@ class BINDataset(data.Dataset):
         print("\n Dataset Initialized\n")
 
     def __getitem__(self, index):
-
         path = self.all_paths[index]
 
         LQs, GTenh, GTinp, key = self.Adobe_BIN_loader(im_path_pair=path, input_frame_size=self.input_frame_size)
@@ -185,7 +184,6 @@ class BINDataset(data.Dataset):
 
         if data_aug:
             if random.randint(0, 1):
-
                 B1 = np.fliplr(B1)
                 B3 = np.fliplr(B3)
                 B5 = np.fliplr(B5)
@@ -236,7 +234,6 @@ class BINDataset(data.Dataset):
 
         # list all the blurry in dir
         for index, folder in enumerate(os.listdir(dir_train_blur)):  # GOPRxxxx_11_xx ...
-
             shift = 1
             offset = 0
 

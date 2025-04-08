@@ -45,9 +45,7 @@ def default_conv(in_channels, out_channels, kernel_size, bias=True):
 
 
 class MeanShift(nn.Conv2d):
-
     def __init__(self, rgb_range, rgb_mean=(0.4488, 0.4371, 0.4040), rgb_std=(1.0, 1.0, 1.0), sign=-1):
-
         super(MeanShift, self).__init__(3, 3, kernel_size=1)  # inchannel 3 outchannl 3, F=1
         std = torch.Tensor(rgb_std)
         self.weight.data = torch.eye(3).view(3, 3, 1, 1) / std.view(3, 1, 1, 1)
@@ -58,7 +56,6 @@ class MeanShift(nn.Conv2d):
 
 class BasicBlock(nn.Sequential):
     def __init__(self, conv, in_channels, out_channels, kernel_size, stride=1, bias=False, bn=True, act=nn.ReLU(True)):
-
         m = [conv(in_channels, out_channels, kernel_size, bias=bias)]
         if bn:
             m.append(nn.BatchNorm2d(out_channels))
@@ -74,7 +71,6 @@ class ResBlock(nn.Module):
     """
 
     def __init__(self, conv, n_feats, kernel_size, bias=True, bn=False, act=nn.ReLU(True), res_scale=1):
-
         super(ResBlock, self).__init__()
         m = []
         for i in range(2):
@@ -95,7 +91,6 @@ class ResBlock(nn.Module):
 
 class Upsampler(nn.Sequential):
     def __init__(self, conv, scale, n_feats, bn=False, act=False, bias=True):
-
         m = []
         if (scale & (scale - 1)) == 0:  # Is scale = 2^n?
             for _ in range(int(math.log(scale, 2))):
@@ -144,7 +139,6 @@ class ResnetGenerator(nn.Module):
         learn_residual=False,
         padding_type="reflect",
     ):
-
         assert n_blocks >= 0
         super(ResnetGenerator, self).__init__()
         self.input_nc = input_nc
@@ -274,7 +268,6 @@ class UnetGenerator(nn.Module):
         use_parallel=True,
         learn_residual=False,
     ):
-
         super(UnetGenerator, self).__init__()
         self.gpu_ids = gpu_ids
         self.use_parallel = use_parallel
@@ -326,7 +319,6 @@ class UnetSkipConnectionBlock(nn.Module):
         norm_layer=nn.BatchNorm2d,
         use_dropout=False,
     ):
-
         super(UnetSkipConnectionBlock, self).__init__()
         self.outermost = outermost
         if type(norm_layer) == functools.partial:

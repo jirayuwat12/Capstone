@@ -276,7 +276,6 @@ class ReduceLROnPlateau(object):
         min_lr=0,
         eps=1e-8,
     ):
-
         if factor >= 1.0:
             raise ValueError("Factor should be < 1.0.")
         self.factor = factor

@@ -2,13 +2,13 @@ import argparse
 import os
 
 import lightning
+import wandb
 import yaml
 from lightning.pytorch import Trainer
 from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.loggers import WandbLogger
 from torch.utils.data import DataLoader
 
-import wandb
 from capstone_utils.dataloader.collate_fn import minibatch_padding_collate_fn
 from T2M_GPT_lightning.dataset.toy_vq_vae_dataset import ToyDataset
 from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
