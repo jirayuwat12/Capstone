@@ -32,6 +32,7 @@ is_data_has_timestamp: False
 save_weight_path: '/Users/jirayuwat/Desktop/Capstone/vq_vae_model.pth'
 log_folder_name: 'vq_vae_test_lanta'
 resume_weight_path: ''
+pretrained_weight_path: ''
 
 # Is data normalized before training
 normalize_data: True
