@@ -31,10 +31,8 @@ wandb.login(key=config["wandb_api_key"])
 # Load the model
 model_hyperparameters = config["model_hyperparameters"]
 # model = VQVAEModel(**model_hyperparameters)
-if config["pretrained_weight_path"] is not None:
-    model = VQVAEModel.load_from_checkpoint(
-        config["pretrained_weight_path"], strict=False, **model_hyperparameters
-    )
+if config["pretrained_weight_path"]:
+    model = VQVAEModel.load_from_checkpoint(config["pretrained_weight_path"], **model_hyperparameters)
 else:
     model = VQVAEModel(**model_hyperparameters)
 

@@ -11,7 +11,10 @@ batch_size: 256
 max_epochs: 10000
 save_every_n_epochs: 50
 model_hyperparameters:
-  learning_rate: 0.0002 # Deprecated, LR is setted in the optimizer
+  learning_rate_scheduler: 'lambda'
+  learning_rate:
+    - [0, 6666, 0.0002]
+    - [6667, 9999999, 0.00001]
   betas:
     - 0.9
     - 0.99

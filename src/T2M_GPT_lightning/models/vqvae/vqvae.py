@@ -1,3 +1,5 @@
+from typing import Any
+
 import torch
 import torch.nn as nn
 from lightning.pytorch import LightningModule
@@ -11,7 +13,8 @@ from T2M_GPT_lightning.models.vqvae.quantizer import Quantizer
 class VQVAEModel(LightningModule):
     def __init__(
         self,
-        learning_rate: int = 1e-5,
+        learning_rate_scheduler: str = "static",
+        learning_rate: Any = 1e-5,
         L: int = 1,
         codebook_size: int = 32,
         embedding_dim: int = 256,
@@ -26,7 +29,17 @@ class VQVAEModel(LightningModule):
         Initialize the VQVAE model
 
         Args:
-            learning_rate (int): Learning rate for the optimizer
+            learning_rate_scheduler (str): Learning rate scheduler name
+            learning_rate (Any): Depending on the learning rate scheduler, it can be a float or Any
+            L (int): Number of levels in the VQVAE
+            codebook_size (int): Size of the codebook
+            embedding_dim (int): Dimension of the embedding
+            skels_dim (int): Dimension of the input skeleton data
+            is_train (bool): If the model is in training mode
+            quantizer_decay (float): Decay rate for the quantizer
+            is_focus_hand_mode (bool): If focus hand mode is enabled
+            ratio_for_hand (float): Ratio for hand focus mode
+            betas (tuple[float, float]): Betas for the Adam optimizer
         """
         super(VQVAEModel, self).__init__()
         self.save_hyperparameters()
@@ -43,6 +56,7 @@ class VQVAEModel(LightningModule):
         self.ratio_for_hand = ratio_for_hand
 
         # Hyperparameters
+        self.learning_rate_scheduler = learning_rate_scheduler
         self.learning_rate = learning_rate
         self.betas = betas
 
@@ -163,20 +177,32 @@ class VQVAEModel(LightningModule):
         return loss
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
-        optim = None
-        if self.learning_rate:
-            optim = torch.optim.Adam(self.parameters(), lr=self.learning_rate, betas=self.betas)
-        else:
-            optim = torch.optim.Adam(self.parameters(), betas=self.betas)
+        optim = torch.optim.Adam(self.parameters(), betas=self.betas)
+        if self.learning_rate_scheduler == "static":
+            optim = torch.optim.Adam(self.parameters(), betas=self.betas, lr=self.learning_rate)
+            return optim
 
-        # Learning rate scheduler
-        def lr_lambda(epoch: int) -> float:
-            if epoch > 6666:
-                return 1e-5
-            else:
-                return 2e-4
+        elif self.learning_rate_scheduler == "lambda":
+            if not isinstance(self.learning_rate, list):
+                raise ValueError("learning_rate should be a list for lambda")
 
-        scheduler = LambdaLR(optim, lr_lambda)
+            def lr_lambda(epoch: int) -> float:
+                for min_epoch, max_epoch, lr in self.learning_rate:
+                    if min_epoch <= epoch <= max_epoch:
+                        return lr
+                return self.learning_rate[-1][-1]
+
+            scheduler = LambdaLR(optim, lr_lambda)
+
+        elif self.learning_rate_scheduler == "reduce_on_plateau":
+            if not isinstance(self.learning_rate, dict):
+                raise ValueError("learning_rate should be a dict for reduce_on_plateau")
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                optim,
+                mode="min",
+                patience=self.learning_rate["patience"] if "patience" in self.learning_rate else 5,
+                factor=self.learning_rate["factor"] if "factor" in self.learning_rate else 0.5,
+            )
 
         return {
             "optimizer": optim,
