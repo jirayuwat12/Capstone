@@ -59,15 +59,24 @@ test_loader = DataLoader(
 )
 
 # Initialize the logger
-wandb_logger = WandbLogger(name=config["log_folder_name"], project="vqvae", log_model=True)
+os.makedirs(os.path.join(config["wandb_save_dir"], config["log_folder_name"]), exist_ok=True)
+wandb_logger = WandbLogger(
+    name=config["log_folder_name"],
+    project="vqvae",
+    log_model=True,
+    save_dir=os.path.join(config["wandb_save_dir"], config["log_folder_name"]),
+    dir=os.path.join(config["wandb_save_dir"], config["log_folder_name"]),
+    resume="allow",
+    id=config["wandb_run_id"] if "wandb_run_id" in config else None,
+)
 
 # Create checkpoint callback
 checkpoint_callback = ModelCheckpoint(
-    monitor="val_loss",
     dirpath=os.path.join(wandb_logger.experiment.dir, "checkpoints"),
     filename="vqvae-{epoch:02d}-{val_loss:.4f}",
-    save_top_k=1,
-    mode="min",
+    # monitor="val_loss",
+    # save_top_k=1,
+    # mode="min",
     every_n_epochs=config["save_every_n_epochs"],
 )
 
@@ -82,4 +91,5 @@ trainer.fit(
 )
 
 # Save the model
+print("Saving the model... >>>>", config["save_weight_path"])
 trainer.save_checkpoint(config["save_weight_path"])
