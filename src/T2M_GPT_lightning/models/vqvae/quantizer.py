@@ -12,6 +12,7 @@ class Quantizer(nn.Module):
         epsilon: float = 1e-5,
         reset_threshold: int = 1,
         commitment_cost: float = 0.25,
+        minibatch_count_to_reset: int = 256,
     ) -> None:
         """
         Vector Quantization (VQ) layer for quantizing input tensors
@@ -22,6 +23,8 @@ class Quantizer(nn.Module):
             decay (float): Decay rate for EMA updates
             epsilon (float): Small value to avoid division by zero
             reset_threshold (int): Minimum usage threshold before resetting a codebook vector
+            commitment_cost (float): Commitment cost hyperparameter
+            minibatch_count_to_reset (int): Number of minibatches before resetting unused codebook vectors
         """
         super(Quantizer, self).__init__()
         # Hyperparameters
@@ -41,6 +44,10 @@ class Quantizer(nn.Module):
         # EMA updates for embeddings
         self.register_buffer("ema_cluster_size", torch.zeros(codebook_size))
         self.register_buffer("ema_embedding_avg", self.embedding.weight.clone())
+
+        # Initialize the counter
+        self.batch_counter = 0
+        self.minibatch_count_to_reset = minibatch_count_to_reset
 
     def quantize(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
@@ -101,7 +108,10 @@ class Quantizer(nn.Module):
             self.embedding.weight.data.copy_(self.ema_embedding_avg / self.ema_cluster_size.unsqueeze(1))
 
             # Reset unused codebook vectors
-            self._reset_codebook_vectors()
+            self.batch_counter += x.shape[0]
+            if self.batch_counter >= self.minibatch_count_to_reset:
+                self._reset_codebook_vectors()
+                self.batch_counter -= self.minibatch_count_to_reset
 
         # Reshape encoding indices to match input
         encoding_indices = encoding_indices.view(x.size(0), x.size(1), 1)
