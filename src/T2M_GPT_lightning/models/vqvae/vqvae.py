@@ -24,6 +24,8 @@ class VQVAEModel(LightningModule):
         is_focus_hand_mode: bool = False,
         ratio_for_hand: float = 0.5,
         betas: tuple[float, float] = (0.9, 0.99),
+        loss_bone_length_multiplier: float = 0.0,
+        minibatch_count_to_reset: int = 256
     ) -> None:
         """
         Initialize the VQVAE model
@@ -40,12 +42,13 @@ class VQVAEModel(LightningModule):
             is_focus_hand_mode (bool): If focus hand mode is enabled
             ratio_for_hand (float): Ratio for hand focus mode
             betas (tuple[float, float]): Betas for the Adam optimizer
+            loss_bone_length_multiplier (float): Multiplier for the bone length loss
         """
         super(VQVAEModel, self).__init__()
         self.save_hyperparameters()
         self.encoder = Encoder(L=L, in_dim=skels_dim, emb_dim=embedding_dim)
         self.decoder = Decoder(L=L, emb_dim=embedding_dim, out_dim=skels_dim)
-        self.quantizer = Quantizer(codebook_size=codebook_size, decay=quantizer_decay, codebook_dim=embedding_dim)
+        self.quantizer = Quantizer(codebook_size=codebook_size, decay=quantizer_decay, codebook_dim=embedding_dim, minibatch_count_to_reset=minibatch_count_to_reset)
         if not is_train:
             self.eval()
 
@@ -59,6 +62,7 @@ class VQVAEModel(LightningModule):
         self.learning_rate_scheduler = learning_rate_scheduler
         self.learning_rate = learning_rate
         self.betas = betas
+        self.loss_bone_length_multiplier = loss_bone_length_multiplier
 
     def reconstruct(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
@@ -107,16 +111,148 @@ class VQVAEModel(LightningModule):
         x_hat, vae_loss, _ = self.reconstruct(x)
 
         loss_reconstruction = self.compute_reconstruction_loss(x, x_hat, is_focus_hand_mode=self.is_focus_hand_mode)
-        loss = loss_reconstruction + vae_loss
+        loss_bone_length = self.bone_length_loss(x, x_hat)
+        loss = loss_reconstruction + vae_loss + loss_bone_length * self.loss_bone_length_multiplier
 
         self.log("train_loss", loss.detach(), prog_bar=True)
         self.log("train_rec_loss", loss_reconstruction.detach(), prog_bar=True)
         self.log("train_vae_loss", vae_loss.detach(), prog_bar=True)
+        self.log("train_bone_length_loss", loss_bone_length.detach(), prog_bar=True)
 
         # Log the learning rate
         self.log("learning_rate", self.trainer.optimizers[0].param_groups[0]["lr"], prog_bar=True)
 
         return loss
+
+    def bone_length_loss(self, x: torch.Tensor, x_hat: torch.Tensor) -> torch.Tensor:
+        """
+        Compute the reconstruction loss
+
+        Args:
+            x (torch.Tensor): Input tensor shape (B, T, X)
+                B: Batch size
+                T: Sequence length
+                X: Feature dimension
+            x_hat (torch.Tensor): Reconstructed tensor shape (B, T, X)
+    
+                    B: Batch size
+                    T: Sequence length
+                    X: Feature dimension
+
+        Returns:
+            loss (torch.Tensor): Loss
+        """
+        x = x.view(x.shape[0], x.shape[1], -1, 3)
+        x_hat = x_hat.view(x_hat.shape[0], x_hat.shape[1], -1, 3)
+
+        connection_pairs = [
+
+        # LEFT SIDE
+        # upper arm (shoulder -> elbow)
+        (532, 534),
+        # lower arm (elbow -> wrist)
+        (534, 536),
+        # hand (wrist -> palm)
+        (536, 538),
+        (538, 540),
+        (540, 542),
+        (542, 536),
+        # left hand
+        # thumb
+        (499, 500),
+        (500, 501),
+        (501, 502),
+        (502, 503),
+        # index
+        (504, 505),
+        (505, 506),
+        (506, 507),
+        # middle
+        (508, 509),
+        (509, 510),
+        (510, 511),
+        # ring finger
+        (512, 513),
+        (513, 514),
+        (514, 515),
+        # little finger
+        (516, 517),
+        (517, 518),
+        (518, 519),
+
+
+        # RIGHT SIDE
+        # upper arm (shoulder -> elbow)
+        (531, 533),
+        # lower arm (elbow -> wrist)
+        (533, 535),
+        # hand (wrist -> palm)
+        (535, 537),
+        (537, 539),
+        (539, 541),
+        (541, 535),
+        # right hand
+        # thumb
+        (478, 479),
+        (479, 480),
+        (480, 481),
+        (481, 482),
+        # index
+        (483, 484),
+        (484, 485),
+        (485, 486),
+        # middle
+        (487, 488),
+        (488, 489),
+        (489, 490),
+        # ring finger
+        (491, 492),
+        (492, 493),
+        (493, 494),
+        # little finger
+        (495, 496),
+        (496, 497),
+        (497, 498),
+        
+
+
+        ]
+        bone_length_x = []
+        bone_length_x_hat = []
+        for p1 , p2 in connection_pairs:
+            v1 = x[:, :, p1, :]
+            v2 = x[:, :, p2, :]
+
+            v1_hat = x_hat[:, :, p1, :]
+            v2_hat = x_hat[:, :, p2, :]
+        
+            length_x = torch.norm(v1 - v2, dim=-1)
+            length_x_hat = torch.norm(v1_hat - v2_hat, dim=-1)
+
+            bone_length_x.append(length_x)
+            bone_length_x_hat.append(length_x_hat)
+
+        bone_lengths_x = torch.stack(bone_length_x, dim=-1)
+        bone_lengths_x_hat = torch.stack(bone_length_x_hat, dim=-1)
+
+        bone_lengths_x = torch.mean(bone_lengths_x, dim=0) 
+        bone_lengths_x_hat = torch.mean(bone_lengths_x_hat, dim=0)
+
+        xq1 = torch.quantile(bone_lengths_x, 0.25 , dim=0)
+        xq3 = torch.quantile(bone_lengths_x, 0.75 , dim=0)
+
+        # Compute IQR
+        iqr = xq3 - xq1
+
+        # Compute outlier bounds
+        lower_bound = xq1 - 1.5 * iqr
+        upper_bound = xq3 + 1.5 * iqr
+
+        mask = (bone_lengths_x_hat < lower_bound) | (bone_lengths_x_hat > upper_bound)
+        x_hat_outlier = torch.where(mask, bone_lengths_x_hat, torch.tensor(float('nan')).to(bone_lengths_x_hat.device)) 
+        
+        return (torch.norm((torch.nansum(x_hat_outlier))/x_hat_outlier.shape[0])**0.5) 
+
 
     def compute_reconstruction_loss(
         self,
