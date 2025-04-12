@@ -44,6 +44,7 @@ train_dataset = ToyDataset(
     window_size=config["window_size"],
     normalise=config["normalize_data"],
     is_data_has_timestamp=config["is_data_has_timestamp"],
+    data_spec=config["data_spec"] if "data_spec" in config else "all",
 )
 test_dataset = ToyDataset(
     data_path=config["val_data_path"] if "val_data_path" in config else None,
@@ -52,6 +53,7 @@ test_dataset = ToyDataset(
     window_size=config["window_size"],
     normalise=config["normalize_data"],
     is_data_has_timestamp=config["is_data_has_timestamp"],
+    data_spec=config["data_spec"] if "data_spec" in config else "all",
 )
 
 # Initialize the dataloaders

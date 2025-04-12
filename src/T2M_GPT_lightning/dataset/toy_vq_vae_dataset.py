@@ -13,6 +13,7 @@ class ToyDataset(Dataset):
         is_data_has_timestamp: bool = False,
         frame_size: int | None = None,
         window_size: int = -1,
+        data_spec: str = "all"
     ) -> None:
         """
         Load the toy dataset from the given path.
@@ -22,7 +23,11 @@ class ToyDataset(Dataset):
         - frame_size (int): The number of frames in the skeleton. If None, the frames will not be truncated or zero-padded.
         - window_size (int): The number of frames in the window. If -1, the window size will not be used.
         - dataset_size (int): The number of samples in the dataset.
-
+        - normalise (bool): Whether to normalise the data or not.
+        - is_data_has_timestamp (bool): Whether the data has a timestamp or not.
+        - data_path (str): The path to the data file.
+        - data_tensor_path (str): The path to the data tensor file.
+        - data_spec (str): The type of data to load. Can be "all", "face", or "body"
         """
         # Set attributes
         self.joint_size = joint_size
@@ -30,6 +35,9 @@ class ToyDataset(Dataset):
         self.window_size = window_size
         self.normalise = normalise
         self.is_data_has_timestamp = is_data_has_timestamp
+        if data_spec not in ["all", "face", "body"]:
+            raise ValueError("data_spec must be one of ['all', 'face', 'body']")
+        self.data_spec = data_spec
 
         self.min_value = float("inf")
         self.max_value = -float("inf")
@@ -68,7 +76,13 @@ class ToyDataset(Dataset):
             data = data[start_index:end_index]
         if self.normalise:
             data = (data - self.min_value) / (self.max_value - self.min_value)
-        return data
+        
+        if self.data_spec == "all":
+            return data
+        elif self.data_spec == "face":
+            return data[:, :478*3]
+        elif self.data_spec == "body":
+            return data[:, 478*3:]
 
     def get_full_sequences_by_idx(self, idx: int, unnorm: bool = False) -> torch.Tensor:
         """
