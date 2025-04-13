@@ -58,7 +58,7 @@ class Decoder(nn.Module):
         # Pass through the resnet block
         x_all_in_resblock = self.res_block(x_in)
         x_first_conv = self.conv1(x_all_in_resblock)
-        x_first_conv = self.relu(x_first_conv)
+        # x_first_conv = self.relu(x_first_conv) Our data has Real values
         # Reshape the output tensor to (B, T, X)
         x_out = x_first_conv.permute(0, 2, 1)
 
