@@ -24,6 +24,7 @@ class VQVAEModel(LightningModule):
         is_focus_hand_mode: bool = False,
         ratio_for_hand: float = 0.5,
         betas: tuple[float, float] = (0.9, 0.99),
+        minibatch_count_to_reset: int = 0,
     ) -> None:
         """
         Initialize the VQVAE model
@@ -40,12 +41,13 @@ class VQVAEModel(LightningModule):
             is_focus_hand_mode (bool): If focus hand mode is enabled
             ratio_for_hand (float): Ratio for hand focus mode
             betas (tuple[float, float]): Betas for the Adam optimizer
+            minibatch_count_to_reset (int): Number of minibatches before resetting the codebook vectors
         """
         super(VQVAEModel, self).__init__()
         self.save_hyperparameters()
         self.encoder = Encoder(L=L, in_dim=skels_dim, emb_dim=embedding_dim)
         self.decoder = Decoder(L=L, emb_dim=embedding_dim, out_dim=skels_dim)
-        self.quantizer = Quantizer(codebook_size=codebook_size, decay=quantizer_decay, codebook_dim=embedding_dim)
+        self.quantizer = Quantizer(codebook_size=codebook_size, decay=quantizer_decay, codebook_dim=embedding_dim, minibatch_count_to_reset=minibatch_count_to_reset)
         if not is_train:
             self.eval()
 

@@ -12,6 +12,7 @@ class Quantizer(nn.Module):
         epsilon: float = 1e-5,
         reset_threshold: int = 1,
         commitment_cost: float = 0.25,
+        minibatch_count_to_reset: int = 0,
     ) -> None:
         """
         Vector Quantization (VQ) layer for quantizing input tensors
@@ -22,6 +23,8 @@ class Quantizer(nn.Module):
             decay (float): Decay rate for EMA updates
             epsilon (float): Small value to avoid division by zero
             reset_threshold (int): Minimum usage threshold before resetting a codebook vector
+            commitment_cost (float): Commitment cost hyperparameter
+            minibatch_count_to_reset (int): Number of minibatches before resetting the codebook vectors
         """
         super(Quantizer, self).__init__()
         # Hyperparameters
@@ -30,6 +33,8 @@ class Quantizer(nn.Module):
         self.decay = decay
         self.epsilon = epsilon
         self.reset_threshold = reset_threshold  # Minimum usage threshold before resetting a codebook vector
+        self.minibatch_count_to_reset = minibatch_count_to_reset  # Number of minibatches before resetting
+        self.reset_count = 0  # Counter for minibatches
 
         # Initialize embedding vectors
         self.embedding = nn.Embedding(codebook_size, codebook_dim)
@@ -101,7 +106,10 @@ class Quantizer(nn.Module):
             self.embedding.weight.data.copy_(self.ema_embedding_avg / self.ema_cluster_size.unsqueeze(1))
 
             # Reset unused codebook vectors
-            self._reset_codebook_vectors()
+            self.reset_count += x.shape[0]
+            if self.reset_count >= self.minibatch_count_to_reset:
+                self._reset_codebook_vectors()
+                self.reset_count = 0
 
         # Reshape encoding indices to match input
         encoding_indices = encoding_indices.view(x.size(0), x.size(1), 1)
