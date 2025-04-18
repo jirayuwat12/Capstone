@@ -25,6 +25,7 @@ def position_to_absolute_angle(
         "This function is deprecated due to new skeleton model. Please implement it in the new skeleton model."
     )
 
+
 def absolute_angle_to_position(
     angle_joints: np.ndarray,
     skeleton_model: Sequence[tuple[int, int, int]],
@@ -49,6 +50,7 @@ def absolute_angle_to_position(
     raise NotImplementedError(
         "This function is deprecated due to new skeleton model. Please implement it in the new skeleton model."
     )
+
 
 def convert_vdo_position_to_absolute_angle(
     positional_joints: np.ndarray, joint_to_prev_joint_index: dict[int, int], root_joint: int

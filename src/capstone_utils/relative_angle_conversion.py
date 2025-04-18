@@ -52,6 +52,7 @@ def relative_angle_to_position(
         "This function is deprecated due to new skeleton model. Please implement it in the new skeleton model."
     )
 
+
 def convert_vdo_positiion_to_relative_angle(
     position_vdo: np.ndarray, joint_to_prev_joint_index: dict[int, int], root_joint: int
 ) -> np.ndarray:
