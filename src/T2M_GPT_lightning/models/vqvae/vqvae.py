@@ -47,7 +47,12 @@ class VQVAEModel(LightningModule):
         self.save_hyperparameters()
         self.encoder = Encoder(L=L, in_dim=skels_dim, emb_dim=embedding_dim)
         self.decoder = Decoder(L=L, emb_dim=embedding_dim, out_dim=skels_dim)
-        self.quantizer = Quantizer(codebook_size=codebook_size, decay=quantizer_decay, codebook_dim=embedding_dim, minibatch_count_to_reset=minibatch_count_to_reset)
+        self.quantizer = Quantizer(
+            codebook_size=codebook_size,
+            decay=quantizer_decay,
+            codebook_dim=embedding_dim,
+            minibatch_count_to_reset=minibatch_count_to_reset,
+        )
         if not is_train:
             self.eval()
 

@@ -1,10 +1,10 @@
 """
-    This script generates a motion blur sequences by moving average a N frame length window.
-    The blurry sequences is 30fps.
-    Take a example, the original video is 240-fps.
-    240-fps Sequence: 0 1 2 3 4 5 6 7 8 9 10 ...
-    If we select 8  16  24... as the center output blurry index,
-    for index 8, we averge [8-(N-1)/2, 8+(N-1)/2] frames
+This script generates a motion blur sequences by moving average a N frame length window.
+The blurry sequences is 30fps.
+Take a example, the original video is 240-fps.
+240-fps Sequence: 0 1 2 3 4 5 6 7 8 9 10 ...
+If we select 8  16  24... as the center output blurry index,
+for index 8, we averge [8-(N-1)/2, 8+(N-1)/2] frames
 """
 
 import argparse

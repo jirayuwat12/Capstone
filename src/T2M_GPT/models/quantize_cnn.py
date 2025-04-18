@@ -84,9 +84,7 @@ class QuantizeEMAReset(nn.Module):
         # Calculate latent code x_l
         k_w = self.codebook.t()
         distance = (
-            torch.sum(x**2, dim=-1, keepdim=True)
-            - 2 * torch.matmul(x, k_w)
-            + torch.sum(k_w**2, dim=0, keepdim=True)
+            torch.sum(x**2, dim=-1, keepdim=True) - 2 * torch.matmul(x, k_w) + torch.sum(k_w**2, dim=0, keepdim=True)
         )  # (N * L, b)
         _, code_idx = torch.min(distance, dim=-1)
         return code_idx
@@ -261,9 +259,7 @@ class QuantizeReset(nn.Module):
         # Calculate latent code x_l
         k_w = self.codebook.t()
         distance = (
-            torch.sum(x**2, dim=-1, keepdim=True)
-            - 2 * torch.matmul(x, k_w)
-            + torch.sum(k_w**2, dim=0, keepdim=True)
+            torch.sum(x**2, dim=-1, keepdim=True) - 2 * torch.matmul(x, k_w) + torch.sum(k_w**2, dim=0, keepdim=True)
         )  # (N * L, b)
         _, code_idx = torch.min(distance, dim=-1)
         return code_idx
@@ -373,9 +369,7 @@ class QuantizeEMA(nn.Module):
         # Calculate latent code x_l
         k_w = self.codebook.t()
         distance = (
-            torch.sum(x**2, dim=-1, keepdim=True)
-            - 2 * torch.matmul(x, k_w)
-            + torch.sum(k_w**2, dim=0, keepdim=True)
+            torch.sum(x**2, dim=-1, keepdim=True) - 2 * torch.matmul(x, k_w) + torch.sum(k_w**2, dim=0, keepdim=True)
         )  # (N * L, b)
         _, code_idx = torch.min(distance, dim=-1)
         return code_idx

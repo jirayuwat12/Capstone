@@ -13,7 +13,7 @@ class ToyDataset(Dataset):
         is_data_has_timestamp: bool = False,
         frame_size: int | None = None,
         window_size: int = -1,
-        data_spec: str = "all"
+        data_spec: str = "all",
     ) -> None:
         """
         Load the toy dataset from the given path.
@@ -76,13 +76,13 @@ class ToyDataset(Dataset):
             data = data[start_index:end_index]
         if self.normalise:
             data = (data - self.min_value) / (self.max_value - self.min_value)
-        
+
         if self.data_spec == "all":
             return data
         elif self.data_spec == "face":
-            return data[:, :478*3]
+            return data[:, : 478 * 3]
         elif self.data_spec == "body":
-            return data[:, 478*3:]
+            return data[:, 478 * 3 :]
 
     def get_full_sequences_by_idx(self, idx: int, unnorm: bool = False) -> torch.Tensor:
         """

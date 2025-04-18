@@ -1,5 +1,5 @@
 """
-    This script evals the deblur and interpolation results.
+This script evals the deblur and interpolation results.
 """
 
 import argparse

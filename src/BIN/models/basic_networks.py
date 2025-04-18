@@ -1,5 +1,5 @@
 """
-    Some basci net module class.
+Some basci net module class.
 
 """
 
