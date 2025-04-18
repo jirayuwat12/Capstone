@@ -1,6 +1,10 @@
+from typing import Literal
+
 import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
+
+from capstone_utils.skeleton_utils.skeleton import SUPPORT_DATA_SPECES, Skeleton
 
 
 class ToyDataset(Dataset):
@@ -13,7 +17,7 @@ class ToyDataset(Dataset):
         is_data_has_timestamp: bool = False,
         frame_size: int | None = None,
         window_size: int = -1,
-        data_spec: str = "all",
+        data_spec: Literal["all", "face", "body", "hand", "core"] = "all",
     ) -> None:
         """
         Load the toy dataset from the given path.
@@ -27,7 +31,7 @@ class ToyDataset(Dataset):
         - is_data_has_timestamp (bool): Whether the data has a timestamp or not.
         - data_path (str): The path to the data file.
         - data_tensor_path (str): The path to the data tensor file.
-        - data_spec (str): The type of data to load. Can be "all", "face", or "body"
+        - data_spec (str): The type of data to load. Can be "all", "face", "body", "hand", or "core".
         """
         # Set attributes
         self.joint_size = joint_size
@@ -35,8 +39,8 @@ class ToyDataset(Dataset):
         self.window_size = window_size
         self.normalise = normalise
         self.is_data_has_timestamp = is_data_has_timestamp
-        if data_spec not in ["all", "face", "body"]:
-            raise ValueError("data_spec must be one of ['all', 'face', 'body']")
+        if data_spec not in SUPPORT_DATA_SPECES:
+            raise ValueError(f"data_spec must be one of {SUPPORT_DATA_SPECES}, but got {data_spec}")
         self.data_spec = data_spec
 
         self.min_value = float("inf")
@@ -77,12 +81,8 @@ class ToyDataset(Dataset):
         if self.normalise:
             data = (data - self.min_value) / (self.max_value - self.min_value)
 
-        if self.data_spec == "all":
-            return data
-        elif self.data_spec == "face":
-            return data[:, : 478 * 3]
-        elif self.data_spec == "body":
-            return data[:, 478 * 3 :]
+        data = Skeleton(data, joint_size=self.joint_size)
+        return data.get_by_data_spec(self.data_spec)
 
     def get_full_sequences_by_idx(self, idx: int, unnorm: bool = False) -> torch.Tensor:
         """
@@ -99,9 +99,3 @@ class ToyDataset(Dataset):
         if self.normalise and not unnorm:
             data = (data - self.min_value) / (self.max_value - self.min_value)
         return data
-
-
-if __name__ == "__main__":
-    dataset = ToyDataset(data_path="./data/toy_data/train.skels", joint_size=150, frame_size=64, window_size=16)
-    print(len(dataset.raw_data[0][0]) / (150 + 1))
-    print(dataset.min_value, dataset.max_value)
