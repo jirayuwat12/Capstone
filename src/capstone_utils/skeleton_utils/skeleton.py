@@ -18,8 +18,15 @@ BODY_RANGE_IN_FLATTENED = list_range_tuple(start=1434, end=1659)
 HAND_RANGE_IN_FLATTENED = list_range_tuple(start=1434, end=1560)
 CORE_RANGE_IN_FLATTENED = list_range_tuple(start=1560, end=1659)
 
+RANGE_BY_DATA_SPEC = {
+    "all": ALL_RANGE_IN_FLATTENED,
+    "face": FACE_RANGE_IN_FLATTENED,
+    "body": BODY_RANGE_IN_FLATTENED,
+    "core": CORE_RANGE_IN_FLATTENED,
+    "hand": HAND_RANGE_IN_FLATTENED,
+}
 
-SUPPORT_DATA_SPECES = ["all", "face", "body", "core", "hand"]
+SUPPORT_DATA_SPECES = list(RANGE_BY_DATA_SPEC.keys())
 
 
 @dataclass
@@ -47,13 +54,6 @@ class Skeleton:
         :return: The data
         :rtype: torch.Tensor
         """
-        range_by_data_spec = {
-            "all": ALL_RANGE_IN_FLATTENED,
-            "face": FACE_RANGE_IN_FLATTENED,
-            "body": BODY_RANGE_IN_FLATTENED,
-            "core": CORE_RANGE_IN_FLATTENED,
-            "hand": HAND_RANGE_IN_FLATTENED,
-        }
         if data_spec not in SUPPORT_DATA_SPECES:
             raise ValueError(f"data_spec must be one of {SUPPORT_DATA_SPECES}, but got {data_spec}")
-        return self.flatten_data[:, range_by_data_spec[data_spec].start : range_by_data_spec[data_spec].end]
+        return self.flatten_data[:, RANGE_BY_DATA_SPEC[data_spec].start : RANGE_BY_DATA_SPEC[data_spec].end]
