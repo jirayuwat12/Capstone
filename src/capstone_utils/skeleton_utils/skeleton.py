@@ -17,6 +17,10 @@ FACE_RANGE_IN_FLATTENED = list_range_tuple(start=0, end=1434)
 BODY_RANGE_IN_FLATTENED = list_range_tuple(start=1434, end=1659)
 HAND_RANGE_IN_FLATTENED = list_range_tuple(start=1434, end=1560)
 CORE_RANGE_IN_FLATTENED = list_range_tuple(start=1560, end=1659)
+REL_ANG_HAND_RANGE_IN_FLATTENED = [
+    list_range_tuple(start=63*2, end=63*3),  # right hand
+    list_range_tuple(start=63*5, end=63*6),  # left hand
+]
 
 RANGE_BY_DATA_SPEC = {
     "all": ALL_RANGE_IN_FLATTENED,
@@ -24,6 +28,7 @@ RANGE_BY_DATA_SPEC = {
     "body": BODY_RANGE_IN_FLATTENED,
     "core": CORE_RANGE_IN_FLATTENED,
     "hand": HAND_RANGE_IN_FLATTENED,
+    "rel_hand": REL_ANG_HAND_RANGE_IN_FLATTENED,
 }
 
 SUPPORT_DATA_SPECES = list(RANGE_BY_DATA_SPEC.keys())
@@ -56,4 +61,13 @@ class Skeleton:
         """
         if data_spec not in SUPPORT_DATA_SPECES:
             raise ValueError(f"data_spec must be one of {SUPPORT_DATA_SPECES}, but got {data_spec}")
+        if data_spec == "rel_hand":
+            # Get the relative angle of the hand
+            return torch.cat(
+                [
+                    self.flatten_data[:, REL_ANG_HAND_RANGE_IN_FLATTENED[0].start : REL_ANG_HAND_RANGE_IN_FLATTENED[0].end],
+                    self.flatten_data[:, REL_ANG_HAND_RANGE_IN_FLATTENED[1].start : REL_ANG_HAND_RANGE_IN_FLATTENED[1].end],
+                ],
+                dim=1,
+            )
         return self.flatten_data[:, RANGE_BY_DATA_SPEC[data_spec].start : RANGE_BY_DATA_SPEC[data_spec].end]
