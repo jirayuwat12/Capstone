@@ -17,7 +17,7 @@ class ToyDataset(Dataset):
         is_data_has_timestamp: bool = False,
         frame_size: int | None = None,
         window_size: int = -1,
-        data_spec: Literal["all", "face", "body", "hand", "core"] = "all",
+        data_spec: Literal["all", "face", "body", "hand", "core", "rel_hand"] = "all",
     ) -> None:
         """
         Load the toy dataset from the given path.
@@ -31,7 +31,7 @@ class ToyDataset(Dataset):
         - is_data_has_timestamp (bool): Whether the data has a timestamp or not.
         - data_path (str): The path to the data file.
         - data_tensor_path (str): The path to the data tensor file.
-        - data_spec (str): The type of data to load. Can be "all", "face", "body", "hand", or "core".
+        - data_spec (str): The type of data to load. Can be "all", "face", "body", "hand", "core", or "rel_hand".
         """
         # Set attributes
         self.joint_size = joint_size
