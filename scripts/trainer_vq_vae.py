@@ -58,10 +58,10 @@ test_dataset = ToyDataset(
 
 # Initialize the dataloaders
 train_loader = DataLoader(
-    train_dataset, batch_size=config["batch_size"], collate_fn=minibatch_padding_collate_fn, shuffle=True
+    train_dataset, batch_size=config["batch_size"], collate_fn=minibatch_padding_collate_fn, shuffle=True, pin_memory=True
 )
 test_loader = DataLoader(
-    test_dataset, batch_size=config["batch_size"], collate_fn=minibatch_padding_collate_fn, shuffle=False
+    test_dataset, batch_size=config["batch_size"], collate_fn=minibatch_padding_collate_fn, shuffle=False, pin_memory=True
 )
 
 # Initialize the logger
@@ -69,7 +69,6 @@ os.makedirs(os.path.join(config["wandb_save_dir"], config["log_folder_name"]), e
 wandb_logger = WandbLogger(
     name=config["log_folder_name"],
     project="vqvae",
-    log_model=True,
     save_dir=os.path.join(config["wandb_save_dir"], config["log_folder_name"]),
     dir=os.path.join(config["wandb_save_dir"], config["log_folder_name"]),
     resume="allow",
@@ -84,11 +83,12 @@ checkpoint_callback = ModelCheckpoint(
     # save_top_k=1,
     # mode="min",
     every_n_epochs=config["save_every_n_epochs"],
+    save_on_train_epoch_end=True,
 )
 
 # Initialize the trainer
 trainer = Trainer(
-    log_every_n_steps=10, max_epochs=config["max_epochs"], logger=wandb_logger, callbacks=[checkpoint_callback]
+    log_every_n_steps=10, max_epochs=config["max_epochs"], logger=wandb_logger, callbacks=[checkpoint_callback], check_val_every_n_epoch=5
 )
 
 # Train the model
