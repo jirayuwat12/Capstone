@@ -12,6 +12,7 @@ parser.add_argument("--config_path", type=str, default="./configs/trainer_vq_vae
 parser.add_argument("--epoch-per-iteration", type=int, required=True, help="Number of epochs per iteration")
 parser.add_argument("--python-path", type=str, default="python")
 parser.add_argument("--start-epoch", type=int, default=None, help="Starting epoch for the training")
+parser.add_argument("--backup-every", type=int, default=1000, help="Backup every N epochs")
 
 args = parser.parse_args()
 
@@ -28,7 +29,7 @@ for epoch_num in range(
 ):
     # Create a new config for this iteration
     config = main_config.copy()
-    config["max_epochs"] = epoch_num
+    config["max_epochs"] = min(epoch_num, main_config["max_epochs"])
     config["log_folder_name"] = f"{main_config['log_folder_name']}"
 
     # Find the latest checkpoint file
@@ -44,6 +45,27 @@ for epoch_num in range(
             "*.ckpt",
         )
         checkpoint_file = sorted(glob.glob(prev_log_path))[-1]
+        # if it is first epoch in each 1K epoch, then save the checkpoint file
+        if epoch_num // args.backup_every != (epoch_num - args.epoch_per_iteration) // args.backup_every:
+            os.makedirs(
+                os.path.join(
+                    main_config["wandb_save_dir"],
+                    config["log_folder_name"],
+                    "wandb",
+                    f"backup-{epoch_num:06d}",
+                ),
+                exist_ok=True,
+            )
+            shutil.copy(
+                checkpoint_file,
+                os.path.join(
+                    main_config["wandb_save_dir"],
+                    config["log_folder_name"],
+                    "wandb",
+                    f"backup-{epoch_num:06d}",
+                    os.path.basename(checkpoint_file),
+                ),
+            )
         # check that epoch are too far
         checkpoint_epoch = int(checkpoint_file.split("epoch=")[-1].split("-")[0])
         if epoch_num - checkpoint_epoch - 1 > args.epoch_per_iteration:
