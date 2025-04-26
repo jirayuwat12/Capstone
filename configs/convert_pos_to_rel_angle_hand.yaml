@@ -1,0 +1,11 @@
+# input_file: "/mnt/disks/general_backup/cropped_output2/train.skels"
+input_files:
+  - /mnt/disks/general_backup/cropped_output2/train.skels
+  # - /mnt/disks/general_backup/extracted_phoenix_full/train/train.skels
+  # - /mnt/disks/general_backup/extracted_phoenix_full/dev/dev.skels
+  # - /mnt/disks/general_backup/extracted_phoenix_full/test/test.skels
+output_files:
+  - /mnt/disks/general_backup/cropped_output2/train_rel_angle.skels
+  # - /mnt/disks/general_backup/extracted_phoenix_full/train/train_rel_angle.skels
+  # - /mnt/disks/general_backup/extracted_phoenix_full/dev/dev_rel_angle.skels
+  # - /mnt/disks/general_backup/extracted_phoenix_full/test/test_rel_angle.skels
