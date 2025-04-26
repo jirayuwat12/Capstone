@@ -1,3 +1,5 @@
+from typing import Literal
+
 import torch
 import torch.nn as nn
 
@@ -5,7 +7,13 @@ from T2M_GPT_lightning.models.vqvae.resnet import Resnet1D
 
 
 class Decoder(nn.Module):
-    def __init__(self, L: int, out_dim: int = 150, emb_dim: int = 256) -> None:
+    def __init__(
+        self,
+        L: int,
+        out_dim: int = 150,
+        emb_dim: int = 256,
+        activation_type: Literal["linear", "relu", "tanh"] = "linear",
+    ) -> None:
         """
         The decoder architecture is implemented respecting the T2M-GPT architecture
 
@@ -16,7 +24,6 @@ class Decoder(nn.Module):
         """
         super(Decoder, self).__init__()
         self.conv1 = nn.Conv1d(emb_dim, out_dim, 3, 1, 1)
-        self.relu = nn.ReLU()
         self.res_block = nn.Sequential()
         for i in range(L):
             self.res_block.add_module(f"res_block_conv_{i}", nn.Conv1d(emb_dim, emb_dim, 3, 1, 1))
@@ -26,6 +33,16 @@ class Decoder(nn.Module):
 
         # Initialize weights
         self._init_weights()
+
+        # Activation function
+        if activation_type == "linear":
+            self.activation = nn.Identity()
+        elif activation_type == "relu":
+            self.activation = nn.ReLU()
+        elif activation_type == "tanh":
+            self.activation = nn.Tanh()
+        else:
+            raise ValueError(f"Unknown activation type: {activation_type}")
 
     def _init_weights(self):
         """
@@ -58,7 +75,7 @@ class Decoder(nn.Module):
         # Pass through the resnet block
         x_all_in_resblock = self.res_block(x_in)
         x_first_conv = self.conv1(x_all_in_resblock)
-        # x_first_conv = self.relu(x_first_conv) Our data has Real values
+        x_first_conv = self.activation(x_first_conv)
         # Reshape the output tensor to (B, T, X)
         x_out = x_first_conv.permute(0, 2, 1)
 

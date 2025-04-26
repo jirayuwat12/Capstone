@@ -1,15 +1,14 @@
-from typing import Any
+from typing import Any, Literal
 
 import torch
 import torch.nn as nn
 from lightning.pytorch import LightningModule
 from torch.optim.lr_scheduler import LambdaLR
 
+from capstone_utils.skeleton_utils.bmc_loss import calculate_bmc_loss
 from T2M_GPT_lightning.models.vqvae.decoder import Decoder
 from T2M_GPT_lightning.models.vqvae.encoder import Encoder
 from T2M_GPT_lightning.models.vqvae.quantizer import Quantizer
-
-from capstone_utils.skeleton_utils.bmc_loss import calculate_bmc_loss
 
 
 class VQVAEModel(LightningModule):
@@ -29,6 +28,7 @@ class VQVAEModel(LightningModule):
         minibatch_count_to_reset: int = 0,
         bmc_loss_multiplier: float = 0,
         except_r: bool = False,
+        activation_type: Literal["linear", "relu", "tanh"] = "linear",
     ) -> None:
         """
         Initialize the VQVAE model
@@ -46,11 +46,15 @@ class VQVAEModel(LightningModule):
             ratio_for_hand (float): Ratio for hand focus mode
             betas (tuple[float, float]): Betas for the Adam optimizer
             minibatch_count_to_reset (int): Number of minibatches before resetting the codebook vectors
+            is_train (bool): If the model is in training mode
+            bmc_loss_multiplier (float): Multiplier for BMC loss
+            except_r (bool): If True, skip the reconstruction of the right hand
+            activation_type (Literal["linear", "relu", "tanh"]): Activation function type
         """
         super(VQVAEModel, self).__init__()
         self.save_hyperparameters()
         self.encoder = Encoder(L=L, in_dim=skels_dim, emb_dim=embedding_dim)
-        self.decoder = Decoder(L=L, emb_dim=embedding_dim, out_dim=skels_dim)
+        self.decoder = Decoder(L=L, emb_dim=embedding_dim, out_dim=skels_dim, activation_type=activation_type)
         self.quantizer = Quantizer(
             codebook_size=codebook_size,
             decay=quantizer_decay,
@@ -128,7 +132,7 @@ class VQVAEModel(LightningModule):
             # acc_bmc_loss = 0
             bmc_loss = calculate_bmc_loss(x, x_hat)
             loss_reconstruction += (bmc_loss / x.shape[0]) * self.bmc_loss_multiplier
-            
+
         loss = loss_reconstruction + vae_loss
 
         self.log("train_loss", loss.detach(), prog_bar=True)
