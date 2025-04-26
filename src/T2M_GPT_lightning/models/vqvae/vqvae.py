@@ -9,6 +9,8 @@ from T2M_GPT_lightning.models.vqvae.decoder import Decoder
 from T2M_GPT_lightning.models.vqvae.encoder import Encoder
 from T2M_GPT_lightning.models.vqvae.quantizer import Quantizer
 
+from capstone_utils.skeleton_utils.bmc_loss import calculate_bmc_loss
+
 
 class VQVAEModel(LightningModule):
     def __init__(
@@ -25,6 +27,8 @@ class VQVAEModel(LightningModule):
         ratio_for_hand: float = 0.5,
         betas: tuple[float, float] = (0.9, 0.99),
         minibatch_count_to_reset: int = 0,
+        bmc_loss_multiplier: float = 0,
+        except_r: bool = False,
     ) -> None:
         """
         Initialize the VQVAE model
@@ -66,6 +70,8 @@ class VQVAEModel(LightningModule):
         self.learning_rate_scheduler = learning_rate_scheduler
         self.learning_rate = learning_rate
         self.betas = betas
+        self.bmc_loss_multiplier = bmc_loss_multiplier
+        self.except_r = except_r
 
     def reconstruct(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
@@ -113,7 +119,16 @@ class VQVAEModel(LightningModule):
         x = batch
         x_hat, vae_loss, _ = self.reconstruct(x)
 
+        if self.except_r:
+            x_hat[:, ::3] = x[:, ::3]
+
         loss_reconstruction = self.compute_reconstruction_loss(x, x_hat, is_focus_hand_mode=self.is_focus_hand_mode)
+
+        if self.bmc_loss_multiplier > 0:
+            # acc_bmc_loss = 0
+            bmc_loss = calculate_bmc_loss(x, x_hat)
+            loss_reconstruction += (bmc_loss / x.shape[0]) * self.bmc_loss_multiplier
+            
         loss = loss_reconstruction + vae_loss
 
         self.log("train_loss", loss.detach(), prog_bar=True)
