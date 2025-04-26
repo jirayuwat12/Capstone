@@ -23,7 +23,7 @@ def calculate_interval_loss(xmin: torch.Tensor, xmax: torch.Tensor, X: torch.Ten
         more_max = X_outlier - xmax[i]
         interval_loss += torch.max(less_min, more_max).clamp(0).sum()
 
-    return interval_loss / X.shape[0]
+    return interval_loss / X.shape[1] * X.shape[0]
 
 
 # joint Sequence*126*3
@@ -113,4 +113,4 @@ def bmc_loss(x_joints, xhat_joints):
     xhat_PHI = xhat_PHI.swapaxes(1, 0)  # (4*N)
     phi_loss = calculate_interval_loss(min_PHI, max_PHI, xhat_PHI)
 
-    return bl_loss + curvature_loss + phi_loss
+    return 0.1*bl_loss + 0.1*(curvature_loss + phi_loss)
