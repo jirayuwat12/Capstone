@@ -1,5 +1,6 @@
 from typing import Sequence
 
+
 def compute_joint_tree(skeleton: Sequence[tuple[int, int, int]]) -> dict[int, list[int]]:
     """
     This function computes the joint tree structure from the skeleton model

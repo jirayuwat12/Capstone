@@ -58,10 +58,18 @@ test_dataset = ToyDataset(
 
 # Initialize the dataloaders
 train_loader = DataLoader(
-    train_dataset, batch_size=config["batch_size"], collate_fn=minibatch_padding_collate_fn, shuffle=True, pin_memory=True
+    train_dataset,
+    batch_size=config["batch_size"],
+    collate_fn=minibatch_padding_collate_fn,
+    shuffle=True,
+    pin_memory=True,
 )
 test_loader = DataLoader(
-    test_dataset, batch_size=config["batch_size"], collate_fn=minibatch_padding_collate_fn, shuffle=False, pin_memory=True
+    test_dataset,
+    batch_size=config["batch_size"],
+    collate_fn=minibatch_padding_collate_fn,
+    shuffle=False,
+    pin_memory=True,
 )
 
 # Initialize the logger
@@ -88,7 +96,11 @@ checkpoint_callback = ModelCheckpoint(
 
 # Initialize the trainer
 trainer = Trainer(
-    log_every_n_steps=10, max_epochs=config["max_epochs"], logger=wandb_logger, callbacks=[checkpoint_callback], check_val_every_n_epoch=5
+    log_every_n_steps=10,
+    max_epochs=config["max_epochs"],
+    logger=wandb_logger,
+    callbacks=[checkpoint_callback],
+    check_val_every_n_epoch=5,
 )
 
 # Train the model

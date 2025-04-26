@@ -18,8 +18,8 @@ BODY_RANGE_IN_FLATTENED = list_range_tuple(start=1434, end=1659)
 HAND_RANGE_IN_FLATTENED = list_range_tuple(start=1434, end=1560)
 CORE_RANGE_IN_FLATTENED = list_range_tuple(start=1560, end=1659)
 REL_ANG_HAND_RANGE_IN_FLATTENED = [
-    list_range_tuple(start=63*2, end=63*3),  # right hand
-    list_range_tuple(start=63*5, end=63*6),  # left hand
+    list_range_tuple(start=63 * 2, end=63 * 3),  # right hand
+    list_range_tuple(start=63 * 5, end=63 * 6),  # left hand
 ]
 
 RANGE_BY_DATA_SPEC = {
@@ -65,8 +65,12 @@ class Skeleton:
             # Get the relative angle of the hand
             return torch.cat(
                 [
-                    self.flatten_data[:, REL_ANG_HAND_RANGE_IN_FLATTENED[0].start : REL_ANG_HAND_RANGE_IN_FLATTENED[0].end],
-                    self.flatten_data[:, REL_ANG_HAND_RANGE_IN_FLATTENED[1].start : REL_ANG_HAND_RANGE_IN_FLATTENED[1].end],
+                    self.flatten_data[
+                        :, REL_ANG_HAND_RANGE_IN_FLATTENED[0].start : REL_ANG_HAND_RANGE_IN_FLATTENED[0].end
+                    ],
+                    self.flatten_data[
+                        :, REL_ANG_HAND_RANGE_IN_FLATTENED[1].start : REL_ANG_HAND_RANGE_IN_FLATTENED[1].end
+                    ],
                 ],
                 dim=1,
             )
