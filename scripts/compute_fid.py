@@ -1,5 +1,5 @@
 import os
-
+import torch
 import numpy as np
 import yaml
 from tqdm import tqdm
@@ -51,8 +51,8 @@ def compute_fid(config_folder: str):
             is_data_has_timestamp=train_config["is_data_has_timestamp"],
             data_spec=train_config["data_spec"] if "data_spec" in train_config else "all",
         )
-        train_all = np.concatenate(train_dataset.data, axis=0)
-        val_all = np.concatenate(val_dataset.data, axis=0)
+        train_all = torch.concatenate(train_dataset.data, axis=0)
+        val_all = torch.concatenate(val_dataset.data, axis=0)
 
         # Get predictions
         model = VQVAEModel.load_from_checkpoint(
@@ -62,11 +62,11 @@ def compute_fid(config_folder: str):
         train_pred = []
         for i in range(len(train_all)):
             train_pred.append(model(train_all[i].unsqueeze(0).float())[0][0].detach().cpu().numpy())
-        train_pred = np.array(train_pred, axis=0)
+        train_pred = torch.concatenate(train_pred, axis=0)
         val_pred = []
         for i in range(len(val_all)):
             val_pred.append(model(val_all[i].unsqueeze(0).float())[0][0].detach().cpu().numpy())
-        val_pred = np.array(val_pred, axis=0)
+        val_pred = torch.concatenate(val_pred, axis=0)
 
         print(train_all.shape)
         print(train_pred.shape)
