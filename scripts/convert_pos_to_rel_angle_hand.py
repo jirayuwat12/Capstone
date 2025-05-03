@@ -10,6 +10,7 @@ This scripts read .skels then
       - global min/max of bone length
 5. write to .skels
 """
+
 import os
 
 import numpy as np
@@ -67,7 +68,7 @@ if __name__ == "__main__":
         with open(skel_file, "r") as infile:
             global_min_angle = np.full((NUM_HAND_JOINT * 2, 2), np.inf)
             global_max_angle = np.full((NUM_HAND_JOINT * 2, 2), -np.inf)
-            global_min_bl = np.full((NUM_HAND_JOINT * 2, 1), np.inf) # bone length
+            global_min_bl = np.full((NUM_HAND_JOINT * 2, 1), np.inf)  # bone length
             global_max_bl = np.full((NUM_HAND_JOINT * 2, 1), -np.inf)
 
             print(f"Processing {skel_file} to {output_path}")
@@ -104,11 +105,13 @@ if __name__ == "__main__":
 
                             next_detected_frame += 1
 
-                        looper.set_postfix({
-                            "filling": f"Right hand",
-                            "from": i,
-                            "to": next_detected_frame,
-                        })
+                        looper.set_postfix(
+                            {
+                                "filling": f"Right hand",
+                                "from": i,
+                                "to": next_detected_frame,
+                            }
+                        )
 
                         if next_detected_hand_joints is None:
                             # Use previous frame's hand joints to all the rest
@@ -147,11 +150,13 @@ if __name__ == "__main__":
 
                             next_detected_frame += 1
 
-                        looper.set_postfix({
-                            "filling": f"Left hand",
-                            "from": i,
-                            "to": next_detected_frame,
-                        })
+                        looper.set_postfix(
+                            {
+                                "filling": f"Left hand",
+                                "from": i,
+                                "to": next_detected_frame,
+                            }
+                        )
 
                         if next_detected_hand_joints is None:
                             # Use previous frame's hand joints to all the rest
@@ -229,11 +234,13 @@ if __name__ == "__main__":
 
                             next_detected_frame += 1
 
-                        looper.set_postfix({
-                            "filling": f"Right hand",
-                            "from": i,
-                            "to": next_detected_frame,
-                        })
+                        looper.set_postfix(
+                            {
+                                "filling": f"Right hand",
+                                "from": i,
+                                "to": next_detected_frame,
+                            }
+                        )
 
                         if next_detected_hand_joints is None:
                             # Use previous frame's hand joints to all the rest
@@ -272,11 +279,13 @@ if __name__ == "__main__":
 
                             next_detected_frame += 1
 
-                        looper.set_postfix({
-                            "filling": f"Left hand",
-                            "from": i,
-                            "to": next_detected_frame,
-                        })
+                        looper.set_postfix(
+                            {
+                                "filling": f"Left hand",
+                                "from": i,
+                                "to": next_detected_frame,
+                            }
+                        )
 
                         if next_detected_hand_joints is None:
                             # Use previous frame's hand joints to all the rest

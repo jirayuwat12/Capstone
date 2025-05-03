@@ -131,7 +131,7 @@ class VQVAEModel(LightningModule):
         loss_bmc_loss = 0
         if self.bmc_loss_multiplier > 0:
             # acc_bmc_loss = 0
-            bmc_loss = calculate_bmc_loss(x, x_hat , x.shape[0])
+            bmc_loss = calculate_bmc_loss(x, x_hat, x.shape[0])
             loss_bmc_loss += bmc_loss * self.bmc_loss_multiplier
 
         loss = loss_reconstruction + vae_loss + loss_bmc_loss
@@ -170,7 +170,7 @@ class VQVAEModel(LightningModule):
             loss (torch.Tensor): Loss
         """
         if x_hat.shape[1] < x.shape[1]:
-            x = x[:, :x_hat.shape[1], :]
+            x = x[:, : x_hat.shape[1], :]
         if not is_focus_hand_mode:
             loss_reconstruction = nn.SmoothL1Loss()(x_hat, x)
             loss_velocities = nn.SmoothL1Loss()(x_hat[:, 1:] - x_hat[:, :-1], x[:, 1:] - x[:, :-1])

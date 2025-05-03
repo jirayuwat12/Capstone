@@ -1,8 +1,8 @@
 import os
 
 import numpy as np
-import yaml
 import torch
+import yaml
 from tqdm import tqdm
 
 from capstone_utils.absolute_angle_conversion import position_to_absolute_angle
@@ -60,24 +60,40 @@ if __name__ == "__main__":
 
                     # Right hand is missing
                     # if (np.allclose(original_rhand_joints, 0, atol=1e-5)) and i > 0:
-                    if (np.allclose(convert_flatten_skeleton_to_unnormed_hand(frame_joint, rhand_global_min, rhand_global_max, False), 0, atol=1e-5)) and i > 0:
+                    if (
+                        np.allclose(
+                            convert_flatten_skeleton_to_unnormed_hand(
+                                frame_joint, rhand_global_min, rhand_global_max, False
+                            ),
+                            0,
+                            atol=1e-5,
+                        )
+                    ) and i > 0:
                         next_detected_frame = i + 1
                         next_detected_hand_joints = None
                         while next_detected_frame < all_joint.shape[0]:
                             next_frame_joint = all_joint[next_detected_frame, :, :].flatten()
 
                             # if not np.allclose(next_frame_joint, 0, atol=1e-5):
-                            if not np.allclose(convert_flatten_skeleton_to_unnormed_hand(next_frame_joint, rhand_global_min, rhand_global_max, False), 0, atol=1e-5):
+                            if not np.allclose(
+                                convert_flatten_skeleton_to_unnormed_hand(
+                                    next_frame_joint, rhand_global_min, rhand_global_max, False
+                                ),
+                                0,
+                                atol=1e-5,
+                            ):
                                 next_detected_hand_joints = all_joint[next_detected_frame, 478:499, :].flatten()
                                 break
 
                             next_detected_frame += 1
 
-                        looper.set_postfix({
-                            "filling": f"Right hand",
-                            "from": i,
-                            "to": next_detected_frame,
-                        })
+                        looper.set_postfix(
+                            {
+                                "filling": f"Right hand",
+                                "from": i,
+                                "to": next_detected_frame,
+                            }
+                        )
 
                         if next_detected_hand_joints is None:
                             # Use previous frame's hand joints to all the rest
@@ -101,24 +117,40 @@ if __name__ == "__main__":
 
                     # Left hand is missing
                     # if (np.allclose(original_lhand_joints, 0, atol=1e-5)) and i > 0:
-                    if (np.allclose(convert_flatten_skeleton_to_unnormed_hand(frame_joint, lhand_global_min, lhand_global_max, True), 0, atol=1e-5)) and i > 0:
+                    if (
+                        np.allclose(
+                            convert_flatten_skeleton_to_unnormed_hand(
+                                frame_joint, lhand_global_min, lhand_global_max, True
+                            ),
+                            0,
+                            atol=1e-5,
+                        )
+                    ) and i > 0:
                         next_detected_frame = i + 1
                         next_detected_hand_joints = None
                         while next_detected_frame < all_joint.shape[0]:
                             next_frame_joint = all_joint[next_detected_frame, :, :].flatten()
 
                             # if not np.allclose(next_frame_joint, 0, atol=1e-5):
-                            if not np.allclose(convert_flatten_skeleton_to_unnormed_hand(next_frame_joint, lhand_global_min, lhand_global_max, True), 0, atol=1e-5):
+                            if not np.allclose(
+                                convert_flatten_skeleton_to_unnormed_hand(
+                                    next_frame_joint, lhand_global_min, lhand_global_max, True
+                                ),
+                                0,
+                                atol=1e-5,
+                            ):
                                 next_detected_hand_joints = all_joint[next_detected_frame, 499:520, :].flatten()
                                 break
 
                             next_detected_frame += 1
 
-                        looper.set_postfix({
-                            "filling": f"Left hand",
-                            "from": i,
-                            "to": next_detected_frame,
-                        })
+                        looper.set_postfix(
+                            {
+                                "filling": f"Left hand",
+                                "from": i,
+                                "to": next_detected_frame,
+                            }
+                        )
 
                         if next_detected_hand_joints is None:
                             # Use previous frame's hand joints to all the rest
