@@ -23,13 +23,18 @@ def compute_fid(config_folder: str):
 
         # Check if the file is a YAML file
         if not train_config_path.endswith(".yaml"):
-            looper.set_postfix_str(f"Skipping {config_file}")
+            print(f"Skipping {config_file} as it is not a YAML file")
             continue
         train_config = yaml.safe_load(open(train_config_path, "r"))
 
         # Check if the file contains the required keys
         if "train_data_path" not in train_config and "train_data_tensor_path" not in train_config:
-            looper.set_postfix_str(f"Skipping {config_file}")
+            print(f"Skipping {config_file} as it does not contain train_data_path or train_data_tensor_path")
+            continue
+    
+        # Check if the model save path exists
+        if not os.path.exists(train_config["save_weight_path"]):
+            print(f"Model save path {train_config['save_weight_path']} does not exist")
             continue
 
         # Load train/val datasets
@@ -57,9 +62,6 @@ def compute_fid(config_folder: str):
         val_all = torch.concatenate(val_dataset.data, axis=0)
 
         # Get predictions
-        if not os.path.exists(train_config["save_weight_path"]):
-            looper.set_postfix_str(f"Skipping {config_file}")
-            continue
         model = VQVAEModel.load_from_checkpoint(
             train_config["save_weight_path"], **train_config["model_hyperparameters"]
         ).to(device="cuda" if torch.cuda.is_available() else "cpu")
@@ -91,6 +93,8 @@ def compute_fid(config_folder: str):
         fid_path = train_config["model_save_path"].replace(".pth", "_fid.txt")
         with open(fid_path, "a") as fid_file:
             fid_file.write(f"train_fid: {train_fid:.4f}\n val_fid: {val_fid:.4f}\n")
+
+        print(f"Model: {os.path.basename(train_config['model_save_path'])} done")
 
 
 if __name__ == "__main__":
