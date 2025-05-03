@@ -79,6 +79,9 @@ def compute_fid(config_folder: str):
         train_pred = train_pred[: train_all.shape[0]]
         val_pred = val_pred[: val_all.shape[0]]
 
+        del train_dataset
+        del val_dataset
+
         # Compute FID
         train_fid = calculate_frechet_feature_distance(
             train_pred,
