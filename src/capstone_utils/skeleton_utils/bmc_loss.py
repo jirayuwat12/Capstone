@@ -10,7 +10,9 @@ import time
 
 def normalize(vec):
     eps = 1e-8
+    eps = 1e-8
     len = torch.linalg.norm(vec, axis=-1, keepdims=True)
+    return vec / (len+eps)
     return vec / (len+eps)
 
 
@@ -56,11 +58,14 @@ def bmc_loss(x_joints, xhat_joints):
     snap_parents = [0, 1, 2, 3, 0, 5, 6, 7, 0, 9, 10, 11, 0, 13, 14, 15, 0, 17, 18, 19]
 
     x_kin_chain = x_joints[:,:, snap_child] - x_joints[:,:, snap_parents]
+    x_kin_chain = x_joints[:,:, snap_child] - x_joints[:,:, snap_parents]
 
+    xhat_kin_chain = xhat_joints[:,:, snap_child] - xhat_joints[:,:, snap_parents]
     xhat_kin_chain = xhat_joints[:,:, snap_child] - xhat_joints[:,:, snap_parents]
 
     # print("XKIN_CHAIN", x_kin_chain.shape) #(B , N , 20 , 3)
 
+    x_bone_lens = torch.linalg.norm(x_kin_chain, ord=2, axis=-1)  # (B*N*20)
     x_bone_lens = torch.linalg.norm(x_kin_chain, ord=2, axis=-1)  # (B*N*20)
 
     # print("X_BONE_LENS", x_bone_lens.shape)
@@ -69,6 +74,8 @@ def bmc_loss(x_joints, xhat_joints):
     min_bone_len = (torch.min(x_bone_lens, dim=1).values).unsqueeze(-1)  # (B*20,)
 
     # xhat_kin_chain = torch.stack(xhat_kin_chain, dim=1)  # (N, 20, 3)
+    xhat_kin_chain2 = xhat_kin_chain.swapaxes(2, 1)  # (B*20*N*3)
+    xhat_bone_lens = torch.linalg.norm(xhat_kin_chain2, ord=2, axis=-1)  # (B*20*N)
     xhat_kin_chain2 = xhat_kin_chain.swapaxes(2, 1)  # (B*20*N*3)
     xhat_bone_lens = torch.linalg.norm(xhat_kin_chain2, ord=2, axis=-1)  # (B*20*N)
 
