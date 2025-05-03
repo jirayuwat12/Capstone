@@ -60,12 +60,12 @@ def compute_fid(config_folder: str):
             **train_config["model_hyperparameters"]
         )
         train_pred = []
-        for i in range(len(train_all)):
-            train_pred.append(model(train_all[i].unsqueeze(0).float())[0][0].detach().cpu().numpy())
+        for i in range(len(train_dataset)):
+            train_pred.append(model(train_dataset[i].unsqueeze(0).float())[0][0].detach().cpu().numpy())
         train_pred = torch.concatenate(train_pred, axis=0)
         val_pred = []
-        for i in range(len(val_all)):
-            val_pred.append(model(val_all[i].unsqueeze(0).float())[0][0].detach().cpu().numpy())
+        for i in range(len(val_dataset)):
+            val_pred.append(model(val_dataset[i].unsqueeze(0).float())[0][0].detach().cpu().numpy())
         val_pred = torch.concatenate(val_pred, axis=0)
 
         print(train_all.shape)
