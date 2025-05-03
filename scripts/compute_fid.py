@@ -1,13 +1,13 @@
 import os
-import torch
+
 import numpy as np
+import torch
 import yaml
 from tqdm import tqdm
-from T2M_GPT_lightning.dataset.toy_vq_vae_dataset import ToyDataset as VQVAE_Dataset
-from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 
 from T2M_GPT.utils.eval_trans import calculate_frechet_feature_distance
-
+from T2M_GPT_lightning.dataset.toy_vq_vae_dataset import ToyDataset as VQVAE_Dataset
+from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 
 CONFIG_PATH = "./configs/compute_fid.yaml"
 with open(CONFIG_PATH, "r") as config_file:
@@ -35,7 +35,9 @@ def compute_fid(config_folder: str):
         # Load train/val datasets
         train_dataset = VQVAE_Dataset(
             data_path=train_config["train_data_path"] if "train_data_path" in train_config else None,
-            data_tensor_path=train_config["train_data_tensor_path"] if "train_data_tensor_path" in train_config else None,
+            data_tensor_path=(
+                train_config["train_data_tensor_path"] if "train_data_tensor_path" in train_config else None
+            ),
             joint_size=train_config["joint_size"],
             window_size=train_config["window_size"],
             normalise=train_config["normalize_data"],
@@ -55,26 +57,40 @@ def compute_fid(config_folder: str):
         val_all = torch.concatenate(val_dataset.data, axis=0)
 
         # Get predictions
+        if not os.path.exists(train_config["save_weight_path"]):
+            looper.set_postfix_str(f"Skipping {config_file}")
+            continue
         model = VQVAEModel.load_from_checkpoint(
-            train_config["save_weight_path"],
-            **train_config["model_hyperparameters"]
-        )
+            train_config["save_weight_path"], **train_config["model_hyperparameters"]
+        ).to(device="cuda" if torch.cuda.is_available() else "cpu")
         train_pred = []
-        for i in range(len(train_dataset)):
-            train_pred.append(model(train_dataset[i].unsqueeze(0).float())[0][0].detach().cpu().numpy())
-        train_pred = torch.concatenate(train_pred, axis=0)
+        # for i in range(len(train_dataset)):
+        for i in tqdm(range(len(train_dataset)), desc="Computing train predictions", unit="sample", leave=False):
+            train_pred.append(model(train_dataset[i].unsqueeze(0).float().to(model.device))[0][0].detach().cpu())
+        train_pred = torch.concatenate(train_pred, axis=0).to(device="cpu")
         val_pred = []
-        for i in range(len(val_dataset)):
-            val_pred.append(model(val_dataset[i].unsqueeze(0).float())[0][0].detach().cpu().numpy())
-        val_pred = torch.concatenate(val_pred, axis=0)
+        # for i in range(len(val_dataset)):
+        for i in tqdm(range(len(val_dataset)), desc="Computing val predictions", unit="sample", leave=False):
+            val_pred.append(model(val_dataset[i].unsqueeze(0).float().to(model.device))[0][0].detach().cpu())
+        val_pred = torch.concatenate(val_pred, axis=0).to(device="cpu")
 
-        print(train_all.shape)
-        print(train_pred.shape)
-        print(val_all.shape)
-        print(val_pred.shape)
+        train_pred = train_pred[: train_all.shape[0]]
+        val_pred = val_pred[: val_all.shape[0]]
 
-            
-
+        # Compute FID
+        train_fid = calculate_frechet_feature_distance(
+            train_pred,
+            train_all,
+        )
+        val_fid = calculate_frechet_feature_distance(
+            val_pred,
+            val_all,
+        )
+        looper.set_postfix_str(f"Train FID: {train_fid:.4f}, Val FID: {val_fid:.4f}")
+        # Save FID
+        fid_path = train_config["model_save_path"].replace(".pth", "_fid.txt")
+        with open(fid_path, "a") as fid_file:
+            fid_file.write(f"train_fid: {train_fid:.4f}\n val_fid: {val_fid:.4f}\n")
 
 
 if __name__ == "__main__":
