@@ -31,8 +31,6 @@ def compute_fid(config_folder: str):
         if "train_data_path" not in train_config and "train_data_tensor_path" not in train_config:
             looper.set_postfix_str(f"Skipping {config_file}")
             continue
-        train_data_path = train_config["train_data_path"]
-        val_data_path = train_config["val_data_path"]
 
         # Load train/val datasets
         train_dataset = VQVAE_Dataset(
@@ -53,8 +51,8 @@ def compute_fid(config_folder: str):
             is_data_has_timestamp=train_config["is_data_has_timestamp"],
             data_spec=train_config["data_spec"] if "data_spec" in train_config else "all",
         )
-        train_all = np.array(train_dataset.data, axis=0)
-        val_all = np.array(val_dataset.data, axis=0)
+        train_all = np.concatenate(train_dataset.data, axis=0)
+        val_all = np.concatenate(val_dataset.data, axis=0)
 
         # Get predictions
         model = VQVAEModel.load_from_checkpoint(
