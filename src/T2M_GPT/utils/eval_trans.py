@@ -5,8 +5,8 @@ import numpy as np
 import torch
 from scipy import linalg
 
-import T2M_GPT.visualization.plot_3d_global as plot_3d
-from T2M_GPT.utils.motion_process import recover_from_ric
+# import T2M_GPT.visualization.plot_3d_global as plot_3d
+# from T2M_GPT.utils.motion_process import recover_from_ric
 
 
 def tensorborad_add_video_xyz(writer, xyz, nb_iter, tag, nb_vis=4, title_batch=None, outname=None):
