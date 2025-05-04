@@ -1,3 +1,5 @@
+# !!!IMPORTANT!!! This code is from the official implementation of the paper which is [here](https://github.com/laomao0/BIN)
+
 # BIN (Blurry Video Frame Interpolation)
 [Project]() **|** [Paper](https://openaccess.thecvf.com/content_CVPR_2020/papers/Shen_Blurry_Video_Frame_Interpolation_CVPR_2020_paper.pdf)
 
@@ -17,13 +19,20 @@ IEEE Conference on Computer Vision and Pattern Recognition, Seattle, CVPR 2020
 
 
 ### Table of Contents
-1. [Introduction](#introduction)
-1. [Citation](#citation)
-1. [Requirements and Dependencies](#requirements-and-dependencies)
-1. [Installation](#installation)
-1. [Testing Pre-trained Models](#testing-pre-trained-models)
-1. [Downloading Results](#downloading-results)
-1. [Training New Models](#training-new-models) 
+- [!!!IMPORTANT!!! This code is from the official implementation of the paper which is here](#important-this-code-is-from-the-official-implementation-of-the-paper-which-is-here)
+- [BIN (Blurry Video Frame Interpolation)](#bin-blurry-video-frame-interpolation)
+    - [Table of Contents](#table-of-contents)
+    - [Introduction](#introduction)
+    - [Citation](#citation)
+    - [Requirements and Dependencies](#requirements-and-dependencies)
+    - [Installation](#installation)
+    - [Make Adobe240 blur dataset](#make-adobe240-blur-dataset)
+    - [Demo using Pre-trained Models](#demo-using-pre-trained-models)
+    - [Testing Pre-trained Models (Performance Evaluation)](#testing-pre-trained-models-performance-evaluation)
+    - [Training New Models](#training-new-models)
+    - [For joint frame interpolation and super-resolution task](#for-joint-frame-interpolation-and-super-resolution-task)
+    - [Contact](#contact)
+    - [License](#license)
 
 ### Introduction
 
