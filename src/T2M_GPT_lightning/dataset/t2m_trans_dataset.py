@@ -7,7 +7,7 @@ from tqdm import tqdm
 from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 
 
-class ToyDataset(Dataset):
+class T2MGPTDataset(Dataset):
     def __init__(
         self,
         clip_model: nn.Module,
@@ -81,6 +81,6 @@ if __name__ == "__main__":
     )
 
     clip_model, _ = clip.load("ViT-B/32")
-    dataset = ToyDataset(clip_model, vae_model, "./data/toy_data/train.text", "./data/toy_data/train.skels")
+    dataset = T2MGPTDataset(clip_model, vae_model, "./data/toy_data/train.text", "./data/toy_data/train.skels")
 
     print(dataset[0][0].shape, dataset[0][1].shape)

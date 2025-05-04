@@ -5,7 +5,7 @@ import yaml
 from tqdm import tqdm
 
 from T2M_GPT.utils.eval_trans import calculate_frechet_feature_distance
-from T2M_GPT_lightning.dataset.toy_vq_vae_dataset import ToyDataset as VQVAE_Dataset
+from T2M_GPT_lightning.dataset.vq_vae_dataset import VQVAEDataset
 from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 
 CONFIG_PATH = "./configs/compute_fid.yaml"
@@ -43,7 +43,7 @@ def compute_fid(config_folder: str):
             continue
 
         # Load train/val datasets
-        train_dataset = VQVAE_Dataset(
+        train_dataset = VQVAEDataset(
             data_path=train_config["train_data_path"] if "train_data_path" in train_config else None,
             data_tensor_path=(
                 train_config["train_data_tensor_path"] if "train_data_tensor_path" in train_config else None
@@ -54,7 +54,7 @@ def compute_fid(config_folder: str):
             is_data_has_timestamp=train_config["is_data_has_timestamp"],
             data_spec=train_config["data_spec"] if "data_spec" in train_config else "all",
         )
-        val_dataset = VQVAE_Dataset(
+        val_dataset = VQVAEDataset(
             data_path=train_config["val_data_path"] if "val_data_path" in train_config else None,
             data_tensor_path=train_config["val_data_tensor_path"] if "val_data_tensor_path" in train_config else None,
             joint_size=train_config["joint_size"],

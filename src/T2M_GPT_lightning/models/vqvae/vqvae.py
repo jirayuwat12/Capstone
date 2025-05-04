@@ -14,7 +14,7 @@ from T2M_GPT_lightning.models.vqvae.quantizer import Quantizer
 class VQVAEModel(LightningModule):
     def __init__(
         self,
-        learning_rate_scheduler: str = "static",
+        learning_rate_scheduler: Literal["static", "lambda", "reduce_on_plateau"] = "static",
         learning_rate: Any = 1e-5,
         L: int = 1,
         codebook_size: int = 32,
@@ -235,6 +235,9 @@ class VQVAEModel(LightningModule):
                 factor=self.learning_rate["factor"] if "factor" in self.learning_rate else 0.5,
             )
 
+        else:
+            raise ValueError(f"Unknown learning rate scheduler: {self.learning_rate_scheduler}")
+
         return {
             "optimizer": optim,
             "lr_scheduler": scheduler,
@@ -256,14 +259,3 @@ class VQVAEModel(LightningModule):
         x_hat = self.decoder.decode(dequantized)
 
         return x_hat
-
-
-if __name__ == "__main__":
-    model = VQVAEModel()
-
-    x = torch.randn(2, 64, 150)
-    x_hat, commitment_loss, perplexity = model.reconstruct(x)
-    print("x_hat", x_hat)
-    print("commitment_loss", commitment_loss)
-    print("perplexity", perplexity)
-    print(x_hat.shape, commitment_loss, perplexity)

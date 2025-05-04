@@ -2,13 +2,14 @@ import itertools
 import logging
 from collections import OrderedDict
 
-import BIN.models.lr_scheduler as lr_scheduler
-import BIN.models.networks as networks
 import torch
 import torch.nn as nn
+from torch.nn.parallel import DataParallel, DistributedDataParallel
+
+import BIN.models.lr_scheduler as lr_scheduler
+import BIN.models.networks as networks
 import BIN.utils.util as util
 from BIN.models.loss import CharbonnierLoss, CharbonnierLossPlusSSIM
-from torch.nn.parallel import DataParallel, DistributedDataParallel
 
 from .base_model import BaseModel
 

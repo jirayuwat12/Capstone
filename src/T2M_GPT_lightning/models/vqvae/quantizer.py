@@ -152,10 +152,3 @@ class Quantizer(nn.Module):
 
     def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         return self.quantize(x)
-
-
-if __name__ == "__main__":
-    import torchsummary
-
-    model = Quantizer()
-    torchsummary.summary(model, (512, 16))

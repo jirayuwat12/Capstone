@@ -10,7 +10,7 @@ from lightning.pytorch.loggers import WandbLogger
 from torch.utils.data import DataLoader
 
 from capstone_utils.dataloader.collate_fn import minibatch_padding_collate_fn
-from T2M_GPT_lightning.dataset.toy_vq_vae_dataset import ToyDataset
+from T2M_GPT_lightning.dataset.vq_vae_dataset import VQVAEDataset
 from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 
 # Set the random seed
@@ -37,7 +37,7 @@ else:
     model = VQVAEModel(**model_hyperparameters)
 
 # Initialize the dataset
-train_dataset = ToyDataset(
+train_dataset = VQVAEDataset(
     data_path=config["train_data_path"] if "train_data_path" in config else None,
     data_tensor_path=config["train_data_tensor_path"] if "train_data_tensor_path" in config else None,
     joint_size=config["joint_size"],
@@ -46,7 +46,7 @@ train_dataset = ToyDataset(
     is_data_has_timestamp=config["is_data_has_timestamp"],
     data_spec=config["data_spec"] if "data_spec" in config else "all",
 )
-test_dataset = ToyDataset(
+test_dataset = VQVAEDataset(
     data_path=config["val_data_path"] if "val_data_path" in config else None,
     data_tensor_path=config["val_data_tensor_path"] if "val_data_tensor_path" in config else None,
     joint_size=config["joint_size"],

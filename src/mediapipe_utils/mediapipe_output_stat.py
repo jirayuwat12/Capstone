@@ -20,5 +20,5 @@ class MediapipeOutputStat:
                 total_found_frames=self.total_found_frames + other.total_found_frames,
             )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Total processing frames: {self.total_processing_frames}, Total found frames: {self.total_found_frames}"

@@ -5,9 +5,10 @@ import sys
 import torch
 
 sys.path.append(os.path.dirname(__file__))
+from T2M_GPT.visualize.joints2smpl.src import config
+
 from .customloss import body_fitting_loss_3d, camera_fitting_loss_3d
 from .prior import MaxMixturePrior
-from T2M_GPT.visualize.joints2smpl.src import config
 
 
 @torch.no_grad()

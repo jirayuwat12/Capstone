@@ -11,10 +11,10 @@ from .landmarker import Landmarker
 
 
 class PoseLandmarker(Landmarker):
-    LEFT_HAND_LANDMARKS_INDICES = [15, 17, 19, 21]
-    RIGHT_HAND_LANDMARKS_INDICES = [16, 18, 20, 22]
+    LEFT_HAND_LANDMARKS_INDICES: list[int] = [15, 17, 19, 21]
+    RIGHT_HAND_LANDMARKS_INDICES: list[int] = [16, 18, 20, 22]
 
-    def __init__(self, pose_config: dict):
+    def __init__(self, pose_config: dict) -> None:
         self.pose_landmarker = PoseLandmark.Pose(
             min_detection_confidence=pose_config["min_detection_confidence"],
             min_tracking_confidence=pose_config["min_tracking_confidence"],

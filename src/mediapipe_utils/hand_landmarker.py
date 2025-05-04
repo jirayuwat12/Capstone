@@ -17,7 +17,7 @@ class BaseHandLandmark:
 
 
 class HandLandmarker(Landmarker):
-    def __init__(self, hand_config: dict):
+    def __init__(self, hand_config: dict) -> None:
         self.hand_landmarker = HandLandmark.Hands(
             static_image_mode=False,  # Set to False for video processing
             max_num_hands=hand_config["max_num_hands"],
@@ -70,7 +70,7 @@ class HandLandmarker(Landmarker):
             min_distance_to_right = float("inf")
             closest_left_hand = None
             closest_right_hand = None
-            for hand_index, hand_landmark in enumerate(hand_landmarks.multi_hand_landmarks):
+            for _, hand_landmark in enumerate(hand_landmarks.multi_hand_landmarks):
                 hand_landmark = hand_landmark.landmark
                 np_hand_landmark = np.array([(landmark.x, landmark.y) for landmark in hand_landmark])
                 mean_hand_landmark = np.mean(np_hand_landmark, axis=0)

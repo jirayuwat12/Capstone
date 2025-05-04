@@ -74,10 +74,3 @@ class Encoder(nn.Module):
             x_all_in_resblock (torch.Tensor): Encoded tensor shape (B, T/l, X)
         """
         return self.encode(x)
-
-
-if __name__ == "__main__":
-    import torchsummary
-
-    model = Encoder()
-    torchsummary.summary(model, (64, 150))

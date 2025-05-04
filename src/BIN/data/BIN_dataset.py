@@ -3,10 +3,11 @@ import os
 import os.path
 import random
 
-import BIN.data.util as util
 import numpy as np
 import torch
 import torch.utils.data as data
+
+import BIN.data.util as util
 
 
 class BINDataset(data.Dataset):

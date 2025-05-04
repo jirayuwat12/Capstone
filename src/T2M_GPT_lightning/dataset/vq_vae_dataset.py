@@ -7,7 +7,7 @@ from tqdm import tqdm
 from capstone_utils.skeleton_utils.skeleton import SUPPORT_DATA_SPECES, Skeleton
 
 
-class ToyDataset(Dataset):
+class VQVAEDataset(Dataset):
     def __init__(
         self,
         data_path: str | None = None,
@@ -73,6 +73,17 @@ class ToyDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx: int) -> torch.Tensor:
+        """
+        This method is used to get the data from the given index.
+        The returned data is cropped to the window size if it is not -1.
+        If the data is normalised, it will be unnormalised into the range [0, 1].
+
+        Args:
+        - idx (int): The index of the data
+
+        Returns:
+        - data (torch.Tensor): The data tensor
+        """
         data = self.data[idx]
         if self.window_size != -1:
             start_index = torch.randint(0, data.shape[0] - self.window_size, (1,)).item()

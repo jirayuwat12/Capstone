@@ -14,7 +14,7 @@ from .landmarker import Landmarker
 
 
 class FaceLandmarker(Landmarker):
-    def __init__(self, face_config: dict):
+    def __init__(self, face_config: dict) -> None:
         self.face_config = face_config
         self.face_base_options = python.BaseOptions(model_asset_path=face_config["face_landmarker_model_path"])
         self.face_options = vision.FaceLandmarkerOptions(

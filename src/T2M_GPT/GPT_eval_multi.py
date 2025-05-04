@@ -3,17 +3,18 @@ import os
 import warnings
 
 import clip
+import numpy as np
+import torch
+from torch.utils.tensorboard import SummaryWriter
+
 import T2M_GPT.models.t2m_trans as trans
 import T2M_GPT.models.vqvae as vqvae
-import numpy as np
 import T2M_GPT.options.option_transformer as option_trans
-import torch
 import T2M_GPT.utils.eval_trans as eval_trans
 import T2M_GPT.utils.utils_model as utils_model
 from T2M_GPT.dataset import dataset_TM_eval
 from T2M_GPT.models.evaluator_wrapper import EvaluatorModelWrapper
 from T2M_GPT.options.get_eval_option import get_opt
-from torch.utils.tensorboard import SummaryWriter
 
 warnings.filterwarnings("ignore")
 

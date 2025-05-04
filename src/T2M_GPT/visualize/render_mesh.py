@@ -3,6 +3,7 @@ import os
 import shutil
 
 from tqdm import tqdm
+
 from T2M_GPT.visualize import vis_utils
 
 if __name__ == "__main__":

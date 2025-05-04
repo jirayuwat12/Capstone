@@ -1,6 +1,7 @@
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 
 def connection_pairs():
@@ -211,8 +212,27 @@ def connection_pairs():
     return connection_pairs_list
 
 
-def create_sign_language_video(file_name, connection_list, joint_number=553, coordinate=3, frame_per_sec_number=24):
+def create_sign_language_video(
+    file_name: str,
+    connection_list: list[tuple[int, int]],
+    joint_number: int = 553,
+    coordinate: int = 3,
+    frame_per_sec_number: int = 24,
+    save_name_format: str = "./#{index}.mp4",
+) -> None:
+    """
+    Create a sign language video from the given file (.skels) and save it as a video file.
+
+    Args:
+        file_name (str): The path to the .skels file containing sign language data.
+        connection_list (list[tuple[int, int]]): A list of tuples representing the connections between joints.
+        joint_number (int): The number of joints in the sign language data. Default is 553.
+        coordinate (int): The number of coordinates per joint. Default is 3 (x, y, z).
+        frame_per_sec_number (int): The number of frames per second for the video. Default is 24.
+    """
     # Read the file with the sign language data
+    if not os.path.exists(file_name):
+        raise FileNotFoundError(f"File {file_name} does not exist.")
     with open(file_name, "r") as f:
         sign_language_data = f.readlines()
     for line in sign_language_data:
@@ -245,11 +265,11 @@ def create_sign_language_video(file_name, connection_list, joint_number=553, coo
         print(f"Frame same amount: {np.sum(is_frame_same_as_previous)}")
 
         # return
-        data_count = len(data)  # 328482
-        frame_count = data_count // (joint_number * coordinate)  # 328482 // (553 * 3) = 198
+        data_count = len(data)
+        frame_count = data_count // (joint_number * coordinate)
 
         # Calculate the duration of the video in seconds
-        video_duration_seconds = frame_count / frame_per_sec_number  # 198 / 24 = 8.25
+        video_duration_seconds = frame_count / frame_per_sec_number
         print(f"Video Duration: {video_duration_seconds:.2f} seconds")
 
         # Create a figure for the animation
@@ -266,18 +286,21 @@ def create_sign_language_video(file_name, connection_list, joint_number=553, coo
         # Initialize a scatter plot object (empty for now)
         scatter = ax.scatter([], [], color="blue", label="Joints", s=10)
 
-        # # Initialize a line object to connect points (empty for now)
-        # line, = ax.plot([], [], color='red', linestyle='-', linewidth=2, label='Connection')
-
         # Initialize a list to store annotations
         annotations = []
 
-        # Define pairs o
         # Create a list of line objects, one for each connection pair
         lines = [ax.plot([], [], color="red", linestyle="-", linewidth=2)[0] for _ in connection_list]
 
         # Function to connect specified joints in the frame
-        def connect_joints(x_coords, y_coords, connection_pairs):
+        def connect_joints(x_coords: list[int], y_coords: list[int], connection_pairs: list[tuple[int, int]]) -> None:
+            """
+            Connect specified joints in the frame using lines.
+            Args:
+                x_coords (list[int]): List of x-coordinates of joints.
+                y_coords (list[int]): List of y-coordinates of joints.
+                connection_pairs (list[tuple[int, int]]): List of tuples representing the connections between joints.
+            """
             for i, (joint1, joint2) in enumerate(connection_pairs):
                 if joint1 < len(x_coords) and joint2 < len(x_coords):
                     # Update the corresponding line for each connection pair
@@ -289,12 +312,17 @@ def create_sign_language_video(file_name, connection_list, joint_number=553, coo
                     lines[i].set_data([], [])  # Hide the line if the points are out of bounds
 
         # Function to update the plot for each frame
-        def update(frame):
+        def update(frame: int) -> tuple:
+            """
+            Update the scatter plot and annotations for the current frame.
+            Args:
+                frame (int): The current frame number.
+            Returns:
+                tuple: The updated scatter plot object.
+            """
             # Calculate the indices for the current frame
             start_idx = frame * joint_number * coordinate
             end_idx = (frame + 1) * joint_number * coordinate
-            # if frame%10==0:
-            #     print(f"this is frame#{frame} : {start_idx}, {end_idx}")
 
             # Extract x and y coordinates for the current frame
             x_coords = data[start_idx:end_idx:coordinate]  # Every 3rd value starting from index 0 (x-coordinates)
@@ -325,10 +353,6 @@ def create_sign_language_video(file_name, connection_list, joint_number=553, coo
             # Connect specified joints with lines
             connect_joints(x_coords, y_coords, connection_list)
 
-            # Save the current frame as an image
-            # plt.savefig(f"/content/drive/MyDrive/Capstone/output_vdo/frame_{frame:04d}.png")  # Save with zero-padded frame number
-            # print(f"Saved frame {frame}")
-
             return (scatter,)
 
         # Create an animation object
@@ -336,23 +360,9 @@ def create_sign_language_video(file_name, connection_list, joint_number=553, coo
 
         # Save the animation as a video (e.g., 'sign_language_video.mp4')
         ani.save(
-            f"./#{idx}.mp4",
+            save_name_format.format(index=idx),
             writer="ffmpeg",
             fps=frame_per_sec_number,
         )
 
-        # Optionally, show the animation
-        # plt.show()
-
         print(f"Video#{idx} saved successfully!")
-
-
-# Example usage
-if __name__ == "__main__":
-    create_sign_language_video(
-        "/content/drive/MyDrive/Capstone/2110488-Capstone-Text2Sign/T2S-GPT/result/DVQVAE_trainer_9/X_re.skels",
-        joint_number=553,
-        coordinate=3,
-        frame_per_sec_number=24,
-        connection_list=connection_pairs(),
-    )

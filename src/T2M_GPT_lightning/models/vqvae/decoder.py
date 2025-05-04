@@ -92,10 +92,3 @@ class Decoder(nn.Module):
                 T/l: Sequence length which is sampled
         """
         return self.decode(x)
-
-
-if __name__ == "__main__":
-    model = Decoder()
-    import torchsummary
-
-    torchsummary.summary(model, (512, 16))

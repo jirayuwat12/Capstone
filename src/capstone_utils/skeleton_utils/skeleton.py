@@ -61,16 +61,15 @@ class Skeleton:
         """
         if data_spec not in SUPPORT_DATA_SPECES:
             raise ValueError(f"data_spec must be one of {SUPPORT_DATA_SPECES}, but got {data_spec}")
+        # TODO: Refactor this to use the range tuple, generalize the code
         if data_spec == "rel_hand":
             # Get the relative angle of the hand
             return torch.cat(
                 [
                     self.flatten_data[
-                        :, REL_ANG_HAND_RANGE_IN_FLATTENED[0].start : REL_ANG_HAND_RANGE_IN_FLATTENED[0].end
-                    ],
-                    self.flatten_data[
-                        :, REL_ANG_HAND_RANGE_IN_FLATTENED[1].start : REL_ANG_HAND_RANGE_IN_FLATTENED[1].end
-                    ],
+                        :,
+                        REL_ANG_HAND_RANGE_IN_FLATTENED[i].start : REL_ANG_HAND_RANGE_IN_FLATTENED[i].end,
+                    ] for i in range(len(REL_ANG_HAND_RANGE_IN_FLATTENED))
                 ],
                 dim=1,
             )

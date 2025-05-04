@@ -10,7 +10,7 @@ from lightning.pytorch.loggers import WandbLogger
 from torch.utils.data import DataLoader
 
 from capstone_utils.dataloader.collate_fn import minibatch_padding_collate_fn
-from T2M_GPT_lightning.dataset.toy_t2m_trans_dataset import ToyDataset
+from T2M_GPT_lightning.dataset.t2m_trans_dataset import T2MGPTDataset
 from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 from T2M_GPT_lightning.models_wrapper.t2m_trans_wrapper import Text2MotionTransformerWrapper
 
@@ -47,7 +47,7 @@ with open(config["vq_vae_model_config_path"], "r") as f:
     vq_vae_config = yaml.safe_load(f)
 vq_vae_model = VQVAEModel.load_from_checkpoint(config["vq_vae_model_path"], **vq_vae_config["model_hyperparameters"])
 if config["is_toy"]:
-    train_dataset = ToyDataset(
+    train_dataset = T2MGPTDataset(
         clip_model=clip_model,
         vq_vae_model=vq_vae_model,
         text_path=config["train_text_path"],
@@ -55,7 +55,7 @@ if config["is_toy"]:
         joint_size=vq_vae_config["joint_size"],
         has_timestamp=vq_vae_config["is_data_has_timestamp"],
     )
-    val_dataset = ToyDataset(
+    val_dataset = T2MGPTDataset(
         clip_model=clip_model,
         vq_vae_model=vq_vae_model,
         text_path=config["val_text_path"],

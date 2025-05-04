@@ -1,8 +1,9 @@
 import os
 
 import numpy as np
-from T2M_GPT.models.rotation2xyz import Rotation2xyz
 from trimesh import Trimesh
+
+from T2M_GPT.models.rotation2xyz import Rotation2xyz
 
 os.environ["PYOPENGL_PLATFORM"] = "osmesa"
 

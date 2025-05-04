@@ -57,10 +57,3 @@ class Resnet1D(nn.Module):
         third_block_out = self.block3(third_block_in)
 
         return third_block_out
-
-
-if __name__ == "__main__":
-    import torchsummary
-
-    model = Resnet1D()
-    torchsummary.summary(model, (256, 64))

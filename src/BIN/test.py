@@ -11,12 +11,13 @@ import time
 import cv2
 import numpy
 import numpy as np
-import BIN.options.options as option
 import torch
+from torch.autograd import Variable
+
+import BIN.options.options as option
 import BIN.utils.AverageMeter as AverageMeter
 import BIN.utils.util as util
 from BIN.models import create_model
-from torch.autograd import Variable
 
 use_default_ssim = 1
 if use_default_ssim == 1:
