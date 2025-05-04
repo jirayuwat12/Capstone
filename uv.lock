@@ -223,10 +223,8 @@ name = "capstone-codebase"
 version = "2024.0.0"
 source = { editable = "." }
 dependencies = [
-    { name = "black", extra = ["jupyter"] },
     { name = "clip" },
     { name = "ipykernel" },
-    { name = "isort" },
     { name = "lightning" },
     { name = "matplotlib" },
     { name = "mediapipe" },
@@ -239,12 +237,16 @@ dependencies = [
     { name = "wandb" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "black", extra = ["jupyter"] },
+    { name = "isort" },
+]
+
 [package.metadata]
 requires-dist = [
-    { name = "black", extras = ["jupyter"], specifier = ">=25.1.0" },
     { name = "clip", git = "https://github.com/openai/CLIP.git" },
     { name = "ipykernel", specifier = ">=6.29.5" },
-    { name = "isort", specifier = ">=6.0.1" },
     { name = "lightning", specifier = "==2.4.0" },
     { name = "matplotlib", specifier = "==3.9.2" },
     { name = "mediapipe" },
@@ -255,6 +257,12 @@ requires-dist = [
     { name = "seaborn", specifier = ">=0.13.2" },
     { name = "tqdm", specifier = "==4.66.5" },
     { name = "wandb", specifier = ">=0.12.10" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "black", extras = ["jupyter"], specifier = ">=25.1.0" },
+    { name = "isort", specifier = ">=6.0.1" },
 ]
 
 [[package]]
