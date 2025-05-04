@@ -1,0 +1,14 @@
+# input_file: "/mnt/disks/general_backup/cropped_output2/train.skels"
+input_files:
+  - /mnt/disks/general_backup/cropped_output2/train.skels
+  # - /mnt/disks/general_backup/extracted_phoenix_full/train/train.skels
+  # - /mnt/disks/general_backup/extracted_phoenix_full/dev/dev.skels
+  # - /mnt/disks/general_backup/extracted_phoenix_full/test/test.skels
+output_files:
+  - /mnt/disks/general_backup/cropped_output2/train_itpl.skels
+  # - /mnt/disks/general_backup/extracted_phoenix_full/train/train_itpl.skels
+  # - /mnt/disks/general_backup/extracted_phoenix_full/dev/dev_itpl.skels
+  # - /mnt/disks/general_backup/extracted_phoenix_full/test/test_itpl.skels
+
+global_max_path: "/mnt/disks/general_backup/cropped_output2/preproces_data_global_max.npy"
+global_min_path: "/mnt/disks/general_backup/cropped_output2/preproces_data_global_min.npy"
