@@ -2,7 +2,6 @@ import torch
 import yaml
 
 from capstone_utils.skeleton_utils.skeleton import (
-    ALL_RANGE_IN_FLATTENED,
     BODY_RANGE_IN_FLATTENED,
     CORE_RANGE_IN_FLATTENED,
     FACE_RANGE_IN_FLATTENED,

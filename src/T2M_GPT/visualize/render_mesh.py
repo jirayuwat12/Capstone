@@ -3,7 +3,7 @@ import os
 import shutil
 
 from tqdm import tqdm
-from visualize import vis_utils
+from T2M_GPT.visualize import vis_utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

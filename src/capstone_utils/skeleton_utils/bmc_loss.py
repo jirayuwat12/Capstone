@@ -1,18 +1,13 @@
 # Copyright (c) Hao Meng. All Rights Reserved.
 
-import logging
-import os
-import time
 
 import torch
-from tqdm import tqdm
 
 
 def normalize(vec):
     eps = 1e-8
     eps = 1e-8
     len = torch.linalg.norm(vec, axis=-1, keepdims=True)
-    return vec / (len + eps)
     return vec / (len + eps)
 
 

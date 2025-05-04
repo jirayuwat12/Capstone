@@ -1,5 +1,3 @@
-import numpy as np
-
 # Map joints Name to SMPL joints idx
 JOINT_MAP = {
     "MidHip": 0,

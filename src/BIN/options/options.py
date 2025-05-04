@@ -7,7 +7,6 @@ import yaml
 from BIN.utils.util import OrderedYaml
 
 Loader, Dumper = OrderedYaml()
-import random
 
 
 def parse(opt_path, is_train=True):

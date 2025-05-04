@@ -1,6 +1,5 @@
 import torch
-import torch.nn.functional as F
-from visualize.joints2smpl.src import config
+from T2M_GPT.visualize.joints2smpl.src import config
 
 
 # Guassian

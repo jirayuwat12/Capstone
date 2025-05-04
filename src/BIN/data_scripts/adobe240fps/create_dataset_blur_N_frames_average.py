@@ -13,7 +13,7 @@ import os
 import os.path
 import random
 import shutil
-from shutil import copy, move, rmtree
+from shutil import move, rmtree
 
 from scipy.misc import imsave
 from scipy.ndimage import imread

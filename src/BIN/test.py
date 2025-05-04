@@ -3,27 +3,20 @@ This script evals the deblur and interpolation results.
 """
 
 import argparse
-import getopt
-import glob
 import logging
 import math
 import os
-import random
-import shutil
-import sys
-import threading
 import time
 
 import cv2
-import data.util as data_util
 import numpy
 import numpy as np
-import options.options as option
+import BIN.options.options as option
 import torch
-import utils.AverageMeter as AverageMeter
-import utils.util as util
-from models import create_model
-from torch.autograd import Variable, gradcheck
+import BIN.utils.AverageMeter as AverageMeter
+import BIN.utils.util as util
+from BIN.models import create_model
+from torch.autograd import Variable
 
 use_default_ssim = 1
 if use_default_ssim == 1:
@@ -35,8 +28,8 @@ if use_default_ssim == 1:
 
     ssim_msg = "skimage.measure.ssim"
 else:
-    from utils.util import calculate_psnr as compare_psnr
-    from utils.util import calculate_ssim as my_compare_ssim
+    from BIN.utils.util import calculate_psnr as compare_psnr
+    from BIN.utils.util import calculate_ssim as my_compare_ssim
 
     ssim_msg = "our ssim"
 

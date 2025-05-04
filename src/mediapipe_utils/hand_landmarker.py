@@ -1,14 +1,8 @@
-import os
-import warnings
 from dataclasses import dataclass
 
 import cv2
-import mediapipe as mp
 import mediapipe.python.solutions.hands as HandLandmark
 import numpy as np
-from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
-from mediapipe.tasks.python.vision import RunningMode
 
 from mediapipe_utils.mediapipe_output_stat import MediapipeOutputStat
 

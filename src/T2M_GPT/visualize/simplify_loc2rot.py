@@ -5,10 +5,10 @@ import h5py
 import numpy as np
 import smplx
 import torch
-import utils.rotation_conversions as geometry
+import T2M_GPT.utils.rotation_conversions as geometry
 from tqdm import tqdm
-from visualize.joints2smpl.src import config
-from visualize.joints2smpl.src.smplify import SMPLify3D
+from T2M_GPT.visualize.joints2smpl.src import config
+from T2M_GPT.visualize.joints2smpl.src.smplify import SMPLify3D
 
 
 class joints2smpl:

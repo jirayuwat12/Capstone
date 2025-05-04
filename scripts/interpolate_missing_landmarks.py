@@ -6,15 +6,10 @@ This scripts read .skels then
 3. write to .skels
 """
 
-import os
-
 import numpy as np
 import torch
 import yaml
 from tqdm import tqdm
-
-from capstone_utils.relative_angle_conversion import position_to_relative_angle
-from capstone_utils.skeleton_utils.progressive_trans_model import HAND_JOINT_TO_PREV_JOINT_INDEX, ROOT_JOINT
 
 CONFIG_PATH = "./configs/interpolate_missing_landmarks.yaml"
 with open(CONFIG_PATH, "r") as config_file:

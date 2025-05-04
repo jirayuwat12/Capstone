@@ -9,7 +9,6 @@ import math
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 def pixel_reshuffle(input, upscale_factor):

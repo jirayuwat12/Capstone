@@ -1,22 +1,18 @@
 import os
 
 import numpy as np
-from models.rotation2xyz import Rotation2xyz
+from T2M_GPT.models.rotation2xyz import Rotation2xyz
 from trimesh import Trimesh
 
 os.environ["PYOPENGL_PLATFORM"] = "osmesa"
 
-import io
-import math
 
 import imageio
-import matplotlib.pyplot as plt
 import pyrender
 import torch
 import trimesh
 
 # import ffmpeg
-from PIL import Image
 from pyrender.constants import RenderFlags
 from shapely import geometry
 from visualize.simplify_loc2rot import joints2smpl

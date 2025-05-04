@@ -3,7 +3,6 @@ import json
 import logging
 import os
 
-import pandas as pd
 import yaml
 from tqdm import tqdm
 

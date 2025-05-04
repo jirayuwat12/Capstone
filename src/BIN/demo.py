@@ -3,24 +3,15 @@ This script evals the deblur and interpolation results.
 """
 
 import argparse
-import getopt
-import glob
-import logging
-import math
 import os
-import random
-import shutil
-import sys
-import threading
 import time
 
 import cv2
 import numpy
 import numpy as np
 import torch
-from torch.autograd import Variable, gradcheck
+from torch.autograd import Variable
 
-import BIN.data.util as data_util
 import BIN.options.options as option
 import BIN.utils.AverageMeter as AverageMeter
 import BIN.utils.util as util

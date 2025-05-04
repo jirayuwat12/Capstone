@@ -1,10 +1,8 @@
-import os
-
 import numpy as np
 import torch
 from model.rotation2xyz import Rotation2xyz
 from trimesh import Trimesh
-from visualize.simplify_loc2rot import joints2smpl
+from T2M_GPT.visualize.simplify_loc2rot import joints2smpl
 
 
 class npy2obj:

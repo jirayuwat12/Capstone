@@ -1,16 +1,9 @@
-import itertools
 import logging
-import math
 from collections import OrderedDict
 
-import numpy
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import torch.nn.init as weight_init
-from torch.nn.parallel import DataParallel, DistributedDataParallel
 
-import BIN.data.util as data_util
 import BIN.models.lr_scheduler as lr_scheduler
 import BIN.models.networks as networks
 import BIN.utils.AverageMeter as AverageMeter

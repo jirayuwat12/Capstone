@@ -2,7 +2,6 @@ import os
 import warnings
 
 import cv2
-import mediapipe as mp
 import mediapipe.python.solutions.pose as PoseLandmark
 import numpy as np
 

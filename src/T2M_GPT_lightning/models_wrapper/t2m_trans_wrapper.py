@@ -1,9 +1,7 @@
 import torch
 import torch.nn as nn
 from lightning.pytorch import LightningModule
-from lightning.pytorch.core.optimizer import LightningOptimizer
 from torch.optim.lr_scheduler import LambdaLR
-from torch.optim.optimizer import Optimizer
 
 from T2M_GPT.models.t2m_trans import Text2Motion_Transformer
 
