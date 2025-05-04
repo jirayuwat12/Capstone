@@ -5,6 +5,7 @@ This scripts read .skels then
     - if no detected hand joints, use previous frame's hand joints
 3. write to .skels
 """
+
 import os
 
 import numpy as np
@@ -93,7 +94,7 @@ if __name__ == "__main__":
                                 break
 
                             next_detected_frame += 1
-                        
+
                         if next_detected_hand_joints is None:
                             # Use previous frame's hand joints to all the rest
                             previous_frame_joint = all_joint[i - 1, :, :].flatten()
@@ -134,7 +135,6 @@ if __name__ == "__main__":
 
                             next_detected_frame += 1
 
-
                         if next_detected_hand_joints is None:
                             # Use previous frame's hand joints to all the rest
                             previous_frame_joint = all_joint[i - 1, :, :].flatten()
@@ -153,7 +153,7 @@ if __name__ == "__main__":
                                     (1 - alpha) * previous_lhand_joints + alpha * next_detected_hand_joints
                                 ).reshape(-1, 3)
                             left_hand_filled += next_detected_frame - i
-        
+
                     # Re-compute original_lhand_joints
                     _, normed_lhand_joints = convert_flatten_skeleton_to_unnormed_hand(
                         all_joint[i, :, :].flatten(), lhand_global_min, lhand_global_max, is_left_hand=True

@@ -31,7 +31,7 @@ def compute_fid(config_folder: str):
         if "train_data_path" not in train_config and "train_data_tensor_path" not in train_config:
             print(f"Skipping {config_file} as it does not contain train_data_path or train_data_tensor_path")
             continue
-    
+
         # Check if the model save path exists
         if not os.path.exists(train_config["save_weight_path"]):
             print(f"Model save path {train_config['save_weight_path']} does not exist")
@@ -75,14 +75,20 @@ def compute_fid(config_folder: str):
         # for i in range(len(train_dataset)):
         for i in tqdm(range(len(train_dataset)), desc="Computing train predictions", unit="sample", leave=False):
             train_pred.append(model(train_dataset[i].unsqueeze(0).float().to(model.device))[0][0].detach().cpu())
-            train_all.append(train_dataset[i].reshape(-1, train_config["model_hyperparameters"]["skels_dim"])[: train_pred[-1].shape[0]])
+            train_all.append(
+                train_dataset[i].reshape(-1, train_config["model_hyperparameters"]["skels_dim"])[
+                    : train_pred[-1].shape[0]
+                ]
+            )
         train_all = torch.concatenate(train_all, dim=0).to(device="cpu")
         train_pred = torch.concatenate(train_pred, axis=0).to(device="cpu")
         val_pred = []
         # for i in range(len(val_dataset)):
         for i in tqdm(range(len(val_dataset)), desc="Computing val predictions", unit="sample", leave=False):
             val_pred.append(model(val_dataset[i].unsqueeze(0).float().to(model.device))[0][0].detach().cpu())
-            val_all.append(val_dataset[i].reshape(-1, train_config["model_hyperparameters"]["skels_dim"])[: val_pred[-1].shape[0]])
+            val_all.append(
+                val_dataset[i].reshape(-1, train_config["model_hyperparameters"]["skels_dim"])[: val_pred[-1].shape[0]]
+            )
         val_all = torch.concatenate(val_all, dim=0).to(device="cpu")
         val_pred = torch.concatenate(val_pred, axis=0).to(device="cpu")
 
