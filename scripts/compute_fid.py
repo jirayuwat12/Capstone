@@ -37,6 +37,12 @@ def compute_fid(config_folder: str):
             print(f"Model save path {train_config['save_weight_path']} does not exist")
             continue
 
+        # Check if already computed
+        fid_path = train_config["save_weight_path"].replace(".pth", "_fid.txt")
+        if os.path.exists(fid_path):
+            print(f"FID already computed for {train_config['save_weight_path']}")
+            continue
+
         # Load train/val datasets
         train_dataset = VQVAE_Dataset(
             data_path=train_config["train_data_path"] if "train_data_path" in train_config else None,
@@ -94,7 +100,6 @@ def compute_fid(config_folder: str):
         )
         looper.set_postfix_str(f"Train FID: {train_fid:.4f}, Val FID: {val_fid:.4f}")
         # Save FID
-        fid_path = train_config["save_weight_path"].replace(".pth", "_fid.txt")
         with open(fid_path, "w") as fid_file:
             fid_file.write(f"train_fid: {train_fid:.4f}\n val_fid: {val_fid:.4f}\n")
 
