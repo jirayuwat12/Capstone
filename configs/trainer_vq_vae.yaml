@@ -4,11 +4,11 @@ joint_size: 1659
 window_size: -1
 
 # Wandb parameters
-wandb_api_key: 
+wandb_api_key: 648f0ebca50c7021eefe306ab62fcbf0029574da
 
 # Training parameters
 batch_size: 1
-max_epochs: 200
+max_epochs: 4000
 save_every_n_epochs: 10
 model_hyperparameters:
   learning_rate_scheduler: 'static'
@@ -25,14 +25,15 @@ model_hyperparameters:
   ratio_for_hand: 0.9
 
 # Paths
-train_data_path: '/Users/jirayuwat/Desktop/Capstone/data/extracted_phoenix/train/train.skels'
+train_data_path: '/home/cpgang/data/extracted_phoenix_full/train/train.skels'
 # train_data_tensor_path: ''
-val_data_path: '/Users/jirayuwat/Desktop/Capstone/data/extracted_phoenix/dev/dev.skels'
+val_data_path: '/home/cpgang/data/extracted_phoenix_full/train/train.skels'
 # val_data_tensor_path: ''
 is_data_has_timestamp: False
-save_weight_path: '/Users/jirayuwat/Desktop/Capstone/vq_vae_model.pth'
-log_folder_name: 'vq_vae_test_lanta'
-resume_weight_path: ''
+save_weight_path: '/home/cpgang/PP/trained_model_ckpt/vq_vae_model_cont2.pth'
+log_folder_name: 'vqvae_train_gcp_test_cont2'
+wandb_save_dir: '/mnt/disks/general_backup/wandb_log'
+resume_weight_path: '/home/cpgang/PP/trained_model_ckpt/vq_vae_model_cont.pth'
 pretrained_weight_path: ''
 
 # Is data normalized before training

@@ -1,0 +1,53 @@
+############# Note #############
+# Batch size reduced to 64 from 256 (due to our small thai dataset)
+# Due to the step for each epoch getting smaller (28 -> 3 which is x9.3)
+#   - Train more x9.3 -> (10,000 -> 93,000)
+#   - Learning drop slower -> (drop on 6,666 -> 62,000)
+# Make codebook reset only work when minibatch_count_to_reset is 256 (as same as the paper)
+#   - Currently, reset every minibatch
+# Use pretrained model from phoenix 14t dataset
+################################
+# Data parameters
+joint_size: 126
+# Window size -1 means that the whole sequence is used
+window_size: -1
+
+# Wandb parameters
+wandb_api_key: 648f0ebca50c7021eefe306ab62fcbf0029574da
+
+# Training parameters
+batch_size: 256
+max_epochs: 10000
+save_every_n_epochs: 5
+model_hyperparameters:
+  learning_rate_scheduler: 'lambda'
+  learning_rate:
+    - [0, 6666, 0.0002]
+    - [6667, 9999999, 0.00001]
+  betas:
+    - 0.9
+    - 0.99
+  L: 2
+  codebook_size: 2048
+  quantizer_decay: 0.99
+  skels_dim: 126
+  embedding_dim: 512
+  is_focus_hand_mode: False
+  ratio_for_hand: 0.9
+  activation_type: 'tanh'
+data_spec: "all"
+
+# Paths
+# train_data_path: '/home/cpgang/PP/extracted_phoenix_full/train_rel_angle.skels'
+train_data_tensor_path: '/home/cpgang/PP/extracted_phoenix_full/train_rel_angle.skels.tensor'
+# val_data_path: '/home/cpgang/PP/extracted_phoenix_full/dev_rel_angle.skels'
+val_data_tensor_path: '/home/cpgang/PP/extracted_phoenix_full/dev_rel_angle.skels.tensor'
+is_data_has_timestamp: False
+save_weight_path: '/home/cpgang/PP/trained_model_ckpt/vq_vae_reln_hand_vcb.pth'
+log_folder_name: 'vq_vae_reln_hand_vcb'
+wandb_save_dir: '/home/cpgang/PP/wandb_log'
+resume_weight_path: ''
+pretrained_weight_path: ''
+
+# Is data normalized before training
+normalize_data: False

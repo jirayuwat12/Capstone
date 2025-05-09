@@ -1,0 +1,45 @@
+# Data parameters
+joint_size: 1659
+# Window size -1 means that the whole sequence is used
+window_size: -1
+
+# Wandb parameters
+wandb_api_key: 648f0ebca50c7021eefe306ab62fcbf0029574da
+
+# Training parameters
+batch_size: 64
+max_epochs: 93000
+save_every_n_epochs: 100
+model_hyperparameters:
+  learning_rate_scheduler: 'lambda'
+  learning_rate:
+    - [0, 62000, 0.0002]
+    - [62001, 9999999, 0.00001]
+  betas:
+    - 0.9
+    - 0.99
+  L: 3
+  codebook_size: 512
+  quantizer_decay: 0.99
+  skels_dim: 126
+  embedding_dim: 1024
+  is_focus_hand_mode: False
+  ratio_for_hand: 0.9
+  activation_type: 'tanh'
+  minibatch_count_to_reset: 256 # As like the original paper
+data_spec: "hand"
+
+# Paths
+train_data_path: '/home/cpgang/PP/cropped_output2/train_itpl.skels'
+# train_data_tensor_path: '/home/cpgang/PP/extracted_phoenix_full/train.skels.tensor'
+val_data_path: '/home/cpgang/PP/cropped_output2/train_itpl.skels'
+# val_data_tensor_path: '/home/cpgang/PP/extracted_phoenix_full/dev.skels.tensor'
+is_data_has_timestamp: False
+save_weight_path: '/home/cpgang/PP/trained_model_ckpt/best_vq_vae_posi2_hand_finetune.pth'
+log_folder_name: 'best_vq_vae_posi2_hand_finetune'
+wandb_save_dir: '/home/cpgang/PP/wandb_log'
+resume_weight_path: ''
+pretrained_weight_path: '/home/cpgang/PP/trained_model_ckpt/best_vq_vae_posi2_hand.pth'
+
+# Is data normalized before training
+normalize_data: False

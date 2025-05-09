@@ -1,9 +1,9 @@
 # VQ VAE model
-vq_vae_model_path: '/Users/jirayuwat/Desktop/Capstone/vq_vae_model.pth'
-vq_vae_model_config_path: '/Users/jirayuwat/Desktop/Capstone/configs/trainer_vq_vae.yaml'
+vq_vae_model_path: '/home/cpgang/PP/trained_model_ckpt/vq_vae_model.pth'
+vq_vae_model_config_path: '/home/cpgang/PP/Capstone/configs/trainer_vq_vae.original_paper.yaml'
 
 # Wandb parameters
-wandb_api_key: 
+wandb_api_key: 648f0ebca50c7021eefe306ab62fcbf0029574da
 
 # Gpt model
 model_hyperparameters:
@@ -22,14 +22,14 @@ is_toy: True
 batch_size: 128
 max_epochs: 10000
 # Path to save the weights
-save_weights_path: '/Users/jirayuwat/Desktop/Capstone/t2m_trans.pth'
+save_weights_path: '/home/cpgang/PP/trained_model_ckpt/t2m_trans.pth'
 
 # Path to the train text and skels files
-train_text_path: '/Users/jirayuwat/Desktop/Capstone/data/extracted_phoenix/train/train.txt'
-train_skels_path: '/Users/jirayuwat/Desktop/Capstone/data/extracted_phoenix/train/train.skels'
+train_text_path: '/home/cpgang/data/extracted_phoenix/train/train.txt'
+train_skels_path: '/home/cpgang/data/extracted_phoenix/train/train.skels'
 # Path to the val text and skels files
-val_text_path: '/Users/jirayuwat/Desktop/Capstone/data/extracted_phoenix/dev/dev.txt'
-val_skels_path: '/Users/jirayuwat/Desktop/Capstone/data/extracted_phoenix/dev/dev.skels'
+val_text_path: '/home/cpgang/data/extracted_phoenix/dev/dev.txt'
+val_skels_path: '/home/cpgang/data/extracted_phoenix/dev/dev.skels'
 
 log_folder_name: 't2m_trans_lanta'
 
