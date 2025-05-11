@@ -15,7 +15,8 @@ JOINT_SIZE = 1659
 ALL_RANGE_IN_FLATTENED = list_range_tuple(start=0, end=1659)
 FACE_RANGE_IN_FLATTENED = list_range_tuple(start=0, end=1434)
 BODY_RANGE_IN_FLATTENED = list_range_tuple(start=1434, end=1659)
-HAND_RANGE_IN_FLATTENED = list_range_tuple(start=1434, end=1560)
+HAND_RANGE = list_range_tuple(start=478, end=521)
+HAND_RANGE_IN_FLATTENED = list_range_tuple(start=HAND_RANGE.start * 3, end=HAND_RANGE.end * 3)
 CORE_RANGE_IN_FLATTENED = list_range_tuple(start=1560, end=1659)
 REL_ANG_HAND_RANGE_IN_FLATTENED = [
     list_range_tuple(start=63 * 2, end=63 * 3),  # right hand

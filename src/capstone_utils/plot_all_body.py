@@ -1,7 +1,10 @@
+import os
+
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
-import os
+
+from capstone_utils.skeleton_utils.skeleton import HAND_RANGE
 
 
 def connection_pairs():
@@ -219,6 +222,7 @@ def create_sign_language_video(
     coordinate: int = 3,
     frame_per_sec_number: int = 24,
     save_name_format: str = "./#{index}.mp4",
+    is_show_only_hand: bool = False,
 ) -> None:
     """
     Create a sign language video from the given file (.skels) and save it as a video file.
@@ -229,6 +233,7 @@ def create_sign_language_video(
         joint_number (int): The number of joints in the sign language data. Default is 553.
         coordinate (int): The number of coordinates per joint. Default is 3 (x, y, z).
         frame_per_sec_number (int): The number of frames per second for the video. Default is 24.
+        is_show_only_hand (bool): If True, only show hand joints in the video. Default is False.
     """
     # Read the file with the sign language data
     if not os.path.exists(file_name):
@@ -302,6 +307,11 @@ def create_sign_language_video(
                 connection_pairs (list[tuple[int, int]]): List of tuples representing the connections between joints.
             """
             for i, (joint1, joint2) in enumerate(connection_pairs):
+                if (
+                    not (HAND_RANGE.start <= joint1 < HAND_RANGE.end and HAND_RANGE.start <= joint2 < HAND_RANGE.end)
+                    and is_show_only_hand
+                ):
+                    continue
                 if joint1 < len(x_coords) and joint2 < len(x_coords):
                     # Update the corresponding line for each connection pair
                     lines[i].set_data(
@@ -330,9 +340,6 @@ def create_sign_language_video(
                 start_idx + 1 : end_idx : coordinate
             ]  # Every 3rd value starting from index 1 (y-coordinates)
 
-            # Update the scatter plot
-            scatter.set_offsets(np.c_[x_coords, y_coords])
-
             # Clear previous annotations
             for ann in annotations:
                 ann.remove()
@@ -340,6 +347,8 @@ def create_sign_language_video(
 
             # Add new annotations for each point (with larger font size)
             for i, (x, y) in enumerate(zip(x_coords, y_coords)):
+                if not (HAND_RANGE.start <= i < HAND_RANGE.end) and is_show_only_hand:
+                    continue
                 ann = ax.annotate(
                     str(i % 553),
                     (x, y),
@@ -352,6 +361,9 @@ def create_sign_language_video(
 
             # Connect specified joints with lines
             connect_joints(x_coords, y_coords, connection_list)
+
+            # Update the scatter plot
+            scatter.set_offsets(np.c_[x_coords, y_coords])
 
             return (scatter,)
 
