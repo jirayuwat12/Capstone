@@ -1,0 +1,42 @@
+# Data parameters
+joint_size: 1659
+# Window size -1 means that the whole sequence is used
+window_size: -1
+
+# Wandb parameters
+wandb_api_key: 
+
+# Training parameters
+batch_size: 1
+max_epochs: 100
+save_every_n_epochs: 50
+model_hyperparameters:
+  learning_rate_scheduler: 'lambda'
+  learning_rate:
+    - [0, 6666, 0.0002]
+    - [6667, 9999999, 0.00001]
+  betas:
+    - 0.9
+    - 0.99
+  L: 2
+  codebook_size: 512
+  quantizer_decay: 0.99
+  skels_dim: 1659
+  embedding_dim: 512
+  is_focus_hand_mode: False
+  ratio_for_hand: 0.9
+
+# Paths
+train_data_path: '/Users/jirayuwat/Desktop/Capstone/data/extracted_phoenix/train/train.skels'
+# train_data_tensor_path: ''
+val_data_path: '/Users/jirayuwat/Desktop/Capstone/data/extracted_phoenix/dev/dev.skels'
+# val_data_tensor_path: ''
+is_data_has_timestamp: False
+save_weight_path: '/Users/jirayuwat/Desktop/Capstone/vq_vae_model.pth'
+log_folder_name: 'vq_vae_test_lambda'
+resume_weight_path: ''
+wandb_save_dir: '/Users/jirayuwat/Desktop/Capstone/wandb'
+pretrained_weight_path: ''
+
+# Is data normalized before training
+normalize_data: True

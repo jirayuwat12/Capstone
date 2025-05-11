@@ -4,7 +4,7 @@ joint_size: 126
 window_size: -1
 
 # Wandb parameters
-wandb_api_key: 648f0ebca50c7021eefe306ab62fcbf0029574da
+wandb_api_key: <insert your key here>
 
 # Training parameters
 batch_size: 256

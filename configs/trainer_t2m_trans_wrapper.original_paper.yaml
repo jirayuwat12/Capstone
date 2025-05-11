@@ -3,7 +3,7 @@ vq_vae_model_path: '/home/cpgang/PP/trained_model_ckpt/vq_vae_model.pth'
 vq_vae_model_config_path: '/home/cpgang/PP/Capstone/configs/trainer_vq_vae.original_paper.yaml'
 
 # Wandb parameters
-wandb_api_key: 648f0ebca50c7021eefe306ab62fcbf0029574da
+wandb_api_key: <insert your key here>
 
 # Gpt model
 model_hyperparameters:
