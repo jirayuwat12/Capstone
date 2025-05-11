@@ -31,6 +31,10 @@ RANGE_BY_DATA_SPEC = {
     "rel_hand": REL_ANG_HAND_RANGE_IN_FLATTENED,
 }
 
+NOSE_JOINT_INDEX = 520
+LEFT_SHOULDER_JOINT_INDEX = 531
+RIGHT_SHOULDER_JOINT_INDEX = 532
+
 SUPPORT_DATA_SPECES = list(RANGE_BY_DATA_SPEC.keys())
 
 
@@ -69,7 +73,8 @@ class Skeleton:
                     self.flatten_data[
                         :,
                         REL_ANG_HAND_RANGE_IN_FLATTENED[i].start : REL_ANG_HAND_RANGE_IN_FLATTENED[i].end,
-                    ] for i in range(len(REL_ANG_HAND_RANGE_IN_FLATTENED))
+                    ]
+                    for i in range(len(REL_ANG_HAND_RANGE_IN_FLATTENED))
                 ],
                 dim=1,
             )
