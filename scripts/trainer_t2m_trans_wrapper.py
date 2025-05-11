@@ -20,12 +20,10 @@ warnings.filterwarnings("ignore")
 lightning.seed_everything(42)
 
 # Load the configuration
-DEFAULT_CONFIG_PATH = "./configs/trainer_t2m_trans_wrapper.yaml"
 parser = argparse.ArgumentParser()
-parser.add_argument("--config_path", type=str, default=DEFAULT_CONFIG_PATH)
+parser.add_argument("--config_path", type=str, default="./configs/trainer_t2m_trans_wrapper.yaml")
 args = parser.parse_args()
-CONFIG_PATH = args.config_path
-with open(CONFIG_PATH, "r") as f:
+with open(args.config_path, "r") as f:
     config = yaml.safe_load(f)
 
 # Login to wandb
@@ -68,10 +66,18 @@ else:
 
 # Initialize the dataloaders
 train_loader = DataLoader(
-    train_dataset, batch_size=config["batch_size"], shuffle=True, collate_fn=minibatch_padding_collate_fn
+    train_dataset,
+    batch_size=config["batch_size"],
+    shuffle=True,
+    collate_fn=minibatch_padding_collate_fn,
+    pin_memory=True,
 )
 val_loader = DataLoader(
-    val_dataset, batch_size=config["batch_size"], shuffle=False, collate_fn=minibatch_padding_collate_fn
+    val_dataset,
+    batch_size=config["batch_size"],
+    shuffle=False,
+    collate_fn=minibatch_padding_collate_fn,
+    pin_memory=True,
 )
 
 # Initialize the logger

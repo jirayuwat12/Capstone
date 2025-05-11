@@ -5,13 +5,13 @@ from collections import defaultdict
 import numpy as np
 from tqdm import tqdm
 
+from capstone_utils.skeleton_utils.skeleton import LEFT_SHOULDER_JOINT_INDEX as LEFT_SHOULDER_JOINT
+from capstone_utils.skeleton_utils.skeleton import NOSE_JOINT_INDEX as NOSE_JOINT
+from capstone_utils.skeleton_utils.skeleton import RIGHT_SHOULDER_JOINT_INDEX as RIGHT_SHOULDER_JOINT
+
 
 def normalized_data(input_skeleton, reference_skeleton):
     # Normalization to reference_skeleton
-    NOSE_JOINT = 520
-    LEFT_SHOULDER_JOINT = 531
-    RIGHT_SHOULDER_JOINT = 532
-
     scaled_skeleton = input_skeleton.copy()
     difference_distance = reference_skeleton[0, NOSE_JOINT, :] - input_skeleton[0, NOSE_JOINT, :]
     scaled_factor = np.linalg.norm(

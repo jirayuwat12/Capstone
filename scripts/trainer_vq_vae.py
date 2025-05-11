@@ -17,12 +17,10 @@ from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 lightning.seed_everything(42)
 
 # Load the configuration
-DEFAULT_CONFIG_PATH = "./configs/trainer_vq_vae.yaml"
 parser = argparse.ArgumentParser()
-parser.add_argument("--config_path", type=str, default=DEFAULT_CONFIG_PATH)
+parser.add_argument("--config_path", type=str, default="./configs/trainer_vq_vae.yaml")
 args = parser.parse_args()
-CONFIG_PATH = args.config_path
-with open(CONFIG_PATH, "r") as config_file:
+with open(args.config_path, "r") as config_file:
     config = yaml.safe_load(config_file)
 
 # Login to wandb
@@ -87,9 +85,6 @@ wandb_logger = WandbLogger(
 checkpoint_callback = ModelCheckpoint(
     dirpath=os.path.join(wandb_logger.experiment.dir, "checkpoints"),
     filename="vqvae-{epoch:02d}-{val_loss:.4f}",
-    # monitor="val_loss",
-    # save_top_k=1,
-    # mode="min",
     every_n_epochs=config["save_every_n_epochs"],
     save_on_train_epoch_end=True,
 )

@@ -40,7 +40,9 @@ def calculate_interval_loss(xmin: torch.Tensor, xmax: torch.Tensor, X: torch.Ten
     return interval_loss / X.shape[1]
 
 
-def calculate_bmc_loss(origin_joints: torch.Tensor, reconstructed_joints: torch.Tensor, batch_size: int = 1) -> torch.Tensor:
+def calculate_bmc_loss(
+    origin_joints: torch.Tensor, reconstructed_joints: torch.Tensor, batch_size: int = 1
+) -> torch.Tensor:
     """
     Calculate the BMC loss between the original and reconstructed joints.
     Args:

@@ -38,13 +38,14 @@ if config["use_bin"]:
     for video_file in looper:
         input_vdo_path = os.path.join(config["scraped_folder"], video_file)
         if input_vdo_path.endswith(".mp4"):
+            bin_config = config["bin_config"]
             deblur_vdo_using_BIN_main(
                 input_vdo_path=input_vdo_path,
                 output_vdo_path=os.path.join(mp4_folder, video_file),
-                model_net_name=config["bin_config"]["model_net_name"],
-                num_interpolation=config["bin_config"]["num_interpolation"],
-                time_step=config["bin_config"]["time_step"],
-                model_option_yaml=config["bin_config"]["model_option_yaml"],
+                model_net_name=bin_config["model_net_name"],
+                num_interpolation=bin_config["num_interpolation"],
+                time_step=bin_config["time_step"],
+                model_option_yaml=bin_config["model_option_yaml"],
             )
 else:
     logging.info("BIN is not used for deblurring the video")
@@ -68,18 +69,19 @@ logging.info("All json files moved successfully")
 
 # Create skeleton files
 logging.info("Creating the skeleton files")
+vdo2skeletons_config = config["vdo_to_skeletons_config"]
 convert_vdo_to_skeleton_main(
-    face_model_config=config["vdo_to_skeletons_config"]["face_model"],
-    hand_model_config=config["vdo_to_skeletons_config"]["hand_model"],
-    pose_model_config=config["vdo_to_skeletons_config"]["pose_model"],
+    face_model_config=vdo2skeletons_config["face_model"],
+    hand_model_config=vdo2skeletons_config["hand_model"],
+    pose_model_config=vdo2skeletons_config["pose_model"],
     output_folder=config["target_folder"],
-    landmarks_format=config["vdo_to_skeletons_config"]["landmarks_format"],
-    save_format=config["vdo_to_skeletons_config"]["save_format"],
-    is_return_landmarked_vdo=config["vdo_to_skeletons_config"]["is_return_landmarked_vdo"],
-    max_distance_between_predicted_hand_and_approximated_hand=config["vdo_to_skeletons_config"][
+    landmarks_format=vdo2skeletons_config["landmarks_format"],
+    save_format=vdo2skeletons_config["save_format"],
+    is_return_landmarked_vdo=vdo2skeletons_config["is_return_landmarked_vdo"],
+    max_distance_between_predicted_hand_and_approximated_hand=vdo2skeletons_config[
         "max_distance_between_predicted_hand_and_approximated_hand"
     ],
-    save_stats=config["vdo_to_skeletons_config"]["save_stats"],
+    save_stats=vdo2skeletons_config["save_stats"],
     vdo_folder=config["target_folder"],
     yes=True,
 )
