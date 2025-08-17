@@ -1,0 +1,17 @@
+output_file_path: ./output/eval_models.txt
+
+experiment_set:
+  - experiment_name: "Experiment 1"
+    models_path:
+      # - face_model: "./models/experiment_1/face_model.ckpt"
+      # - body_model: "./models/experiment_1/body_model.ckpt"
+      - hand_model: "E:\\Capstone\\backup_gcp\\best_vq_vae_posi2_hand_finetune.pth"
+      # - all_model: "./models/experiment_1/all_model.ckpt"
+    dataset_config:
+      data_path: "E:\\Capstone\\backup_gcp\\cropped_output2\\train_itpl.skels"
+      # data_tensor_path: "E:\\Capstone\\backup_gcp\\extracted_phoenix_full\\dev.skels.tensor"
+      joint_size: 21
+      window_size: 30
+      normalize_data: true
+      is_data_has_timestamp: false
+      data_spec: "all"
