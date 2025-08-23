@@ -6,6 +6,12 @@ import torch
 import yaml
 from tqdm import tqdm
 
+from T2M_GPT.models.evaluator_wrapper import EvaluatorModelWrapper
+from T2M_GPT.options.get_eval_option import get_opt
+from T2M_GPT.utils.eval_trans import (
+    calculate_frechet_distance,
+    calculate_activation_statistics,
+)
 from T2M_GPT_lightning.dataset.vq_vae_dataset import VQVAEDataset
 from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 
@@ -51,12 +57,39 @@ class MainModel:
         raise NotImplementedError("Inference is not implemented yet.")
 
 
-def compute_fid(generated_output: VQVAEDataset, reference_dataset: VQVAEDataset) -> float:
+def compute_fid(
+    generated_output: VQVAEDataset,
+    reference_dataset: VQVAEDataset,
+    model_config: dict[str, any],
+) -> float:
     """
     This function computes the FID score from the given reference and generated outputs.
     """
     # TODO: Implement FID computation
-    raise NotImplementedError("FID computation is not implemented yet.")
+    motion_annotation = []
+    motion_pred = []
+    for i in tqdm(range(len(reference_dataset)), desc="Computing val predictions", unit="sample", leave=False):
+        motion_pred.append(
+            generated_output[i].reshape(-1, model_config["model_hyperparameters"]["skels_dim"])
+        )
+        motion_annotation.append(
+            reference_dataset[i].reshape(-1, model_config["model_hyperparameters"]["skels_dim"])[: motion_pred[-1].shape[0]]
+        )
+
+    # TODO: check model config and dataloaders
+    opt_path = None  # check model config
+    wrapper_opt = get_opt(opt_path, torch.device('cuda'))  # check model config
+    eval_wrapper = EvaluatorModelWrapper(wrapper_opt)  # check model config
+    m_length = min(motion_pred.shape[1], reference_dataset.shape[1])  # check dataloaders
+
+    motion_pred_list = eval_wrapper.get_motion_embeddings(motion_pred, m_length)
+    motion_annotation_list = eval_wrapper.get_motion_embeddings(reference_dataset, m_length)
+    motion_annotation_np = torch.cat(motion_annotation_list, dim=0).cpu().numpy()
+    motion_pred_np = torch.cat(motion_pred_list, dim=0).cpu().numpy()
+    gt_mu, gt_cov  = calculate_activation_statistics(motion_annotation_np)
+    mu, cov= calculate_activation_statistics(motion_pred_np)
+    fid = calculate_frechet_distance(gt_mu, gt_cov, mu, cov)
+    return fid
 
 
 def compute_apd(generated_output: VQVAEDataset, reference_dataset: VQVAEDataset) -> float:
@@ -67,7 +100,11 @@ def compute_apd(generated_output: VQVAEDataset, reference_dataset: VQVAEDataset)
     raise NotImplementedError("APD computation is not implemented yet.")
 
 
-def eval_models(models_path: dict[str, str], dataset_config: dict[str, any]) -> dict:
+def eval_models(
+    models_path: dict[str, str],
+    dataset_config: dict[str, any],
+    model_config: dict[str, any],
+) -> dict:
     # Load model
     face_model = (
         VQVAEModel.load_from_checkpoint(models_path["face_model_checkpoint"])
@@ -112,7 +149,7 @@ def eval_models(models_path: dict[str, str], dataset_config: dict[str, any]) -> 
     generated_output = main_model.inference(ref_dataset)
 
     # Compute evaluation metrics
-    fid_score = compute_fid(generated_output, ref_dataset)
+    fid_score = compute_fid(generated_output, ref_dataset, model_config)
     apd_score = compute_apd(generated_output, ref_dataset)
 
     return {
@@ -132,7 +169,9 @@ if __name__ == "__main__":
 
         try:
             eval_output = eval_models(
-                models_path=experiment["models_path"], dataset_config=experiment["dataset_config"]
+                models_path=experiment["models_path"],
+                dataset_config=experiment["dataset_config"],
+                model_config=experiment["model_config"],
             )
             f.write(f"Evaluation Output: {eval_output}\n")
         except Exception as e:
