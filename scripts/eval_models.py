@@ -120,21 +120,22 @@ def compute_fid(
             reference_dataset[i].reshape(-1, model_config["model_hyperparameters"]["skels_dim"])[: motion_pred[-1].shape[0]]
         )
 
-    # TODO: check model config
+    # TODO: model options
     opt_path = ''  # ???? 'checkpoints/t2m/Comp_v6_KLD005/opt.txt'
     opt = get_opt(opt_path, torch.device('cuda'))
     # opt = Namespace()
     # opt_dict = vars(opt)
     # opt_dict['dim_movement_latent'] = None  # ????
     # opt_dict['dim_movement_enc_hidden'] = None  # ????
-    # opt_dict['dim_motion_hidden'] = None  # ????
-    # opt_dict['dim_coemb_hidden'] = None  # ????
     # opt_dict['unit_length'] = None  # ????
     # opt_dict['dataset_name'] = ''  # ????
     # opt_dict['checkpoints_dir'] = ''  # ???? './checkpoints'
     # opt.device = torch.device('cuda')
-    # opt.dim_pose = None  # ????
-    # m_length = None # ???? len(motion)
+    # opt.dim_pose = None  # ???? 263
+    # opt.dim_motion_hidden = None  # ???? 1024
+    # opt.dim_coemb_hidden = None  # ???? 512
+
+    m_length = None # ???? len(motion)
 
     # Motion Prediction
     motion_pred_list = get_motion_embeddings(motion_pred, m_length, opt)
