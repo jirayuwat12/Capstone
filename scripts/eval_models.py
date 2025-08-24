@@ -1,12 +1,17 @@
+from argparse import Namespace
 import os
 from copy import deepcopy
 from pprint import pprint
 
+import numpy as np
 import torch
 import yaml
 from tqdm import tqdm
 
-from T2M_GPT.models.evaluator_wrapper import EvaluatorModelWrapper
+from T2M_GPT.models.modules import (
+    MovementConvEncoder,
+    MotionEncoderBiGRUCo
+)
 from T2M_GPT.options.get_eval_option import get_opt
 from T2M_GPT.utils.eval_trans import (
     calculate_frechet_distance,
@@ -57,6 +62,46 @@ class MainModel:
         raise NotImplementedError("Inference is not implemented yet.")
 
 
+def get_motion_embeddings(motions, m_lens, opt):
+    movement_encoder = MovementConvEncoder(
+        opt.dim_pose-4,
+        opt.dim_movement_enc_hidden,
+        opt.dim_movement_latent
+    )
+    motion_encoder = MotionEncoderBiGRUCo(
+        input_size=opt.dim_movement_latent,
+        hidden_size=opt.dim_motion_hidden,
+        output_size=opt.dim_coemb_hidden,
+        device=opt.device
+    )
+
+    checkpoint = torch.load(
+        opt.checkpoints_dir,  # ???? os.path.join(opt.checkpoints_dir, opt.dataset_name, 'text_mot_match', 'model', 'finest.tar')
+        map_location=opt.device
+    )
+    movement_encoder.load_state_dict(checkpoint['movement_encoder'])
+    motion_encoder.load_state_dict(checkpoint['motion_encoder'])
+
+    motion_encoder.to(opt.device)
+    movement_encoder.to(opt.device)
+
+    motion_encoder.eval()
+    movement_encoder.eval()
+
+    with torch.no_grad():
+        motions = motions.detach().to(opt.device).float()
+
+        align_idx = np.argsort(m_lens.data.tolist())[::-1].copy()
+        motions = motions[align_idx]
+        m_lens = m_lens[align_idx]
+
+        '''Movement Encoding'''
+        movements = movement_encoder(motions[..., :-4]).detach()
+        m_lens = m_lens // opt.unit_length
+        motion_embedding = motion_encoder(movements, m_lens)
+    return motion_embedding
+
+
 def compute_fid(
     generated_output: VQVAEDataset,
     reference_dataset: VQVAEDataset,
@@ -65,7 +110,6 @@ def compute_fid(
     """
     This function computes the FID score from the given reference and generated outputs.
     """
-    # TODO: Implement FID computation
     motion_annotation = []
     motion_pred = []
     for i in tqdm(range(len(reference_dataset)), desc="Computing val predictions", unit="sample", leave=False):
@@ -76,18 +120,32 @@ def compute_fid(
             reference_dataset[i].reshape(-1, model_config["model_hyperparameters"]["skels_dim"])[: motion_pred[-1].shape[0]]
         )
 
-    # TODO: check model config and dataloaders
-    opt_path = None  # check model config
-    wrapper_opt = get_opt(opt_path, torch.device('cuda'))  # check model config
-    eval_wrapper = EvaluatorModelWrapper(wrapper_opt)  # check model config
-    m_length = min(motion_pred.shape[1], reference_dataset.shape[1])  # check dataloaders
+    # TODO: check model config
+    # opt_path = None  # ???? 'checkpoints/kit/Comp_v6_KLD005/opt.txt' if args.dataname == 'kit' else 'checkpoints/t2m/Comp_v6_KLD005/opt.txt'
+    # opt = get_opt(opt_path, torch.device('cuda'))
+    opt = Namespace()
+    opt_dict = vars(opt)
+    opt_dict['dim_movement_latent'] = None  # ????
+    opt_dict['dim_movement_enc_hidden'] = None  # ????
+    opt_dict['dim_motion_hidden'] = None  # ????
+    opt_dict['dim_coemb_hidden'] = None  # ????
+    opt_dict['unit_length'] = None  # ????
+    opt_dict['dataset_name'] = None  # ????
+    opt_dict['checkpoints_dir'] = None  # ???? './checkpoints'
+    opt.device = torch.device('cuda')
+    opt.dim_pose = None  # ????
+    m_length = None # ???? len(motion)
 
-    motion_pred_list = eval_wrapper.get_motion_embeddings(motion_pred, m_length)
-    motion_annotation_list = eval_wrapper.get_motion_embeddings(reference_dataset, m_length)
-    motion_annotation_np = torch.cat(motion_annotation_list, dim=0).cpu().numpy()
+    # Motion Prediction
+    motion_pred_list = get_motion_embeddings(motion_pred, m_length, opt)
     motion_pred_np = torch.cat(motion_pred_list, dim=0).cpu().numpy()
-    gt_mu, gt_cov  = calculate_activation_statistics(motion_annotation_np)
     mu, cov= calculate_activation_statistics(motion_pred_np)
+
+    # Motion Annotation
+    motion_annotation_list = get_motion_embeddings(motion_annotation, m_length, opt)
+    motion_annotation_np = torch.cat(motion_annotation_list, dim=0).cpu().numpy()
+    gt_mu, gt_cov  = calculate_activation_statistics(motion_annotation_np)
+
     fid = calculate_frechet_distance(gt_mu, gt_cov, mu, cov)
     return fid
 
