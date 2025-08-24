@@ -121,20 +121,20 @@ def compute_fid(
         )
 
     # TODO: check model config
-    # opt_path = None  # ???? 'checkpoints/kit/Comp_v6_KLD005/opt.txt' if args.dataname == 'kit' else 'checkpoints/t2m/Comp_v6_KLD005/opt.txt'
-    # opt = get_opt(opt_path, torch.device('cuda'))
-    opt = Namespace()
-    opt_dict = vars(opt)
-    opt_dict['dim_movement_latent'] = None  # ????
-    opt_dict['dim_movement_enc_hidden'] = None  # ????
-    opt_dict['dim_motion_hidden'] = None  # ????
-    opt_dict['dim_coemb_hidden'] = None  # ????
-    opt_dict['unit_length'] = None  # ????
-    opt_dict['dataset_name'] = None  # ????
-    opt_dict['checkpoints_dir'] = None  # ???? './checkpoints'
-    opt.device = torch.device('cuda')
-    opt.dim_pose = None  # ????
-    m_length = None # ???? len(motion)
+    opt_path = ''  # ???? 'checkpoints/t2m/Comp_v6_KLD005/opt.txt'
+    opt = get_opt(opt_path, torch.device('cuda'))
+    # opt = Namespace()
+    # opt_dict = vars(opt)
+    # opt_dict['dim_movement_latent'] = None  # ????
+    # opt_dict['dim_movement_enc_hidden'] = None  # ????
+    # opt_dict['dim_motion_hidden'] = None  # ????
+    # opt_dict['dim_coemb_hidden'] = None  # ????
+    # opt_dict['unit_length'] = None  # ????
+    # opt_dict['dataset_name'] = ''  # ????
+    # opt_dict['checkpoints_dir'] = ''  # ???? './checkpoints'
+    # opt.device = torch.device('cuda')
+    # opt.dim_pose = None  # ????
+    # m_length = None # ???? len(motion)
 
     # Motion Prediction
     motion_pred_list = get_motion_embeddings(motion_pred, m_length, opt)
