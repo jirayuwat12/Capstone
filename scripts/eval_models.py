@@ -135,7 +135,7 @@ def compute_fid(
     # opt.dim_motion_hidden = 1024
     # opt.dim_coemb_hidden = 512
 
-    m_length = None # ???? len(motion)
+    m_length = None # ???? len(n_motion)
 
     # Motion Prediction
     motion_pred_list = get_motion_embeddings(motion_pred, m_length, opt)
