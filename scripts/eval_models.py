@@ -131,6 +131,7 @@ def compute_fid(
     opt_dict['unit_length'] = 4  # 2**args.down_t  # down_t is downsampling rate = 2
     opt_dict['dataset_name'] = 't2m'
     opt_dict['checkpoints_dir'] = './checkpoints'
+
     opt.device = torch.device('cuda')
     opt.dim_pose = 263
     opt.dim_motion_hidden = 1024
