@@ -62,46 +62,6 @@ class MainModel:
         raise NotImplementedError("Inference is not implemented yet.")
 
 
-def get_motion_embeddings(motions, m_lens, opt):
-    movement_encoder = MovementConvEncoder(
-        opt.dim_pose-4,
-        opt.dim_movement_enc_hidden,
-        opt.dim_movement_latent
-    )
-    motion_encoder = MotionEncoderBiGRUCo(
-        input_size=opt.dim_movement_latent,
-        hidden_size=opt.dim_motion_hidden,
-        output_size=opt.dim_coemb_hidden,
-        device=opt.device
-    )
-
-    checkpoint = torch.load(
-        opt.checkpoints_dir,  # ???? os.path.join(opt.checkpoints_dir, opt.dataset_name, 'text_mot_match', 'model', 'finest.tar')
-        map_location=opt.device
-    )
-    movement_encoder.load_state_dict(checkpoint['movement_encoder'])
-    motion_encoder.load_state_dict(checkpoint['motion_encoder'])
-
-    motion_encoder.to(opt.device)
-    movement_encoder.to(opt.device)
-
-    motion_encoder.eval()
-    movement_encoder.eval()
-
-    with torch.no_grad():
-        motions = motions.detach().to(opt.device).float()
-
-        # align_idx = np.argsort(m_lens.data.tolist())[::-1].copy()
-        # motions = motions[align_idx]
-        # m_lens = m_lens[align_idx]
-
-        '''Movement Encoding'''
-        movements = movement_encoder(motions[..., :-4]).detach()
-        m_lens = m_lens // opt.unit_length
-        motion_embedding = motion_encoder(movements, m_lens)
-    return motion_embedding
-
-
 def compute_fid(
     generated_output: VQVAEDataset,
     reference_dataset: VQVAEDataset,
@@ -110,6 +70,45 @@ def compute_fid(
     """
     This function computes the FID score from the given reference and generated outputs.
     """
+    def get_motion_embeddings(motions, m_lens, opt):
+        movement_encoder = MovementConvEncoder(
+            opt.dim_pose-4,
+            opt.dim_movement_enc_hidden,
+            opt.dim_movement_latent
+        )
+        motion_encoder = MotionEncoderBiGRUCo(
+            input_size=opt.dim_movement_latent,
+            hidden_size=opt.dim_motion_hidden,
+            output_size=opt.dim_coemb_hidden,
+            device=opt.device
+        )
+
+        checkpoint = torch.load(
+            opt.checkpoints_dir,  # ???? os.path.join(opt.checkpoints_dir, opt.dataset_name, 'text_mot_match', 'model', 'finest.tar')
+            map_location=opt.device
+        )
+        movement_encoder.load_state_dict(checkpoint['movement_encoder'])
+        motion_encoder.load_state_dict(checkpoint['motion_encoder'])
+
+        motion_encoder.to(opt.device)
+        movement_encoder.to(opt.device)
+
+        motion_encoder.eval()
+        movement_encoder.eval()
+
+        with torch.no_grad():
+            motions = motions.detach().to(opt.device).float()
+
+            # align_idx = np.argsort(m_lens.data.tolist())[::-1].copy()
+            # motions = motions[align_idx]
+            # m_lens = m_lens[align_idx]
+
+            '''Movement Encoding'''
+            movements = movement_encoder(motions[..., :-4]).detach()
+            m_lens = m_lens // opt.unit_length
+            motion_embedding = motion_encoder(movements, m_lens)
+        return motion_embedding
+
     motion_annotation = []
     motion_pred = []
     m_lens = []
