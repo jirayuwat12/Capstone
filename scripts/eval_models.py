@@ -121,7 +121,6 @@ def compute_fid(
         motion_annotation.append(ref_seq)
         m_lens.append(pred_seq.shape[0])
 
-    # TODO: model options
     # opt_path = 'checkpoints/t2m/Comp_v6_KLD005/opt.txt'
     # opt = get_opt(opt_path, torch.device('cuda'))
     opt = Namespace()
