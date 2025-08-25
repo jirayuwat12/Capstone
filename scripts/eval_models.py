@@ -91,9 +91,9 @@ def get_motion_embeddings(motions, m_lens, opt):
     with torch.no_grad():
         motions = motions.detach().to(opt.device).float()
 
-        align_idx = np.argsort(m_lens.data.tolist())[::-1].copy()
-        motions = motions[align_idx]
-        m_lens = m_lens[align_idx]
+        # align_idx = np.argsort(m_lens.data.tolist())[::-1].copy()
+        # motions = motions[align_idx]
+        # m_lens = m_lens[align_idx]
 
         '''Movement Encoding'''
         movements = movement_encoder(motions[..., :-4]).detach()
@@ -112,30 +112,31 @@ def compute_fid(
     """
     motion_annotation = []
     motion_pred = []
+    m_lens = []
     for i in tqdm(range(len(reference_dataset)), desc="Computing val predictions", unit="sample", leave=False):
-        motion_pred.append(
-            generated_output[i].reshape(-1, model_config["model_hyperparameters"]["skels_dim"])
-        )
-        motion_annotation.append(
-            reference_dataset[i].reshape(-1, model_config["model_hyperparameters"]["skels_dim"])[: motion_pred[-1].shape[0]]
-        )
+        pred_seq = generated_output[i].reshape(-1, model_config["model_hyperparameters"]["skels_dim"])
+        ref_seq = reference_dataset[i].reshape(-1, model_config["model_hyperparameters"]["skels_dim"])[: pred_seq.shape[0]]
+    
+        motion_pred.append(pred_seq)
+        motion_annotation.append(ref_seq)
+        m_lens.append(pred_seq.shape[0])
 
     # TODO: model options
-    opt_path = 'checkpoints/t2m/Comp_v6_KLD005/opt.txt'
-    opt = get_opt(opt_path, torch.device('cuda'))
-    # opt = Namespace()
-    # opt_dict = vars(opt)
-    # opt_dict['dim_movement_latent'] = None  # ????
-    # opt_dict['dim_movement_enc_hidden'] = None  # ????
-    # opt_dict['unit_length'] = None  # ???? 2**args.down_t. # down_t(downsampling rate)=2
-    # opt_dict['dataset_name'] = ''  # ???? 't2m'
-    # opt_dict['checkpoints_dir'] = ''  # ???? 'checkpoints'
-    # opt.device = torch.device('cuda')
-    # opt.dim_pose = 263
-    # opt.dim_motion_hidden = 1024
-    # opt.dim_coemb_hidden = 512
+    # opt_path = 'checkpoints/t2m/Comp_v6_KLD005/opt.txt'
+    # opt = get_opt(opt_path, torch.device('cuda'))
+    opt = Namespace()
+    opt_dict = vars(opt)
+    opt_dict['dim_movement_latent'] = 512
+    opt_dict['dim_movement_enc_hidden'] = 512
+    opt_dict['unit_length'] = 4  # 2**args.down_t  # down_t is downsampling rate = 2
+    opt_dict['dataset_name'] = 't2m'
+    opt_dict['checkpoints_dir'] = './checkpoints'
+    opt.device = torch.device('cuda')
+    opt.dim_pose = 263
+    opt.dim_motion_hidden = 1024
+    opt.dim_coemb_hidden = 512
 
-    m_length = None # ???? len(n_motion)
+    m_length = torch.tensor(m_lens, dtype=torch.long, device=opt.device)
 
     # Motion Prediction
     motion_pred_list = get_motion_embeddings(motion_pred, m_length, opt)
