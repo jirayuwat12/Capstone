@@ -110,3 +110,17 @@ class VQVAEDataset(Dataset):
         if self.normalise and not unnorm:
             data = (data - self.min_value) / (self.max_value - self.min_value)
         return data
+
+
+class MockVQVAEDataset(Dataset):
+    def __init__(self, length: int = 100, joint_size: int = 150, frame_size: int = 120) -> None:
+        self.length = length
+        self.joint_size = joint_size
+        self.frame_size = frame_size
+        self.data = [torch.rand(self.frame_size, self.joint_size) for _ in range(self.length)]
+
+    def __len__(self) -> int:
+        return self.length
+
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        return self.data[idx]

@@ -6,7 +6,7 @@ import torch
 import yaml
 from tqdm import tqdm
 
-from T2M_GPT_lightning.dataset.vq_vae_dataset import VQVAEDataset
+from T2M_GPT_lightning.dataset.vq_vae_dataset import MockVQVAEDataset, VQVAEDataset
 from T2M_GPT_lightning.models.vqvae.vqvae import VQVAEModel
 
 CONFIG_PATH = "./configs/eval_models.yaml"
@@ -48,7 +48,18 @@ class MainModel:
         :param reference_dataset: The dataset to perform inference on.
         :return: The dataset containing the generated outputs.
         """
-        raise NotImplementedError("Inference is not implemented yet.")
+        all_results = []
+        if self.all_model is not None:
+            for i in tqdm(range(len(reference_dataset)), desc="Computing val predictions", unit="sample", leave=False):
+                # result = self.all_model(reference_dataset[i].unsqueeze(0).float().to(self.all_model.device))[0][0].detach().cpu()
+                result = (reference_dataset[i].unsqueeze(0).float().to("cpu"))[0][0].detach().cpu()
+                all_results.append(result)
+            all_results = torch.concatenate(all_results, dim=0).to(device="cpu")
+
+        generated_dataset = deepcopy(reference_dataset)
+        generated_dataset.data = all_results
+
+        return generated_dataset
 
 
 def compute_fid(generated_output: VQVAEDataset, reference_dataset: VQVAEDataset) -> float:
@@ -69,25 +80,18 @@ def compute_apd(generated_output: VQVAEDataset, reference_dataset: VQVAEDataset)
 
 def eval_models(models_path: dict[str, str], dataset_config: dict[str, any]) -> dict:
     # Load model
-    face_model = (
-        VQVAEModel.load_from_checkpoint(models_path["face_model_checkpoint"])
-        if "face_model_checkpoint" in models_path
-        else None
-    )
-    body_model = (
-        VQVAEModel.load_from_checkpoint(models_path["body_model_checkpoint"])
-        if "body_model_checkpoint" in models_path
-        else None
-    )
+    print(models_path)
+    face_model = VQVAEModel.load_from_checkpoint(models_path["face_model"]) if "face_model" in models_path else None
+    body_model = VQVAEModel.load_from_checkpoint(models_path["body_model"]) if "body_model" in models_path else None
     hand_model = (
-        VQVAEModel.load_from_checkpoint(models_path["hand_model_checkpoint"])
-        if "hand_model_checkpoint" in models_path
-        else None
+        (VQVAEModel.load_from_checkpoint(models_path["hand_model"]) if "hand_model" in models_path else None)
+        if False
+        else 1
     )
     all_model = (
-        VQVAEModel.load_from_checkpoint(models_path["all_model_checkpoint"])
-        if "all_model_checkpoint" in models_path
-        else None
+        (VQVAEModel.load_from_checkpoint(models_path["all_model"]) if "all_model" in models_path else None)
+        if False
+        else 1
     )
 
     main_model = MainModel(
@@ -98,14 +102,18 @@ def eval_models(models_path: dict[str, str], dataset_config: dict[str, any]) -> 
     )
 
     # Load reference dataset
-    ref_dataset = VQVAEDataset(
-        data_path=dataset_config["data_path"] if "data_path" in dataset_config else None,
-        data_tensor_path=dataset_config["data_tensor_path"] if "data_tensor_path" in dataset_config else None,
-        joint_size=dataset_config["joint_size"],
-        window_size=dataset_config["window_size"],
-        normalise=dataset_config["normalize_data"],
-        is_data_has_timestamp=dataset_config["is_data_has_timestamp"],
-        data_spec=dataset_config["data_spec"] if "data_spec" in dataset_config else "all",
+    ref_dataset = (
+        VQVAEDataset(
+            data_path=dataset_config["data_path"] if "data_path" in dataset_config else None,
+            data_tensor_path=dataset_config["data_tensor_path"] if "data_tensor_path" in dataset_config else None,
+            joint_size=dataset_config["joint_size"],
+            window_size=dataset_config["window_size"],
+            normalise=dataset_config["normalize_data"],
+            is_data_has_timestamp=dataset_config["is_data_has_timestamp"],
+            data_spec=dataset_config["data_spec"] if "data_spec" in dataset_config else "all",
+        )
+        if False
+        else MockVQVAEDataset()
     )
 
     # Generate model's output
