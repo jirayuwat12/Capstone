@@ -15,3 +15,20 @@ experiment_set:
       normalize_data: true
       is_data_has_timestamp: false
       data_spec: "all"
+    model_hyperparameters:
+      learning_rate_scheduler: 'lambda'
+      learning_rate:
+        - [0, 62000, 0.0002]
+        - [62001, 9999999, 0.00001]
+      betas:
+        - 0.9
+        - 0.99
+      L: 3
+      codebook_size: 512
+      quantizer_decay: 0.99
+      skels_dim: 126
+      embedding_dim: 1024
+      is_focus_hand_mode: False
+      ratio_for_hand: 0.9
+      activation_type: 'tanh'
+      minibatch_count_to_reset: 256 # As like the original paper

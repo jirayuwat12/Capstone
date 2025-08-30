@@ -72,7 +72,11 @@ class VQVAEDataset(Dataset):
     def __len__(self) -> int:
         return len(self.data)
 
-    def __getitem__(self, idx: int) -> torch.Tensor:
+    def __getitem__(
+        self,
+        idx: int
+    # ) -> tuple[torch.Tensor, int]:
+    ) -> torch.Tensor:
         """
         This method is used to get the data from the given index.
         The returned data is cropped to the window size if it is not -1.
@@ -83,17 +87,22 @@ class VQVAEDataset(Dataset):
 
         Returns:
         - data (torch.Tensor): The data tensor
+        # - m_length (int): The length of the motion sequence
         """
         data = self.data[idx]
+        # original_length = data.shape[0]
         if self.window_size != -1:
             start_index = torch.randint(0, data.shape[0] - self.window_size, (1,)).item()
             end_index = start_index + self.window_size
             data = data[start_index:end_index]
+            # m_length = self.window_size
+        # else:
+            # m_length = original_length
         if self.normalise:
             data = (data - self.min_value) / (self.max_value - self.min_value)
 
         data = Skeleton(data, joint_size=self.joint_size)
-        return data.get_by_data_spec(self.data_spec)
+        return data.get_by_data_spec(self.data_spec)#, m_length
 
     def get_full_sequences_by_idx(self, idx: int, unnorm: bool = False) -> torch.Tensor:
         """
